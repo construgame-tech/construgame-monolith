@@ -1,10 +1,10 @@
 // Use Case: Atualizar uma organization existente
 
 import {
-  OrganizationEntity,
+  type OrganizationEntity,
   updateOrganizationEntity,
 } from "../entities/organization.entity";
-import { IOrganizationRepository } from "../repositories/organization.repository.interface";
+import type { IOrganizationRepository } from "../repositories/organization.repository.interface";
 
 export interface UpdateOrganizationInput {
   organizationId: string;

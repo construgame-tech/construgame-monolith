@@ -1,9 +1,9 @@
 // Use Case: Listar todas as organizations
 
-import { OrganizationEntity } from "../entities/organization.entity";
-import { IOrganizationRepository } from "../repositories/organization.repository.interface";
+import type { OrganizationEntity } from "../entities/organization.entity";
+import type { IOrganizationRepository } from "../repositories/organization.repository.interface";
 
-export interface ListOrganizationsInput {}
+export type ListOrganizationsInput = {};
 
 export interface ListOrganizationsOutput {
   organizations: OrganizationEntity[];

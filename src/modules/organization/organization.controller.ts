@@ -34,10 +34,13 @@ import type { UpdateOrganizationDto } from "./dto/update-organization.dto";
 @ApiBearerAuth("JWT-auth")
 @Controller("organizations")
 export class OrganizationController {
-  constructor(
-    private readonly organizationRepository: OrganizationRepository,
-  ) {
-    console.log("OrganizationController constructed with repo:", !!this.organizationRepository, "instance:", (this.organizationRepository as any)?.instanceId);
+  constructor(private readonly organizationRepository: OrganizationRepository) {
+    console.log(
+      "OrganizationController constructed with repo:",
+      !!this.organizationRepository,
+      "instance:",
+      (this.organizationRepository as any)?.instanceId,
+    );
   }
 
   @Post()
@@ -46,7 +49,10 @@ export class OrganizationController {
   async create(
     @Body() createOrganizationDto: CreateOrganizationDto,
   ): Promise<OrganizationResponseDto> {
-    console.log("Controller.create called with repo:", !!this.organizationRepository);
+    console.log(
+      "Controller.create called with repo:",
+      !!this.organizationRepository,
+    );
     try {
       const result = await createOrganization(
         createOrganizationDto,

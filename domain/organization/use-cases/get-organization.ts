@@ -1,7 +1,7 @@
 // Use Case: Buscar uma organization por ID
 
-import { OrganizationEntity } from "../entities/organization.entity";
-import { IOrganizationRepository } from "../repositories/organization.repository.interface";
+import type { OrganizationEntity } from "../entities/organization.entity";
+import type { IOrganizationRepository } from "../repositories/organization.repository.interface";
 
 export interface GetOrganizationInput {
   organizationId: string;

@@ -1,6 +1,6 @@
 // Use Case: Deletar uma organization
 
-import { IOrganizationRepository } from "../repositories/organization.repository.interface";
+import type { IOrganizationRepository } from "../repositories/organization.repository.interface";
 
 export interface DeleteOrganizationInput {
   organizationId: string;
