@@ -8,23 +8,12 @@ import { organizations } from "../database/schemas/organization.schema";
 
 @Injectable()
 export class OrganizationRepository implements IOrganizationRepository {
-  private instanceId = Math.random().toString(36).substring(7);
-
   constructor(
     @Inject(DRIZZLE_CONNECTION)
     private readonly db: DrizzleDB,
-  ) {
-    console.log(
-      `OrganizationRepository[${this.instanceId}] constructed with db:`,
-      !!this.db,
-    );
-  }
+  ) {}
 
   async save(organization: OrganizationEntity): Promise<void> {
-    console.log(
-      `OrganizationRepository[${this.instanceId}].save called with db:`,
-      !!this.db,
-    );
     const orgData = {
       id: organization.id,
       ownerId: organization.ownerId,

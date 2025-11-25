@@ -19,6 +19,7 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -27,25 +28,20 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import type { CreateOrganizationDto } from "./dto/create-organization.dto";
 import { OrganizationResponseDto } from "./dto/organization-response.dto";
 import type { UpdateOrganizationDto } from "./dto/update-organization.dto";
 
 @ApiTags("organizations")
 @ApiBearerAuth("JWT-auth")
+@UseGuards(JwtAuthGuard)
 @Controller("organizations")
 export class OrganizationController {
   constructor(
     @Inject(OrganizationRepository)
     private readonly organizationRepository: OrganizationRepository,
-  ) {
-    console.log(
-      "OrganizationController constructed with repo:",
-      !!this.organizationRepository,
-      "instance:",
-      (this.organizationRepository as any)?.instanceId,
-    );
-  }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a new organization" })
@@ -53,10 +49,6 @@ export class OrganizationController {
   async create(
     @Body() createOrganizationDto: CreateOrganizationDto,
   ): Promise<OrganizationResponseDto> {
-    console.log(
-      "Controller.create called with repo:",
-      !!this.organizationRepository,
-    );
     try {
       const result = await createOrganization(
         createOrganizationDto,

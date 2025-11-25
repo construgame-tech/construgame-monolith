@@ -16,32 +16,51 @@ export class GameRepository implements IGameRepository {
   ) {}
 
   async save(game: GameEntity): Promise<void> {
-    const gameData = {
-      id: game.id,
-      organizationId: game.organizationId,
-      projectId: game.projectId,
-      status: game.status,
-      name: game.name,
-      photo: game.photo || null,
-      objective: game.objective || null,
-      updateFrequency: game.updateFrequency || null,
-      managerId: game.managerId || null,
-      responsibles: game.responsibles || null,
-      startDate: game.startDate || null,
-      endDate: game.endDate || null,
-      prizes: game.prizes || null,
-      kpis: game.kpis || null,
-      archived: (game.archived ? 1 : 0) as 0 | 1,
-      gameManagerId: game.gameManagerId || null,
-      sequence: game.sequence,
-      updatedAt: new Date(),
-    };
-
     // Upsert: insert or update if exists
-    await this.db.insert(games).values(gameData).onConflictDoUpdate({
-      target: games.id,
-      set: gameData,
-    });
+    await this.db
+      .insert(games)
+      .values({
+        id: game.id,
+        organizationId: game.organizationId,
+        projectId: game.projectId,
+        status: game.status,
+        name: game.name,
+        photo: game.photo || null,
+        objective: game.objective || null,
+        updateFrequency: game.updateFrequency || null,
+        managerId: game.managerId || null,
+        responsibles: game.responsibles || null,
+        startDate: game.startDate || null,
+        endDate: game.endDate || null,
+        prizes: game.prizes || null,
+        kpis: game.kpis || null,
+        archived: (game.archived ? 1 : 0) as 0 | 1,
+        gameManagerId: game.gameManagerId || null,
+        sequence: game.sequence,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: games.id,
+        set: {
+          organizationId: game.organizationId,
+          projectId: game.projectId,
+          status: game.status,
+          name: game.name,
+          photo: game.photo || null,
+          objective: game.objective || null,
+          updateFrequency: game.updateFrequency || null,
+          managerId: game.managerId || null,
+          responsibles: game.responsibles || null,
+          startDate: game.startDate || null,
+          endDate: game.endDate || null,
+          prizes: game.prizes || null,
+          kpis: game.kpis || null,
+          archived: (game.archived ? 1 : 0) as 0 | 1,
+          gameManagerId: game.gameManagerId || null,
+          sequence: game.sequence,
+          updatedAt: new Date(),
+        },
+      });
   }
 
   async delete(organizationId: string, gameId: string): Promise<void> {

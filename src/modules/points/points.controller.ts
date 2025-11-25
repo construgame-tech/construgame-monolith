@@ -11,8 +11,8 @@ import { ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { PointsService } from "./points.service";
 
 @ApiTags("points")
-@Controller()
 @UseGuards(JwtAuthGuard)
+@Controller()
 export class PointsController {
   constructor(
     @Inject(PointsService)

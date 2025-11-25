@@ -9,7 +9,7 @@ export interface GetGameInput {
 }
 
 export interface GetGameOutput {
-  game: GameEntity;
+  game: GameEntity | null;
 }
 
 export const getGame = async (
@@ -21,10 +21,6 @@ export const getGame = async (
     input.organizationId,
     input.gameId,
   );
-
-  if (!game) {
-    throw new Error(`Game not found: ${input.gameId}`);
-  }
 
   return { game };
 };

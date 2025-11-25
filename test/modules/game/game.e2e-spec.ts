@@ -17,15 +17,18 @@ describe("GameController (e2e)", () => {
   let organizationId: string;
   let projectId: string;
   let userId: string;
+  let token: string;
 
   beforeAll(async () => {
     app = await setupTestApp();
 
     userId = faker.uuid();
+    token = createToken(userId);
 
     // Create real test data in database
     const orgResponse = await postRequest(app, "/api/v1/organizations", {
       body: testData.organization({ ownerId: userId }),
+      token,
     });
     organizationId = orgResponse.body.id;
 
@@ -34,6 +37,7 @@ describe("GameController (e2e)", () => {
       `/api/v1/organizations/${organizationId}/projects`,
       {
         body: testData.project(organizationId),
+        token,
       },
     );
     projectId = projectResponse.body.id;
@@ -100,8 +104,6 @@ describe("GameController (e2e)", () => {
     it("should return 401 when no auth token is provided", async () => {
       // Arrange
       const gameData = {
-        organizationId,
-        projectId,
         name: "Test Game",
       };
 
@@ -230,7 +232,7 @@ describe("GameController (e2e)", () => {
       });
 
       // Assert
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(204);
 
       // Verify game is deleted
       const getResponse = await getRequest(app, `/api/v1/games/${gameId}`, {
@@ -273,7 +275,7 @@ describe("GameController (e2e)", () => {
       );
 
       // Assert
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(201);
 
       // Verify game is archived
       const getResponse = await getRequest(app, `/api/v1/games/${gameId}`, {
@@ -327,10 +329,9 @@ describe("GameController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(200);
-      expect(Array.isArray(response.body.items || response.body)).toBe(true);
-      expect(
-        (response.body.items || response.body).length,
-      ).toBeGreaterThanOrEqual(2);
+      expect(response.body).toHaveProperty("games");
+      expect(Array.isArray(response.body.games)).toBe(true);
+      expect(response.body.games.length).toBeGreaterThanOrEqual(2);
     });
   });
 });

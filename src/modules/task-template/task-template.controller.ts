@@ -17,8 +17,8 @@ import { UpdateTaskTemplateDto } from "./dto/update-task-template.dto";
 import { TaskTemplateService } from "./task-template.service";
 
 @ApiTags("task-templates")
-@Controller("organizations/:organizationId/task-templates")
 @UseGuards(JwtAuthGuard)
+@Controller("organizations/:organizationId/task-templates")
 export class TaskTemplateController {
   constructor(
     @Inject(TaskTemplateService)

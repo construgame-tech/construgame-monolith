@@ -16,6 +16,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -25,6 +26,7 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 // DTOs
 import type { CreateGameDto } from "./dto/create-game.dto";
 import { GameListResponseDto, GameResponseDto } from "./dto/game-response.dto";
@@ -33,6 +35,7 @@ import { GameService } from "./game.service";
 
 @ApiTags("games")
 @ApiBearerAuth("JWT-auth")
+@UseGuards(JwtAuthGuard)
 @Controller("games")
 export class GameController {
   constructor(

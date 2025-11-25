@@ -5,6 +5,7 @@ import {
   KaizenBenefit,
   KaizenEntity,
   KaizenResponsibles,
+  KaizenStatus,
   KaizenTask,
   updateKaizenEntity,
   updateReplicaFromOriginal,
@@ -13,6 +14,7 @@ import { IKaizenRepository } from "../repositories/kaizen.repository.interface";
 
 export interface UpdateKaizenInput {
   kaizenId: string;
+  status?: KaizenStatus;
   gameId?: string;
   leaderId?: string;
   teamId?: string;
@@ -49,6 +51,7 @@ export const updateKaizen = async (
 
   // Atualiza a entidade de domínio
   const updatedKaizen = updateKaizenEntity(currentKaizen, {
+    status: input.status,
     gameId: input.gameId,
     leaderId: input.leaderId,
     teamId: input.teamId,

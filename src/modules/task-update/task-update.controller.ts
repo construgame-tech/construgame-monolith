@@ -19,8 +19,8 @@ import { RejectTaskUpdateDto } from "./dto/reject-task-update.dto";
 import { TaskUpdateService } from "./task-update.service";
 
 @ApiTags("task-updates")
-@Controller()
 @UseGuards(JwtAuthGuard)
+@Controller()
 export class TaskUpdateController {
   constructor(
     @Inject(TaskUpdateService)

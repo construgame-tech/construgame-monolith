@@ -13,8 +13,8 @@ import { ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { ImageService } from "./image.service";
 
 @ApiTags("images")
-@Controller()
 @UseGuards(JwtAuthGuard)
+@Controller()
 export class ImageController {
   constructor(
     @Inject(ImageService)

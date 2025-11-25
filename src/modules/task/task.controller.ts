@@ -19,6 +19,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -28,12 +29,14 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CreateTaskDto } from "./dto/create-task.dto";
 import { TaskResponseDto } from "./dto/task-response.dto";
 import { UpdateTaskDto } from "./dto/update-task.dto";
 
 @ApiTags("tasks")
 @ApiBearerAuth("JWT-auth")
+@UseGuards(JwtAuthGuard)
 @Controller()
 export class TaskController {
   constructor(private readonly taskRepository: TaskRepository) {}

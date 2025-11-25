@@ -86,10 +86,6 @@ export class GameService {
       this.gameRepository,
     );
 
-    if (!result.game) {
-      return null;
-    }
-
     return result.game;
   }
 

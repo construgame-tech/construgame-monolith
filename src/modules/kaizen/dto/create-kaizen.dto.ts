@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
   IsArray,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -82,10 +83,12 @@ class KaizenResponsiblesDto {
 
 export class CreateKaizenDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   gameId: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: true })
+  @IsNotEmpty()
   @IsString()
   name: string;
 

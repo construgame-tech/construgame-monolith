@@ -135,6 +135,7 @@ export const createKaizenEntity = (props: {
 export const updateKaizenEntity = (
   currentKaizen: KaizenEntity,
   updates: {
+    status?: KaizenStatus;
     gameId?: string;
     leaderId?: string;
     teamId?: string;
@@ -159,6 +160,7 @@ export const updateKaizenEntity = (
 
   return {
     ...currentKaizen,
+    status: updates.status ?? currentKaizen.status,
     gameId: updates.gameId ?? currentKaizen.gameId,
     // Se kaizen está DONE, não permite alterar líder/time
     leaderId: isKaizenDone

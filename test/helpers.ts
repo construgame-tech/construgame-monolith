@@ -19,7 +19,7 @@ export interface TestRequest {
  */
 export function createToken(
   userId: string,
-  organizationId: string,
+  organizationId?: string,
   roles: string[] = ["user"],
 ): string {
   return jwt.sign(
@@ -79,17 +79,25 @@ export async function postRequest<T = any>(
   url: string,
   options: TestRequest = {},
 ): Promise<TestResponse<T>> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+  const headers: Record<string, string> = {};
+
+  if (options.body) {
+    headers["Content-Type"] = "application/json";
+  }
 
   if (options.token) {
     headers.Authorization = `Bearer ${options.token}`;
   }
 
+  let finalUrl = url;
+  if (options.query) {
+    const queryString = new URLSearchParams(options.query).toString();
+    finalUrl = `${url}?${queryString}`;
+  }
+
   const response = await app.inject({
     method: "POST",
-    url,
+    url: finalUrl,
     headers,
     payload: options.body,
   });
@@ -119,9 +127,15 @@ export async function putRequest<T = any>(
     headers.Authorization = `Bearer ${options.token}`;
   }
 
+  let finalUrl = url;
+  if (options.query) {
+    const queryString = new URLSearchParams(options.query).toString();
+    finalUrl = `${url}?${queryString}`;
+  }
+
   const response = await app.inject({
     method: "PUT",
-    url,
+    url: finalUrl,
     headers,
     payload: options.body,
   });
@@ -149,9 +163,15 @@ export async function deleteRequest<T = any>(
     headers.Authorization = `Bearer ${options.token}`;
   }
 
+  let finalUrl = url;
+  if (options.query) {
+    const queryString = new URLSearchParams(options.query).toString();
+    finalUrl = `${url}?${queryString}`;
+  }
+
   const response = await app.inject({
     method: "DELETE",
-    url,
+    url: finalUrl,
     headers,
   });
 

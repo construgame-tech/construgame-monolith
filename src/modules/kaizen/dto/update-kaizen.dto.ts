@@ -1,7 +1,9 @@
+import type { KaizenStatus } from "@domain/kaizen";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
   IsArray,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -81,6 +83,14 @@ class KaizenResponsiblesDto {
 }
 
 export class UpdateKaizenDto {
+  @ApiProperty({
+    required: false,
+    enum: ["ACTIVE", "DONE", "APPROVED", "ARCHIVED"],
+  })
+  @IsOptional()
+  @IsEnum(["ACTIVE", "DONE", "APPROVED", "ARCHIVED"])
+  status?: KaizenStatus;
+
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()

@@ -15,8 +15,14 @@ export class MockAuthGuard implements CanActivate {
 
     // Check if Authorization header is present
     const authHeader = request.headers.authorization;
-    if (!authHeader) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       throw new UnauthorizedException("No authorization token provided");
+    }
+
+    // Extract token
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      throw new UnauthorizedException("Invalid authorization token");
     }
 
     // Mock user data - simulate authenticated user
