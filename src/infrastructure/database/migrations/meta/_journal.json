@@ -1,0 +1,13 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1763954600787,
+      "tag": "0000_parallel_callisto",
+      "breakpoints": true
+    }
+  ]
+}
