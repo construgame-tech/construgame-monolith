@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
+  IsNotEmpty,
   IsNumber,
   IsObject,
   IsOptional,
@@ -10,6 +11,7 @@ import {
 
 class CategoryPointsDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsNumber()
   points: number;
 

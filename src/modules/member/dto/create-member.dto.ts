@@ -1,18 +1,27 @@
 import type { MemberRole } from "@domain/member/entities/member.entity";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from "class-validator";
 
 export class CreateMemberDto {
   @ApiProperty({ description: "User ID" })
-  @IsString()
-  userId: string;
+  @IsNotEmpty()
+  @IsUUID()
+  userId!: string;
 
   @ApiProperty({
     description: "Member role",
     enum: ["owner", "admin", "manager", "player", "financial"],
   })
+  @IsNotEmpty()
   @IsEnum(["owner", "admin", "manager", "player", "financial"])
-  role: MemberRole;
+  role!: MemberRole;
 
   @ApiProperty({ description: "Sector ID", required: false })
   @IsOptional()

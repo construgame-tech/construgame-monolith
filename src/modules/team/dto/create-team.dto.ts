@@ -1,8 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsOptional, IsString } from "class-validator";
+import { IsArray, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateTeamDto {
   @ApiProperty({ description: "Team name" })
+  @IsNotEmpty()
   @IsString()
   name: string;
 

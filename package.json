@@ -70,6 +70,7 @@
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.7.0",
     "typescript": "^5.9.3",
+    "unplugin-swc": "^1.5.9",
     "vitest": "^1.6.1"
   },
   "jest": {

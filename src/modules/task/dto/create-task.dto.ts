@@ -3,6 +3,7 @@ import { Type } from "class-transformer";
 import {
   IsArray,
   IsBoolean,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -26,14 +27,17 @@ export class TaskChecklistItemDto {
 
 export class CreateTaskDto {
   @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
+  @IsNotEmpty()
   @IsUUID()
   gameId!: string;
 
   @ApiProperty({ example: "Fix the roof" })
+  @IsNotEmpty()
   @IsString()
   name!: string;
 
   @ApiProperty({ example: 100 })
+  @IsNotEmpty()
   @IsNumber()
   rewardPoints!: number;
 

@@ -15,7 +15,6 @@ import { S3Service } from "../src/infrastructure/services/storage/s3.service";
 import { FinancialPrizeModule } from "../src/modules/financial-prize/financial-prize.module";
 // Import all feature modules
 import { GameModule } from "../src/modules/game/game.module";
-import { ImageModule } from "../src/modules/image/image.module";
 import { JobRoleModule } from "../src/modules/job-role/job-role.module";
 import { KaizenModule } from "../src/modules/kaizen/kaizen.module";
 import { KaizenIdeaModule } from "../src/modules/kaizen-idea/kaizen-idea.module";
@@ -37,6 +36,7 @@ import { TaskUpdateModule } from "../src/modules/task-update/task-update.module"
 import { TeamModule } from "../src/modules/team/team.module";
 import { UserModule } from "../src/modules/user/user.module";
 import { TestAuthModule } from "./mocks/auth.module";
+import { TestImageModule } from "./mocks/image.module";
 
 // Mock services
 const mockEmailService = {
@@ -105,7 +105,7 @@ export class TestAppModule {
         TaskUpdateModule,
         PointsModule,
         FinancialPrizeModule,
-        ImageModule,
+        TestImageModule,
         KpiModule,
       ],
       controllers: [AppController],

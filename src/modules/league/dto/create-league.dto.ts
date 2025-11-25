@@ -3,6 +3,7 @@ import { Type } from "class-transformer";
 import {
   IsArray,
   IsBoolean,
+  IsNotEmpty,
   IsOptional,
   IsString,
   ValidateNested,
@@ -10,16 +11,19 @@ import {
 
 class LeaguePrizeDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   prizeId: string;
 }
 
 export class CreateLeagueDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   responsibleId: string;
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   name: string;
 

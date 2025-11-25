@@ -1,14 +1,16 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsOptional, IsString } from "class-validator";
+import { IsArray, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 class ProjectPrizeDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   prizeId: string;
 }
 
 export class CreateProjectDto {
   @ApiProperty({ description: "Project name" })
+  @IsNotEmpty()
   @IsString()
   name: string;
 

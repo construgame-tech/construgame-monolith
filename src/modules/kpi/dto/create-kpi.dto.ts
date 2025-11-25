@@ -1,12 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateKpiDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   name: string;
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   type: string;
 

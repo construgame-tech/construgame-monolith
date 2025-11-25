@@ -2,6 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
   IsArray,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -10,6 +11,7 @@ import {
 
 class JobRoleVariantDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   id: string;
 
@@ -36,10 +38,12 @@ class JobRoleVariantDto {
 
 export class CreateJobRoleDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   name: string;
 
   @ApiProperty({ type: [JobRoleVariantDto] })
+  @IsNotEmpty()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => JobRoleVariantDto)

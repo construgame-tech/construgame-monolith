@@ -3,6 +3,7 @@ import { Type } from "class-transformer";
 import {
   IsArray,
   IsBoolean,
+  IsNotEmpty,
   IsOptional,
   IsString,
   ValidateNested,
@@ -10,12 +11,14 @@ import {
 
 class KaizenIdeaTaskDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   name: string;
 }
 
 class KaizenIdeaBenefitDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   kpiId: string;
 
@@ -27,21 +30,26 @@ class KaizenIdeaBenefitDto {
 
 class KaizenIdeaAttachmentDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   name: string;
 
   @ApiProperty()
+  @IsNotEmpty()
   size: number;
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   filetype: string;
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   createdAt: string;
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   url: string;
 }

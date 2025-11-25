@@ -7,7 +7,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { IImageStorageRepository } from "@domain/image/repositories/image-storage.repository.interface";
 import { Injectable, Logger } from "@nestjs/common";
-import type { ConfigService } from "@nestjs/config";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class S3ImageStorageRepository implements IImageStorageRepository {

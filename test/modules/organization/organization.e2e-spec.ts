@@ -33,10 +33,6 @@ describe("OrganizationController (e2e)", () => {
       const organizationData = {
         ownerId: userId,
         name: "Construgame Obras",
-        tradeName: "Construgame",
-        cnpj: "12.345.678/0001-90",
-        email: "contato@construgame.com",
-        phone: "+55 11 99999-9999",
       };
 
       // Act
@@ -44,13 +40,6 @@ describe("OrganizationController (e2e)", () => {
         token: authToken,
         body: organizationData,
       });
-
-      console.log(
-        "Response status:",
-        response.statusCode,
-        "Body:",
-        JSON.stringify(response.body),
-      );
 
       // Assert
       expect(response.statusCode).toBe(201);
@@ -81,7 +70,7 @@ describe("OrganizationController (e2e)", () => {
     it("should return 400 when required fields are missing", async () => {
       // Arrange
       const invalidData = {
-        tradeName: "Sem Nome",
+        name: "Sem Owner", // name presente, mas faltando ownerId
       };
 
       // Act
@@ -97,8 +86,8 @@ describe("OrganizationController (e2e)", () => {
     it("should return 401 when no auth token is provided", async () => {
       // Arrange
       const organizationData = {
+        ownerId: userId,
         name: "Test Org",
-        cnpj: "12.345.678/0001-90",
       };
 
       // Act
@@ -117,8 +106,8 @@ describe("OrganizationController (e2e)", () => {
       const createResponse = await postRequest(app, "/api/v1/organizations", {
         token: authToken,
         body: {
+          ownerId: userId,
           name: "Org para Consulta",
-          cnpj: "11.222.333/0001-44",
         },
       });
 
@@ -134,7 +123,6 @@ describe("OrganizationController (e2e)", () => {
       expect(response.body).toMatchObject({
         id: orgId,
         name: "Org para Consulta",
-        cnpj: "11.222.333/0001-44",
       });
     });
 
@@ -161,12 +149,12 @@ describe("OrganizationController (e2e)", () => {
       // Arrange - Create at least 2 organizations
       await postRequest(app, "/api/v1/organizations", {
         token: authToken,
-        body: { name: "Org List 1", cnpj: "11.111.111/0001-11" },
+        body: { ownerId: userId, name: "Org List 1" },
       });
 
       await postRequest(app, "/api/v1/organizations", {
         token: authToken,
-        body: { name: "Org List 2", cnpj: "22.222.222/0001-22" },
+        body: { ownerId: userId, name: "Org List 2" },
       });
 
       // Act
@@ -187,9 +175,8 @@ describe("OrganizationController (e2e)", () => {
       const createResponse = await postRequest(app, "/api/v1/organizations", {
         token: authToken,
         body: {
+          ownerId: userId,
           name: "Org Original",
-          cnpj: "33.333.333/0001-33",
-          email: "original@test.com",
         },
       });
 
@@ -200,16 +187,12 @@ describe("OrganizationController (e2e)", () => {
         token: authToken,
         body: {
           name: "Org Atualizada",
-          email: "atualizada@test.com",
-          phone: "+55 11 98888-8888",
         },
       });
 
       // Assert
       expect(response.statusCode).toBe(200);
       expect(response.body.name).toBe("Org Atualizada");
-      expect(response.body.email).toBe("atualizada@test.com");
-      expect(response.body.phone).toBe("+55 11 98888-8888");
     });
 
     it("should return 404 when updating non-existent organization", async () => {
@@ -237,8 +220,8 @@ describe("OrganizationController (e2e)", () => {
       const createResponse = await postRequest(app, "/api/v1/organizations", {
         token: authToken,
         body: {
+          ownerId: userId,
           name: "Org para Deletar",
-          cnpj: "44.444.444/0001-44",
         },
       });
 
@@ -254,7 +237,7 @@ describe("OrganizationController (e2e)", () => {
       );
 
       // Assert
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(204);
 
       // Verify it was deleted
       const getResponse = await getRequest(
@@ -340,7 +323,7 @@ describe("OrganizationController (e2e)", () => {
         },
       );
 
-      expect(deleteResponse.statusCode).toBe(200);
+      expect(deleteResponse.statusCode).toBe(204);
     });
   });
 });

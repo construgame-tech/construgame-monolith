@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { NestFastifyApplication } from "@nestjs/platform-fastify";
 import jwt from "jsonwebtoken";
+import request from "supertest";
 
 export interface TestResponse<T = any> {
   statusCode: number;
@@ -42,31 +43,21 @@ export async function getRequest<T = any>(
   url: string,
   options: TestRequest = {},
 ): Promise<TestResponse<T>> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+  let req = request(app.getHttpServer()).get(url);
+
+  if (options.query) {
+    req = req.query(options.query);
+  }
 
   if (options.token) {
-    headers.Authorization = `Bearer ${options.token}`;
+    req = req.set("Authorization", `Bearer ${options.token}`);
   }
 
-  let finalUrl = url;
-  if (options.query) {
-    const queryString = new URLSearchParams(options.query).toString();
-    finalUrl = `${url}?${queryString}`;
-  }
-
-  const response = await app.inject({
-    method: "GET",
-    url: finalUrl,
-    headers,
-  });
-
-  const body = response.payload ? JSON.parse(response.payload) : {};
+  const response = await req;
 
   return {
-    statusCode: response.statusCode,
-    body: body.data || body,
+    statusCode: response.status,
+    body: response.body.data || response.body,
     headers: response.headers as Record<string, string>,
   };
 }
@@ -79,34 +70,25 @@ export async function postRequest<T = any>(
   url: string,
   options: TestRequest = {},
 ): Promise<TestResponse<T>> {
-  const headers: Record<string, string> = {};
+  let req = request(app.getHttpServer()).post(url);
 
-  if (options.body) {
-    headers["Content-Type"] = "application/json";
+  if (options.query) {
+    req = req.query(options.query);
   }
 
   if (options.token) {
-    headers.Authorization = `Bearer ${options.token}`;
+    req = req.set("Authorization", `Bearer ${options.token}`);
   }
 
-  let finalUrl = url;
-  if (options.query) {
-    const queryString = new URLSearchParams(options.query).toString();
-    finalUrl = `${url}?${queryString}`;
+  if (options.body) {
+    req = req.send(options.body);
   }
 
-  const response = await app.inject({
-    method: "POST",
-    url: finalUrl,
-    headers,
-    payload: options.body,
-  });
-
-  const body = response.payload ? JSON.parse(response.payload) : {};
+  const response = await req;
 
   return {
-    statusCode: response.statusCode,
-    body: body.data || body,
+    statusCode: response.status,
+    body: response.body.data || response.body,
     headers: response.headers as Record<string, string>,
   };
 }
@@ -119,32 +101,25 @@ export async function putRequest<T = any>(
   url: string,
   options: TestRequest = {},
 ): Promise<TestResponse<T>> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+  let req = request(app.getHttpServer()).put(url);
+
+  if (options.query) {
+    req = req.query(options.query);
+  }
 
   if (options.token) {
-    headers.Authorization = `Bearer ${options.token}`;
+    req = req.set("Authorization", `Bearer ${options.token}`);
   }
 
-  let finalUrl = url;
-  if (options.query) {
-    const queryString = new URLSearchParams(options.query).toString();
-    finalUrl = `${url}?${queryString}`;
+  if (options.body) {
+    req = req.send(options.body);
   }
 
-  const response = await app.inject({
-    method: "PUT",
-    url: finalUrl,
-    headers,
-    payload: options.body,
-  });
-
-  const body = response.payload ? JSON.parse(response.payload) : {};
+  const response = await req;
 
   return {
-    statusCode: response.statusCode,
-    body: body.data || body,
+    statusCode: response.status,
+    body: response.body.data || response.body,
     headers: response.headers as Record<string, string>,
   };
 }
@@ -157,29 +132,21 @@ export async function deleteRequest<T = any>(
   url: string,
   options: TestRequest = {},
 ): Promise<TestResponse<T>> {
-  const headers: Record<string, string> = {};
+  let req = request(app.getHttpServer()).delete(url);
+
+  if (options.query) {
+    req = req.query(options.query);
+  }
 
   if (options.token) {
-    headers.Authorization = `Bearer ${options.token}`;
+    req = req.set("Authorization", `Bearer ${options.token}`);
   }
 
-  let finalUrl = url;
-  if (options.query) {
-    const queryString = new URLSearchParams(options.query).toString();
-    finalUrl = `${url}?${queryString}`;
-  }
-
-  const response = await app.inject({
-    method: "DELETE",
-    url: finalUrl,
-    headers,
-  });
-
-  const body = response.payload?.trim() ? JSON.parse(response.payload) : {};
+  const response = await req;
 
   return {
-    statusCode: response.statusCode,
-    body: body.data || body,
+    statusCode: response.status,
+    body: response.body.data || response.body,
     headers: response.headers as Record<string, string>,
   };
 }

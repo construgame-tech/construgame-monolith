@@ -84,8 +84,7 @@ describe("MemberController (e2e)", () => {
     it("should return 400 when required fields are missing", async () => {
       // Arrange
       const invalidData = {
-        role: "player", // Valid role
-        // Missing userId
+        role: "player", // Valid role, but userId is missing
       };
 
       // Act
@@ -99,6 +98,8 @@ describe("MemberController (e2e)", () => {
       );
 
       // Assert
+      console.log("Status:", response.statusCode);
+      console.log("Body:", JSON.stringify(response.body, null, 2));
       expect(response.statusCode).toBe(400);
     });
 

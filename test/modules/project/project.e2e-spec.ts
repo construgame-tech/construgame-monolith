@@ -388,7 +388,7 @@ describe("ProjectController (e2e)", () => {
         },
       );
 
-      expect(deleteResponse.statusCode).toBe(200);
+      expect(deleteResponse.statusCode).toBe(204);
     });
 
     it("should handle projects with complete address information", async () => {

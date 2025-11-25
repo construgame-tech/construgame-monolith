@@ -107,6 +107,7 @@ export class UserController {
   }
 
   @Post(":id/activate")
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Activate user" })
   @ApiParam({ name: "id", example: "123e4567-e89b-12d3-a456-426614174000" })
   @ApiResponse({ status: 200, type: UserResponseDto })
@@ -126,6 +127,7 @@ export class UserController {
   }
 
   @Post(":id/superuser")
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Make user a superuser" })
   @ApiParam({ name: "id", example: "123e4567-e89b-12d3-a456-426614174000" })
   @ApiResponse({ status: 200, type: UserResponseDto })

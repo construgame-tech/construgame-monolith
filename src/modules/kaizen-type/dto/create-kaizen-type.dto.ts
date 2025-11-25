@@ -1,8 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateKaizenTypeDto {
   @ApiProperty()
+  @IsNotEmpty()
   @IsString()
   name: string;
 
@@ -12,6 +13,7 @@ export class CreateKaizenTypeDto {
   description?: string;
 
   @ApiProperty()
+  @IsNotEmpty()
   @IsNumber()
   points: number;
 

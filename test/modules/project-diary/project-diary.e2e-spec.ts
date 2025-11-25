@@ -113,7 +113,7 @@ describe("ProjectDiaryController (e2e)", () => {
         token: authToken,
         body: {
           date,
-          weather: "SUNNY",
+          weather: { morning: "SUNNY" },
           notes: "Original notes",
         },
       });
@@ -126,7 +126,7 @@ describe("ProjectDiaryController (e2e)", () => {
           token: authToken,
           body: {
             date,
-            weather: "RAINY",
+            weather: { morning: "RAINY" },
             notes: "Updated notes - chuva interrompeu trabalho",
           },
         },
@@ -158,7 +158,7 @@ describe("ProjectDiaryController (e2e)", () => {
     it("should return 400 when date is missing", async () => {
       // Arrange
       const invalidData = {
-        weather: "SUNNY",
+        weather: { morning: "SUNNY" },
         // Missing date
       };
 
@@ -180,7 +180,7 @@ describe("ProjectDiaryController (e2e)", () => {
       // Arrange
       const diaryData = {
         date: "2024-01-18",
-        weather: "SUNNY",
+        weather: { morning: "SUNNY" },
       };
 
       // Act
@@ -204,7 +204,7 @@ describe("ProjectDiaryController (e2e)", () => {
         token: authToken,
         body: {
           date: "2024-01-20",
-          weather: "SUNNY",
+          weather: { morning: "SUNNY" },
           notes: "Entry 1",
         },
       });
@@ -213,7 +213,7 @@ describe("ProjectDiaryController (e2e)", () => {
         token: authToken,
         body: {
           date: "2024-01-21",
-          weather: "CLOUDY",
+          weather: { morning: "CLOUDY" },
           notes: "Entry 2",
         },
       });
@@ -240,7 +240,7 @@ describe("ProjectDiaryController (e2e)", () => {
         token: authToken,
         body: {
           date: targetDate,
-          weather: "RAINY",
+          weather: { morning: "RAINY" },
           notes: "Specific date entry",
         },
       });
@@ -291,8 +291,7 @@ describe("ProjectDiaryController (e2e)", () => {
         token: authToken,
         body: {
           date,
-          weather: "SUNNY",
-          temperature: 25.0,
+          weather: { morning: "SUNNY", afternoon: "SUNNY" },
           notes: "Original notes",
         },
       });
@@ -304,10 +303,8 @@ describe("ProjectDiaryController (e2e)", () => {
         {
           token: authToken,
           body: {
-            weather: "CLOUDY",
-            temperature: 22.0,
+            weather: { morning: "CLOUDY", afternoon: "CLOUDY" },
             notes: "Updated notes with new temperature",
-            workersPresent: 20,
           },
         },
       );
@@ -331,7 +328,7 @@ describe("ProjectDiaryController (e2e)", () => {
         {
           token: authToken,
           body: {
-            weather: "SUNNY",
+            weather: { morning: "SUNNY" },
             notes: "Test",
           },
         },
@@ -350,7 +347,7 @@ describe("ProjectDiaryController (e2e)", () => {
         token: authToken,
         body: {
           date,
-          weather: "SUNNY",
+          weather: { morning: "SUNNY" },
           notes: "To be deleted",
         },
       });
@@ -405,7 +402,7 @@ describe("ProjectDiaryController (e2e)", () => {
         token: authToken,
         body: {
           date: "2024-01-27",
-          weather: "SUNNY",
+          weather: { morning: "SUNNY" },
           equipment: [
             { name: "Betoneira", quantity: 2 },
             { name: "Andaime", quantity: 5 },
@@ -421,7 +418,7 @@ describe("ProjectDiaryController (e2e)", () => {
         token: authToken,
         body: {
           date: "2024-01-28",
-          weather: "CLOUDY",
+          weather: { morning: "CLOUDY" },
           equipment: [
             { name: "Betoneira", quantity: 3 },
             { name: "Guindaste", quantity: 1 },
@@ -487,10 +484,7 @@ describe("ProjectDiaryController (e2e)", () => {
           token: authToken,
           body: {
             date,
-            weather: "SUNNY",
-            temperature: 30.0,
-            workersPresent: 25,
-            workersAbsent: 3,
+            weather: { morning: "SUNNY", afternoon: "SUNNY" },
             equipment: [{ name: "Betoneira", quantity: 2 }],
             manpower: [{ name: "Pedreiro", quantity: 8 }],
             notes: "Início da concretagem",
@@ -507,8 +501,7 @@ describe("ProjectDiaryController (e2e)", () => {
         {
           token: authToken,
           body: {
-            weather: "CLOUDY",
-            temperature: 28.0,
+            weather: { morning: "CLOUDY", afternoon: "RAINY" },
             notes: "Concretagem concluída com sucesso",
           },
         },
@@ -540,7 +533,7 @@ describe("ProjectDiaryController (e2e)", () => {
         },
       );
 
-      expect(deleteResponse.statusCode).toBe(200);
+      expect(deleteResponse.statusCode).toBe(204);
     });
 
     it("should handle weather variations", async () => {
@@ -571,7 +564,7 @@ describe("ProjectDiaryController (e2e)", () => {
       // Arrange
       const diaryData = {
         date: "2024-02-10",
-        weather: "SUNNY",
+        weather: { morning: "SUNNY" },
         equipment: [
           { name: "Betoneira", quantity: 3 },
           { name: "Andaime", quantity: 15 },

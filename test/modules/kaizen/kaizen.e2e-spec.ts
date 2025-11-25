@@ -37,7 +37,6 @@ describe("KaizenController (e2e)", () => {
       const kaizenData = {
         name: "Reduzir tempo de concretagem",
         description: "Implementar novo processo para reduzir tempo",
-        status: "ACTIVE",
         authorId: userId,
         gameId,
       };
@@ -58,7 +57,6 @@ describe("KaizenController (e2e)", () => {
         id: expect.any(String),
         name: kaizenData.name,
         description: kaizenData.description,
-        status: kaizenData.status,
         authorId: userId,
       });
     });
@@ -102,7 +100,6 @@ describe("KaizenController (e2e)", () => {
             name: "Kaizen para Consulta",
             authorId: userId,
             gameId,
-            status: "OPEN",
           },
         },
       );
@@ -232,10 +229,9 @@ describe("KaizenController (e2e)", () => {
         {
           token: authToken,
           body: {
-            name: "Kaizen para Deletar",
+            name: "Kaizen para Delete Test",
             authorId: userId,
             gameId,
-            status: "OPEN",
           },
         },
       );
@@ -265,7 +261,6 @@ describe("KaizenController (e2e)", () => {
             description: "Kaizen completo",
             authorId: userId,
             gameId,
-            status: "OPEN",
           },
         },
       );

@@ -7,6 +7,7 @@ import {
   IsArray,
   IsEnum,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -30,6 +31,7 @@ export class GamePrizeDto {
     description: "Prize ID",
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @IsNotEmpty()
   @IsUUID()
   prizeId: string;
 
@@ -66,6 +68,7 @@ export class GameKpiDto {
     description: "KPI ID",
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @IsNotEmpty()
   @IsUUID()
   id: string;
 
@@ -73,6 +76,7 @@ export class GameKpiDto {
     description: "Points awarded for this KPI",
     example: 50,
   })
+  @IsNotEmpty()
   @IsNumber()
   @IsInt()
   @Min(0)
@@ -84,6 +88,7 @@ export class CreateGameDto {
     description: "Organization ID",
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @IsNotEmpty()
   @IsUUID()
   organizationId: string;
 
@@ -91,6 +96,7 @@ export class CreateGameDto {
     description: "Project ID",
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @IsNotEmpty()
   @IsUUID()
   projectId: string;
 
@@ -100,6 +106,7 @@ export class CreateGameDto {
     minLength: 1,
     maxLength: 255,
   })
+  @IsNotEmpty()
   @IsString()
   name: string;
 

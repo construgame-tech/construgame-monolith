@@ -355,7 +355,7 @@ describe("TaskController (e2e)", () => {
         },
       );
 
-      expect(deleteResponse.statusCode).toBe(200);
+      expect(deleteResponse.statusCode).toBe(204);
     });
 
     it("should handle tasks with different priorities", async () => {
