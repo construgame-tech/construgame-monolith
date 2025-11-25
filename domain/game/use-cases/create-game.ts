@@ -1,13 +1,13 @@
 // Use Case: Criar um novo game
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import {
   createGameEntity,
-  GameEntity,
-  GameKpi,
-  GamePrize,
+  type GameEntity,
+  type GameKpi,
+  type GamePrize,
 } from "../entities/game.entity";
-import { IGameRepository } from "../repositories/game.repository.interface";
+import type { IGameRepository } from "../repositories/game.repository.interface";
 
 export interface CreateGameInput {
   organizationId: string;

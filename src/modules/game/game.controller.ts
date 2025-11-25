@@ -28,7 +28,7 @@ import {
 import type { CreateGameDto } from "./dto/create-game.dto";
 import { GameListResponseDto, GameResponseDto } from "./dto/game-response.dto";
 import type { UpdateGameDto } from "./dto/update-game.dto";
-import { GameService } from "./game.service";
+import type { GameService } from "./game.service";
 
 @ApiTags("games")
 @ApiBearerAuth("JWT-auth")
