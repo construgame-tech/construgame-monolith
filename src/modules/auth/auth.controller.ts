@@ -3,6 +3,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Inject,
   Post,
   UnauthorizedException,
 } from "@nestjs/common";
@@ -17,7 +18,10 @@ import { ValidateAuthCodeDto } from "./dto/validate-auth-code.dto";
 @ApiTags("auth")
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    @Inject(AuthService)
+    private readonly authService: AuthService,
+  ) {}
 
   @Post("login-web")
   @HttpCode(HttpStatus.OK)

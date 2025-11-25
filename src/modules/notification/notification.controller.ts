@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Inject,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -18,7 +30,10 @@ import { NotificationService } from "./notification.service";
 @UseGuards(JwtAuthGuard)
 @Controller("notifications")
 export class NotificationController {
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(
+    @Inject(NotificationService)
+    private readonly notificationService: NotificationService,
+  ) {}
 
   @Post("web")
   @ApiOperation({ summary: "Create a web notification" })

@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -25,7 +27,10 @@ import { ProjectService } from "./project.service";
 @UseGuards(JwtAuthGuard)
 @Controller("organizations/:organizationId/projects")
 export class ProjectController {
-  constructor(private readonly projectService: ProjectService) {}
+  constructor(
+    @Inject(ProjectService)
+    private readonly projectService: ProjectService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a new project" })
@@ -83,6 +88,7 @@ export class ProjectController {
   }
 
   @Delete(":projectId")
+  @HttpCode(204)
   @ApiOperation({ summary: "Delete project" })
   @ApiResponse({ status: 204 })
   async deleteProject(

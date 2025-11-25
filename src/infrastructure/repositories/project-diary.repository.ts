@@ -78,4 +78,15 @@ export class ProjectDiaryRepository {
     // Note: Date range filtering would need SQL BETWEEN
     // For simplicity, filtering in memory or using raw SQL
   }
+
+  async deleteByDate(projectId: string, date: string) {
+    await this.db
+      .delete(projectDiaries)
+      .where(
+        and(
+          eq(projectDiaries.projectId, projectId),
+          eq(projectDiaries.date, date),
+        ),
+      );
+  }
 }

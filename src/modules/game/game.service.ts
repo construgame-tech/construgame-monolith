@@ -8,14 +8,17 @@ import {
   unarchiveGame,
   updateGame,
 } from "@domain/game";
-import type { GameRepository } from "@infrastructure/repositories/game.repository";
-import { Injectable } from "@nestjs/common";
+import { GameRepository } from "@infrastructure/repositories/game.repository";
+import { Inject, Injectable } from "@nestjs/common";
 import type { CreateGameDto } from "./dto/create-game.dto";
 import type { UpdateGameDto } from "./dto/update-game.dto";
 
 @Injectable()
 export class GameService {
-  constructor(private readonly gameRepository: GameRepository) {}
+  constructor(
+    @Inject(GameRepository)
+    private readonly gameRepository: GameRepository,
+  ) {}
 
   async create(createGameDto: CreateGameDto) {
     const result = await createGame(

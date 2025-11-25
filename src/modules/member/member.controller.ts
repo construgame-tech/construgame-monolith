@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -25,7 +27,10 @@ import { MemberService } from "./member.service";
 @UseGuards(JwtAuthGuard)
 @Controller("organizations/:organizationId/members")
 export class MemberController {
-  constructor(private readonly memberService: MemberService) {}
+  constructor(
+    @Inject(MemberService)
+    private readonly memberService: MemberService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a new member (add user to organization)" })
@@ -80,6 +85,7 @@ export class MemberController {
   }
 
   @Delete(":userId")
+  @HttpCode(204)
   @ApiOperation({ summary: "Remove member from organization" })
   @ApiResponse({ status: 204 })
   async deleteMember(

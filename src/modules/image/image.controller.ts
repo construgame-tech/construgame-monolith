@@ -1,9 +1,13 @@
 import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
+  Body,
   Controller,
   Delete,
   Get,
+  HttpCode,
+  Inject,
   Param,
+  Post,
   Query,
   UseGuards,
 } from "@nestjs/common";
@@ -14,7 +18,10 @@ import { ImageService } from "./image.service";
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class ImageController {
-  constructor(private readonly imageService: ImageService) {}
+  constructor(
+    @Inject(ImageService)
+    private readonly imageService: ImageService,
+  ) {}
 
   @Get("organizations/:organizationId/presigned-url")
   @ApiOperation({ summary: "Generate presigned URL for file upload" })
@@ -36,6 +43,7 @@ export class ImageController {
   }
 
   @Delete("files/:key")
+  @HttpCode(204)
   @ApiOperation({ summary: "Delete a file from storage" })
   async deleteFile(@Param("key") key: string) {
     await this.imageService.deleteFile(key);

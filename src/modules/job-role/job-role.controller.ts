@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -25,7 +27,10 @@ import { JobRoleService } from "./job-role.service";
 @UseGuards(JwtAuthGuard)
 @Controller("organizations/:organizationId/job-roles")
 export class JobRoleController {
-  constructor(private readonly jobRoleService: JobRoleService) {}
+  constructor(
+    @Inject(JobRoleService)
+    private readonly jobRoleService: JobRoleService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a new job role" })
@@ -83,6 +88,7 @@ export class JobRoleController {
   }
 
   @Delete(":jobRoleId")
+  @HttpCode(204)
   @ApiOperation({ summary: "Delete job role" })
   @ApiResponse({ status: 204 })
   async deleteJobRole(

@@ -1,16 +1,23 @@
 // Mock Auth Guard for E2E tests
-// Always allows requests through without requiring authentication
+// Checks for authorization header and allows/denies accordingly
 
 import {
   type CanActivate,
   type ExecutionContext,
   Injectable,
+  UnauthorizedException,
 } from "@nestjs/common";
 
 @Injectable()
 export class MockAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
+
+    // Check if Authorization header is present
+    const authHeader = request.headers.authorization;
+    if (!authHeader) {
+      throw new UnauthorizedException("No authorization token provided");
+    }
 
     // Mock user data - simulate authenticated user
     request.user = {
@@ -20,6 +27,6 @@ export class MockAuthGuard implements CanActivate {
       role: "admin",
     };
 
-    return true; // Always allow
+    return true; // Has token = allow
   }
 }

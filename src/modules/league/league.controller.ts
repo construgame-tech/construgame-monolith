@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -25,7 +27,10 @@ import { LeagueService } from "./league.service";
 @UseGuards(JwtAuthGuard)
 @Controller("organizations/:organizationId/leagues")
 export class LeagueController {
-  constructor(private readonly leagueService: LeagueService) {}
+  constructor(
+    @Inject(LeagueService)
+    private readonly leagueService: LeagueService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a new league" })
@@ -79,6 +84,7 @@ export class LeagueController {
   }
 
   @Delete(":leagueId")
+  @HttpCode(204)
   @ApiOperation({ summary: "Delete league" })
   @ApiResponse({ status: 204 })
   async deleteLeague(

@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -25,7 +27,10 @@ import { KpiService } from "./kpi.service";
 @UseGuards(JwtAuthGuard)
 @Controller("kpis")
 export class KpiController {
-  constructor(private readonly kpiService: KpiService) {}
+  constructor(
+    @Inject(KpiService)
+    private readonly kpiService: KpiService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a new KPI" })
@@ -66,6 +71,7 @@ export class KpiController {
   }
 
   @Delete(":kpiId")
+  @HttpCode(204)
   @ApiOperation({ summary: "Delete KPI" })
   @ApiResponse({ status: 204 })
   async deleteKpi(@Param("kpiId") kpiId: string): Promise<void> {

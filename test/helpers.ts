@@ -63,7 +63,7 @@ export async function getRequest<T = any>(
   });
 
   const body = response.payload ? JSON.parse(response.payload) : {};
-  
+
   return {
     statusCode: response.statusCode,
     body: body.data || body,
@@ -143,9 +143,7 @@ export async function deleteRequest<T = any>(
   url: string,
   options: TestRequest = {},
 ): Promise<TestResponse<T>> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+  const headers: Record<string, string> = {};
 
   if (options.token) {
     headers.Authorization = `Bearer ${options.token}`;
@@ -157,7 +155,7 @@ export async function deleteRequest<T = any>(
     headers,
   });
 
-  const body = response.payload ? JSON.parse(response.payload) : {};
+  const body = response.payload?.trim() ? JSON.parse(response.payload) : {};
 
   return {
     statusCode: response.statusCode,

@@ -1,5 +1,14 @@
 import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
-import { Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Param,
+  Query,
+  UseGuards,
+} from "@nestjs/common";
 import { ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { PointsService } from "./points.service";
 
@@ -7,7 +16,10 @@ import { PointsService } from "./points.service";
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class PointsController {
-  constructor(private readonly pointsService: PointsService) {}
+  constructor(
+    @Inject(PointsService)
+    private readonly pointsService: PointsService,
+  ) {}
 
   // User Game Points
   @Get("users/:userId/games/:gameId/points")

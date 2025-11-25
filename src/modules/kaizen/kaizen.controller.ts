@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -27,7 +29,10 @@ import { KaizenService } from "./kaizen.service";
 @UseGuards(JwtAuthGuard)
 @Controller()
 export class KaizenController {
-  constructor(private readonly kaizenService: KaizenService) {}
+  constructor(
+    @Inject(KaizenService)
+    private readonly kaizenService: KaizenService,
+  ) {}
 
   @Post("organizations/:organizationId/projects/:projectId/kaizens")
   @ApiOperation({ summary: "Create a new kaizen" })
@@ -118,6 +123,7 @@ export class KaizenController {
   }
 
   @Delete("kaizens/:kaizenId")
+  @HttpCode(204)
   @ApiOperation({ summary: "Delete kaizen" })
   @ApiResponse({ status: 204 })
   async deleteKaizen(@Param("kaizenId") kaizenId: string): Promise<void> {

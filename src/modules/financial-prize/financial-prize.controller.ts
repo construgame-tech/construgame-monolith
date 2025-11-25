@@ -2,9 +2,12 @@ import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Inject,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from "@nestjs/common";
@@ -23,7 +26,10 @@ import { FinancialPrizeService } from "./financial-prize.service";
 @UseGuards(JwtAuthGuard)
 @Controller()
 export class FinancialPrizeController {
-  constructor(private readonly service: FinancialPrizeService) {}
+  constructor(
+    @Inject(FinancialPrizeService)
+    private readonly service: FinancialPrizeService,
+  ) {}
 
   @Post("organizations/:organizationId/financial-prizes")
   @ApiOperation({ summary: "Create financial prize" })

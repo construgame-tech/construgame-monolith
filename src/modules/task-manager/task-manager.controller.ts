@@ -13,8 +13,11 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { randomUUID } from "crypto";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
 // DTOs
 class CreateTaskManagerDto {
@@ -91,6 +94,9 @@ class UpdateTaskManagerDto {
   }>;
 }
 
+@ApiTags("task-manager")
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller()
 export class TaskManagerController {
   constructor(
@@ -101,8 +107,16 @@ export class TaskManagerController {
   @Post("games/:gameId/task-managers")
   async createTaskManager(
     @Param("gameId") gameId: string,
+    @Query("organizationId") organizationId: string,
+    @Query("projectId") projectId: string,
     @Body() body: CreateTaskManagerDto,
   ) {
+    if (!organizationId || !projectId) {
+      throw new BadRequestException(
+        "organizationId and projectId are required as query parameters",
+      );
+    }
+
     // Transform checklist items to ensure they have IDs
     const checklist = body.checklist?.map((item) => ({
       id: item.id || randomUUID(),
@@ -113,8 +127,8 @@ export class TaskManagerController {
     const taskManager = await this.repository.create({
       id: randomUUID(),
       gameId,
-      organizationId: "", // Will be filled by middleware/service
-      projectId: "", // Will be filled by middleware/service
+      organizationId,
+      projectId,
       name: body.name,
       kpiId: body.kpiId,
       macrostep: body.macrostep,
@@ -217,6 +231,7 @@ export class TaskManagerController {
   }
 
   @Delete("task-managers/:taskManagerId")
+  @HttpCode(204)
   async deleteTaskManager(@Param("taskManagerId") taskManagerId: string) {
     const existing = await this.repository.getById(taskManagerId);
     if (!existing) {

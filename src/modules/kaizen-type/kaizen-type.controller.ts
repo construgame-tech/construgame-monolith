@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -25,7 +27,10 @@ import { KaizenTypeService } from "./kaizen-type.service";
 @UseGuards(JwtAuthGuard)
 @Controller("organizations/:organizationId/kaizen-types")
 export class KaizenTypeController {
-  constructor(private readonly typeService: KaizenTypeService) {}
+  constructor(
+    @Inject(KaizenTypeService)
+    private readonly kaizenTypeService: KaizenTypeService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a new kaizen type" })
@@ -79,6 +84,7 @@ export class KaizenTypeController {
   }
 
   @Delete(":typeId")
+  @HttpCode(204)
   @ApiOperation({ summary: "Delete kaizen type" })
   @ApiResponse({ status: 204 })
   async deleteType(

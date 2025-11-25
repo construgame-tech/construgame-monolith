@@ -65,7 +65,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: taskManagerData,
@@ -109,7 +109,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: taskManagerData,
@@ -151,7 +151,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: taskManagerData,
@@ -174,7 +174,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: invalidData,
@@ -198,7 +198,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           body: taskManagerData,
         },
@@ -212,7 +212,7 @@ describe("TaskManagerController (e2e)", () => {
   describe("GET /api/v1/games/:gameId/task-managers", () => {
     it("should list all task managers for a game", async () => {
       // Arrange - Create 2 task managers
-      await postRequest(app, `/api/v1/games/${gameId}/task-managers`, {
+      await postRequest(app, `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`, {
         token: authToken,
         body: {
           name: "Task Manager 1",
@@ -223,7 +223,7 @@ describe("TaskManagerController (e2e)", () => {
         },
       });
 
-      await postRequest(app, `/api/v1/games/${gameId}/task-managers`, {
+      await postRequest(app, `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`, {
         token: authToken,
         body: {
           name: "Task Manager 2",
@@ -237,7 +237,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
         },
@@ -273,7 +273,7 @@ describe("TaskManagerController (e2e)", () => {
       // Arrange - Create a task manager
       const createResponse = await postRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: {
@@ -291,7 +291,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await putRequest(
         app,
-        `/api/v1/task-managers/${taskManagerId}`,
+        `/api/v1/task-managers/${taskManagerId}?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: {
@@ -315,7 +315,7 @@ describe("TaskManagerController (e2e)", () => {
       // Arrange - Create with checklist
       const createResponse = await postRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: {
@@ -340,7 +340,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act - Update with same checklist IDs
       const response = await putRequest(
         app,
-        `/api/v1/task-managers/${taskManagerId}`,
+        `/api/v1/task-managers/${taskManagerId}?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: {
@@ -372,7 +372,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await putRequest(
         app,
-        `/api/v1/task-managers/${nonExistentId}`,
+        `/api/v1/task-managers/${nonExistentId}?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: {
@@ -395,7 +395,7 @@ describe("TaskManagerController (e2e)", () => {
       // Arrange - Create a task manager
       const createResponse = await postRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: {
@@ -413,7 +413,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/task-managers/${taskManagerId}`,
+        `/api/v1/task-managers/${taskManagerId}?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
         },
@@ -425,7 +425,7 @@ describe("TaskManagerController (e2e)", () => {
       // Verify it was deleted
       const getResponse = await getRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
         },
@@ -444,7 +444,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/task-managers/${nonExistentId}`,
+        `/api/v1/task-managers/${nonExistentId}?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
         },
@@ -500,7 +500,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: fullTaskManagerData,
@@ -545,7 +545,7 @@ describe("TaskManagerController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/games/${gameId}/task-managers`,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
         {
           token: authToken,
           body: weekdaysTask,

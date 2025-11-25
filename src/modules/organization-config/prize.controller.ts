@@ -6,6 +6,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Param,
   Post,
   Put,
@@ -22,7 +23,10 @@ import { PrizeService } from "./prize.service";
 @UseGuards(JwtAuthGuard)
 @Controller("organizations/:organizationId/prizes")
 export class PrizeController {
-  constructor(private readonly service: PrizeService) {}
+  constructor(
+    @Inject(PrizeService)
+    private readonly service: PrizeService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create prize" })

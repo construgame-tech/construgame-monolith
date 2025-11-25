@@ -36,11 +36,13 @@ describe("ProjectDiaryController (e2e)", () => {
     it("should create a new project diary entry", async () => {
       // Arrange
       const diaryData = {
+        organizationId,
         date: "2024-01-15",
-        weather: "SUNNY",
-        temperature: 28.5,
-        workersPresent: 15,
-        workersAbsent: 2,
+        weather: {
+          morning: "SUNNY",
+          afternoon: "SUNNY",
+          night: "CLOUDY",
+        },
         notes: "Dia produtivo com boas condições climáticas",
       };
 
@@ -58,11 +60,9 @@ describe("ProjectDiaryController (e2e)", () => {
       expect(response.statusCode).toBe(201);
       expect(response.body).toMatchObject({
         projectId,
+        organizationId,
         date: diaryData.date,
         weather: diaryData.weather,
-        temperature: diaryData.temperature,
-        workersPresent: diaryData.workersPresent,
-        workersAbsent: diaryData.workersAbsent,
         notes: diaryData.notes,
       });
     });
@@ -70,8 +70,11 @@ describe("ProjectDiaryController (e2e)", () => {
     it("should create diary with equipment and manpower", async () => {
       // Arrange
       const diaryData = {
+        organizationId,
         date: "2024-01-16",
-        weather: "CLOUDY",
+        weather: {
+          morning: "CLOUDY",
+        },
         equipment: [
           { name: "Betoneira", quantity: 2 },
           { name: "Andaime", quantity: 10 },

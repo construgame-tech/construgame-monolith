@@ -4,6 +4,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -20,7 +22,10 @@ import { TaskUpdateService } from "./task-update.service";
 @Controller()
 @UseGuards(JwtAuthGuard)
 export class TaskUpdateController {
-  constructor(private readonly taskUpdateService: TaskUpdateService) {}
+  constructor(
+    @Inject(TaskUpdateService)
+    private readonly taskUpdateService: TaskUpdateService,
+  ) {}
 
   @Post("games/:gameId/task-updates")
   @ApiOperation({ summary: "Create a task update" })
@@ -75,6 +80,7 @@ export class TaskUpdateController {
   }
 
   @Delete("task-updates/:updateId")
+  @HttpCode(204)
   @ApiOperation({ summary: "Delete a task update" })
   async delete(@Param("updateId") updateId: string) {
     await this.taskUpdateService.delete(updateId);

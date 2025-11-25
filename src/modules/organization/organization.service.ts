@@ -6,14 +6,15 @@ import {
   updateOrganization,
 } from "@domain/organization";
 import type { OrganizationEntity } from "@domain/organization/entities/organization.entity";
-import type { OrganizationRepository } from "@infrastructure/repositories/organization.repository";
-import { Injectable } from "@nestjs/common";
+import { OrganizationRepository } from "@infrastructure/repositories/organization.repository";
+import { Inject, Injectable } from "@nestjs/common";
 import type { CreateOrganizationDto } from "./dto/create-organization.dto";
 import type { UpdateOrganizationDto } from "./dto/update-organization.dto";
 
 @Injectable()
 export class OrganizationService {
   constructor(
+    @Inject(OrganizationRepository)
     private readonly organizationRepository: OrganizationRepository,
   ) {}
 

@@ -30,7 +30,7 @@ describe("TeamController (e2e)", () => {
     await closeTestApp();
   });
 
-  describe("POST /api/v1/teams", () => {
+  describe("POST /api/v1/organizations/:organizationId/teams", () => {
     it("should create a new team", async () => {
       // Arrange
       const teamData = {
@@ -42,10 +42,14 @@ describe("TeamController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/teams", {
-        token: authToken,
-        body: teamData,
-      });
+      const response = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams`,
+        {
+          token: authToken,
+          body: teamData,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(201);
@@ -68,10 +72,14 @@ describe("TeamController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/teams", {
-        token: authToken,
-        body: teamData,
-      });
+      const response = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams`,
+        {
+          token: authToken,
+          body: teamData,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(201);
@@ -85,10 +93,14 @@ describe("TeamController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/teams", {
-        token: authToken,
-        body: invalidData,
-      });
+      const response = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams`,
+        {
+          token: authToken,
+          body: invalidData,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(400);
@@ -103,33 +115,45 @@ describe("TeamController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/teams", {
-        body: teamData,
-      });
+      const response = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams`,
+        {
+          body: teamData,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(401);
     });
   });
 
-  describe("GET /api/v1/teams/:teamId", () => {
+  describe("GET /api/v1/organizations/:organizationId/teams/:teamId", () => {
     it("should get a team by id", async () => {
       // Arrange - Create team first
-      const createResponse = await postRequest(app, "/api/v1/teams", {
-        token: authToken,
-        body: {
-          name: "Equipe para Consulta",
-          organizationId,
-          projectId,
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams`,
+        {
+          token: authToken,
+          body: {
+            name: "Equipe para Consulta",
+            organizationId,
+            projectId,
+          },
         },
-      });
+      );
 
       const teamId = createResponse.body.id;
 
       // Act
-      const response = await getRequest(app, `/api/v1/teams/${teamId}`, {
-        token: authToken,
-      });
+      const response = await getRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        {
+          token: authToken,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(200);
@@ -144,19 +168,23 @@ describe("TeamController (e2e)", () => {
       const nonExistentId = faker.uuid();
 
       // Act
-      const response = await getRequest(app, `/api/v1/teams/${nonExistentId}`, {
-        token: authToken,
-      });
+      const response = await getRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams/${nonExistentId}`,
+        {
+          token: authToken,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(404);
     });
   });
 
-  describe("GET /api/v1/teams", () => {
+  describe("GET /api/v1/organizations/:organizationId/teams", () => {
     it("should list all teams for a project", async () => {
       // Arrange - Create at least 2 teams
-      await postRequest(app, "/api/v1/teams", {
+      await postRequest(app, `/api/v1/organizations/${organizationId}/teams`, {
         token: authToken,
         body: {
           name: "Equipe List 1",
@@ -165,7 +193,7 @@ describe("TeamController (e2e)", () => {
         },
       });
 
-      await postRequest(app, "/api/v1/teams", {
+      await postRequest(app, `/api/v1/organizations/${organizationId}/teams`, {
         token: authToken,
         body: {
           name: "Equipe List 2",
@@ -175,10 +203,14 @@ describe("TeamController (e2e)", () => {
       });
 
       // Act
-      const response = await getRequest(app, "/api/v1/teams", {
-        token: authToken,
-        query: { projectId },
-      });
+      const response = await getRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams`,
+        {
+          token: authToken,
+          query: { projectId },
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(200);
@@ -187,30 +219,38 @@ describe("TeamController (e2e)", () => {
     });
   });
 
-  describe("PUT /api/v1/teams/:teamId", () => {
+  describe("PUT /api/v1/organizations/:organizationId/teams/:teamId", () => {
     it("should update a team", async () => {
       // Arrange - Create team
-      const createResponse = await postRequest(app, "/api/v1/teams", {
-        token: authToken,
-        body: {
-          name: "Equipe Original",
-          organizationId,
-          projectId,
-          color: "#000000",
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams`,
+        {
+          token: authToken,
+          body: {
+            name: "Equipe Original",
+            organizationId,
+            projectId,
+            color: "#000000",
+          },
         },
-      });
+      );
 
       const teamId = createResponse.body.id;
 
       // Act
-      const response = await putRequest(app, `/api/v1/teams/${teamId}`, {
-        token: authToken,
-        body: {
-          name: "Equipe Atualizada",
-          description: "Descrição atualizada",
-          color: "#FFFFFF",
+      const response = await putRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        {
+          token: authToken,
+          body: {
+            name: "Equipe Atualizada",
+            description: "Descrição atualizada",
+            color: "#FFFFFF",
+          },
         },
-      });
+      );
 
       // Assert
       expect(response.statusCode).toBe(200);
@@ -224,42 +264,58 @@ describe("TeamController (e2e)", () => {
       const nonExistentId = faker.uuid();
 
       // Act
-      const response = await putRequest(app, `/api/v1/teams/${nonExistentId}`, {
-        token: authToken,
-        body: { name: "Test" },
-      });
+      const response = await putRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams/${nonExistentId}`,
+        {
+          token: authToken,
+          body: { name: "Test" },
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(404);
     });
   });
 
-  describe("DELETE /api/v1/teams/:teamId", () => {
+  describe("DELETE /api/v1/organizations/:organizationId/teams/:teamId", () => {
     it("should delete a team", async () => {
       // Arrange - Create team
-      const createResponse = await postRequest(app, "/api/v1/teams", {
-        token: authToken,
-        body: {
-          name: "Equipe para Deletar",
-          organizationId,
-          projectId,
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams`,
+        {
+          token: authToken,
+          body: {
+            name: "Equipe para Deletar",
+            organizationId,
+            projectId,
+          },
         },
-      });
+      );
 
       const teamId = createResponse.body.id;
 
       // Act
-      const response = await deleteRequest(app, `/api/v1/teams/${teamId}`, {
-        token: authToken,
-      });
+      const response = await deleteRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        {
+          token: authToken,
+        },
+      );
 
       // Assert
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(204);
 
       // Verify it was deleted
-      const getResponse = await getRequest(app, `/api/v1/teams/${teamId}`, {
-        token: authToken,
-      });
+      const getResponse = await getRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        {
+          token: authToken,
+        },
+      );
 
       expect(getResponse.statusCode).toBe(404);
     });
@@ -271,7 +327,7 @@ describe("TeamController (e2e)", () => {
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/teams/${nonExistentId}`,
+        `/api/v1/organizations/${organizationId}/teams/${nonExistentId}`,
         {
           token: authToken,
         },
@@ -285,36 +341,48 @@ describe("TeamController (e2e)", () => {
   describe("Integration Tests", () => {
     it("should handle complete team lifecycle", async () => {
       // Arrange & Act - Create
-      const createResponse = await postRequest(app, "/api/v1/teams", {
-        token: authToken,
-        body: {
-          name: "Lifecycle Team",
-          organizationId,
-          projectId,
-          description: "Equipe completa",
-          color: "#00FF00",
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams`,
+        {
+          token: authToken,
+          body: {
+            name: "Lifecycle Team",
+            organizationId,
+            projectId,
+            description: "Equipe completa",
+            color: "#00FF00",
+          },
         },
-      });
+      );
 
       expect(createResponse.statusCode).toBe(201);
       const teamId = createResponse.body.id;
 
       // Act - Get
-      const getResponse = await getRequest(app, `/api/v1/teams/${teamId}`, {
-        token: authToken,
-      });
+      const getResponse = await getRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        {
+          token: authToken,
+        },
+      );
 
       expect(getResponse.statusCode).toBe(200);
       expect(getResponse.body.name).toBe("Lifecycle Team");
 
       // Act - Update
-      const updateResponse = await putRequest(app, `/api/v1/teams/${teamId}`, {
-        token: authToken,
-        body: {
-          name: "Updated Lifecycle Team",
-          description: "Equipe atualizada",
+      const updateResponse = await putRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        {
+          token: authToken,
+          body: {
+            name: "Updated Lifecycle Team",
+            description: "Equipe atualizada",
+          },
         },
-      });
+      );
 
       expect(updateResponse.statusCode).toBe(200);
       expect(updateResponse.body.name).toBe("Updated Lifecycle Team");
@@ -322,13 +390,13 @@ describe("TeamController (e2e)", () => {
       // Act - Delete
       const deleteResponse = await deleteRequest(
         app,
-        `/api/v1/teams/${teamId}`,
+        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
         {
           token: authToken,
         },
       );
 
-      expect(deleteResponse.statusCode).toBe(200);
+      expect(deleteResponse.statusCode).toBe(204);
     });
 
     it("should handle teams with different colors", async () => {
@@ -337,15 +405,19 @@ describe("TeamController (e2e)", () => {
 
       // Act & Assert
       for (const color of colors) {
-        const response = await postRequest(app, "/api/v1/teams", {
-          token: authToken,
-          body: {
-            name: `Equipe ${color}`,
-            organizationId,
-            projectId,
-            color,
+        const response = await postRequest(
+          app,
+          `/api/v1/organizations/${organizationId}/teams`,
+          {
+            token: authToken,
+            body: {
+              name: `Equipe ${color}`,
+              organizationId,
+              projectId,
+              color,
+            },
           },
-        });
+        );
 
         expect(response.statusCode).toBe(201);
         expect(response.body.color).toBe(color);

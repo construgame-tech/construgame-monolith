@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Param,
   Post,
   Put,
@@ -19,7 +20,10 @@ import { OrgKaizenConfigService } from "./org-kaizen-config.service";
 @UseGuards(JwtAuthGuard)
 @Controller("organizations/:organizationId/kaizen-config")
 export class OrgKaizenConfigController {
-  constructor(private readonly service: OrgKaizenConfigService) {}
+  constructor(
+    @Inject(OrgKaizenConfigService)
+    private readonly service: OrgKaizenConfigService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create kaizen config" })

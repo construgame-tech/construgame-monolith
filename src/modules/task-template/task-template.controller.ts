@@ -4,6 +4,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -18,7 +20,10 @@ import { TaskTemplateService } from "./task-template.service";
 @Controller("organizations/:organizationId/task-templates")
 @UseGuards(JwtAuthGuard)
 export class TaskTemplateController {
-  constructor(private readonly taskTemplateService: TaskTemplateService) {}
+  constructor(
+    @Inject(TaskTemplateService)
+    private readonly taskTemplateService: TaskTemplateService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a task template" })
@@ -51,6 +56,7 @@ export class TaskTemplateController {
   }
 
   @Delete(":templateId")
+  @HttpCode(204)
   @ApiOperation({ summary: "Delete a task template" })
   async delete(@Param("templateId") templateId: string) {
     await this.taskTemplateService.delete(templateId);

@@ -63,7 +63,7 @@ describe("MemberController (e2e)", () => {
       // Arrange
       const memberData = {
         userId: faker.uuid(),
-        role: "member",
+        role: "player", // Fixed: valid role
       };
 
       // Act
@@ -85,7 +85,7 @@ describe("MemberController (e2e)", () => {
     it("should return 400 when required fields are missing", async () => {
       // Arrange
       const invalidData = {
-        role: "member",
+        role: "player", // Valid role
         // Missing userId
       };
 
@@ -107,7 +107,7 @@ describe("MemberController (e2e)", () => {
       // Arrange
       const memberData = {
         userId: faker.uuid(),
-        role: "member",
+        role: "player",
       };
 
       // Act
@@ -186,7 +186,7 @@ describe("MemberController (e2e)", () => {
           token: authToken,
           body: {
             userId: faker.uuid(),
-            role: "member",
+            role: "player",
           },
         },
       );
@@ -230,7 +230,7 @@ describe("MemberController (e2e)", () => {
           token: authToken,
           body: {
             userId: newUserId,
-            role: "member",
+            role: "player",
           },
         },
       );
@@ -284,7 +284,7 @@ describe("MemberController (e2e)", () => {
           token: authToken,
           body: {
             userId: newUserId,
-            role: "member",
+            role: "player",
           },
         },
       );
@@ -299,7 +299,7 @@ describe("MemberController (e2e)", () => {
       );
 
       // Assert
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(204);
 
       // Verify it was deleted
       const getResponse = await getRequest(
@@ -342,7 +342,7 @@ describe("MemberController (e2e)", () => {
           token: authToken,
           body: {
             userId: newUserId,
-            role: "member",
+            role: "player",
             jobRoleId: faker.uuid(),
           },
         },
@@ -386,12 +386,12 @@ describe("MemberController (e2e)", () => {
         },
       );
 
-      expect(deleteResponse.statusCode).toBe(200);
+      expect(deleteResponse.statusCode).toBe(204);
     });
 
     it("should handle multiple members with different roles", async () => {
       // Arrange
-      const roles = ["owner", "manager", "member"];
+      const roles = ["owner", "manager", "player"];
 
       // Act & Assert
       for (const role of roles) {

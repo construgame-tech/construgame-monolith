@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Inject,
   Param,
   Post,
   Put,
@@ -19,7 +20,10 @@ import { OrgConfigService } from "./org-config.service";
 @UseGuards(JwtAuthGuard)
 @Controller("organizations/:organizationId/config")
 export class OrgConfigController {
-  constructor(private readonly service: OrgConfigService) {}
+  constructor(
+    @Inject(OrgConfigService)
+    private readonly service: OrgConfigService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create organization config" })

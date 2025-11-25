@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -25,7 +27,10 @@ import { TeamService } from "./team.service";
 @UseGuards(JwtAuthGuard)
 @Controller("organizations/:organizationId/teams")
 export class TeamController {
-  constructor(private readonly teamService: TeamService) {}
+  constructor(
+    @Inject(TeamService)
+    private readonly teamService: TeamService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a new team" })
@@ -79,6 +84,7 @@ export class TeamController {
   }
 
   @Delete(":teamId")
+  @HttpCode(204)
   @ApiOperation({ summary: "Delete team" })
   @ApiResponse({ status: 204 })
   async deleteTeam(

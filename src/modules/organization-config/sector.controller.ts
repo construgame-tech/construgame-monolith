@@ -6,6 +6,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Param,
   Post,
   Put,
@@ -22,7 +23,10 @@ import { SectorService } from "./sector.service";
 @UseGuards(JwtAuthGuard)
 @Controller("organizations/:organizationId/sectors")
 export class SectorController {
-  constructor(private readonly service: SectorService) {}
+  constructor(
+    @Inject(SectorService)
+    private readonly service: SectorService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create sector" })

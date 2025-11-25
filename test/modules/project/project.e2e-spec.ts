@@ -28,7 +28,7 @@ describe("ProjectController (e2e)", () => {
     await closeTestApp();
   });
 
-  describe("POST /api/v1/projects", () => {
+  describe("POST /api/v1/organizations/${organizationId}/projects", () => {
     it("should create a new project", async () => {
       // Arrange
       const projectData = {
@@ -43,7 +43,7 @@ describe("ProjectController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/projects", {
+      const response = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         token: authToken,
         body: projectData,
       });
@@ -69,7 +69,7 @@ describe("ProjectController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/projects", {
+      const response = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         token: authToken,
         body: projectData,
       });
@@ -86,7 +86,7 @@ describe("ProjectController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/projects", {
+      const response = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         token: authToken,
         body: invalidData,
       });
@@ -103,7 +103,7 @@ describe("ProjectController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/projects", {
+      const response = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         body: projectData,
       });
 
@@ -115,7 +115,7 @@ describe("ProjectController (e2e)", () => {
   describe("GET /api/v1/projects/:projectId", () => {
     it("should get a project by id", async () => {
       // Arrange - Create project first
-      const createResponse = await postRequest(app, "/api/v1/projects", {
+      const createResponse = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         token: authToken,
         body: {
           name: "Projeto para Consulta",
@@ -156,21 +156,21 @@ describe("ProjectController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/projects", () => {
+  describe("GET /api/v1/organizations/${organizationId}/projects", () => {
     it("should list all projects for an organization", async () => {
       // Arrange - Create at least 2 projects
-      await postRequest(app, "/api/v1/projects", {
+      await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         token: authToken,
         body: { name: "Projeto List 1", organizationId },
       });
 
-      await postRequest(app, "/api/v1/projects", {
+      await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         token: authToken,
         body: { name: "Projeto List 2", organizationId },
       });
 
       // Act
-      const response = await getRequest(app, "/api/v1/projects", {
+      const response = await getRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         token: authToken,
         query: { organizationId },
       });
@@ -185,7 +185,7 @@ describe("ProjectController (e2e)", () => {
   describe("PUT /api/v1/projects/:projectId", () => {
     it("should update a project", async () => {
       // Arrange - Create project
-      const createResponse = await postRequest(app, "/api/v1/projects", {
+      const createResponse = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         token: authToken,
         body: {
           name: "Projeto Original",
@@ -236,7 +236,7 @@ describe("ProjectController (e2e)", () => {
   describe("DELETE /api/v1/projects/:projectId", () => {
     it("should delete a project", async () => {
       // Arrange - Create project
-      const createResponse = await postRequest(app, "/api/v1/projects", {
+      const createResponse = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         token: authToken,
         body: {
           name: "Projeto para Deletar",
@@ -291,7 +291,7 @@ describe("ProjectController (e2e)", () => {
   describe("Integration Tests", () => {
     it("should handle complete project lifecycle", async () => {
       // Arrange & Act - Create
-      const createResponse = await postRequest(app, "/api/v1/projects", {
+      const createResponse = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         token: authToken,
         body: {
           name: "Lifecycle Project",
@@ -361,7 +361,7 @@ describe("ProjectController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/projects", {
+      const response = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
         token: authToken,
         body: projectData,
       });

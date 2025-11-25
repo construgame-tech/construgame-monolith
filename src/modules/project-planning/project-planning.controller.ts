@@ -13,8 +13,11 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { randomUUID } from "crypto";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
 // DTOs
 class CreateMacrostepDto {
@@ -89,6 +92,9 @@ class MoveMacrostepOrderDto {
   newIndex: number;
 }
 
+@ApiTags("project-planning")
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller()
 export class ProjectPlanningController {
   constructor(
@@ -194,6 +200,7 @@ export class ProjectPlanningController {
   @Delete(
     "organizations/:organizationId/projects/:projectId/macrosteps/:macrostepId",
   )
+  @HttpCode(204)
   async deleteMacrostep(
     @Param("organizationId") organizationId: string,
     @Param("projectId") projectId: string,
@@ -486,6 +493,7 @@ export class ProjectPlanningController {
   @Delete(
     "organizations/:organizationId/projects/:projectId/macrosteps/:macrostepId/activities/:activityId",
   )
+  @HttpCode(204)
   async deleteActivity(
     @Param("organizationId") organizationId: string,
     @Param("projectId") projectId: string,

@@ -1,9 +1,10 @@
+import { DatabaseModule } from "@infrastructure/database/database.module";
 import { OrganizationRepository } from "@infrastructure/repositories/organization.repository";
 import { Module } from "@nestjs/common";
 import { OrganizationController } from "./organization.controller";
 
 @Module({
-  imports: [],
+  imports: [DatabaseModule],
   controllers: [OrganizationController],
   providers: [OrganizationRepository],
   exports: [OrganizationRepository],
