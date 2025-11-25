@@ -78,6 +78,8 @@ export class TeamRepository implements ITeamRepository {
       members: row.members || undefined,
       sequence: row.sequence,
       photo: row.photo || undefined,
+      color: row.color || undefined,
+      description: row.description || undefined,
     };
   }
 }

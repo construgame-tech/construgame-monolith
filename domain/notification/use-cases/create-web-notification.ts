@@ -1,6 +1,6 @@
 // Use Case: Criar uma nova notificação web
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import {
   createWebNotificationEntity,
   KaizenCompletedData,

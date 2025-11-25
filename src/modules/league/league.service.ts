@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import {
   createLeagueEntity,
   LeagueEntity,
@@ -5,7 +6,6 @@ import {
 } from "@domain/league/entities/league.entity";
 import type { ILeagueRepository } from "@domain/league/repositories/league.repository.interface";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { randomUUID } from "crypto";
 
 export interface CreateLeagueInput {
   organizationId: string;

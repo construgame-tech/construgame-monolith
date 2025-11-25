@@ -54,6 +54,8 @@ export const kaizens = pgTable(
     sequence: integer("sequence").notNull().default(0),
 
     // Campos opcionais
+    authorId: text("author_id"),
+    description: text("description"),
     originalKaizenId: text("original_kaizen_id"),
     leaderId: text("leader_id"),
     teamId: text("team_id"),

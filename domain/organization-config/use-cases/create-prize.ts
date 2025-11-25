@@ -1,6 +1,6 @@
 // Use Case: Criar um novo prize
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { createPrizeEntity, PrizeEntity } from "../entities/prize.entity";
 import { IPrizeRepository } from "../repositories/prize.repository.interface";
 

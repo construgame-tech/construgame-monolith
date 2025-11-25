@@ -37,6 +37,12 @@ export class KaizenResponseDto {
   sequence: number;
 
   @ApiProperty({ required: false })
+  authorId?: string;
+
+  @ApiProperty({ required: false })
+  description?: string;
+
+  @ApiProperty({ required: false })
   originalKaizenId?: string;
 
   @ApiProperty({ required: false })
@@ -98,6 +104,8 @@ export class KaizenResponseDto {
     dto.createdDate = entity.createdDate;
     dto.updatedDate = entity.updatedDate;
     dto.sequence = entity.sequence;
+    dto.authorId = entity.authorId;
+    dto.description = entity.description;
     dto.originalKaizenId = entity.originalKaizenId;
     dto.leaderId = entity.leaderId;
     dto.teamId = entity.teamId;

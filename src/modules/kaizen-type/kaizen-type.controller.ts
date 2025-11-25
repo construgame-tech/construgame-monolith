@@ -28,8 +28,7 @@ import { KaizenTypeService } from "./kaizen-type.service";
 @Controller("organizations/:organizationId/kaizen-types")
 export class KaizenTypeController {
   constructor(
-    @Inject(KaizenTypeService)
-    private readonly kaizenTypeService: KaizenTypeService,
+    @Inject(KaizenTypeService) readonly _kaizenTypeService: KaizenTypeService,
   ) {}
 
   @Post()

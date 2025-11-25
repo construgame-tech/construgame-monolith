@@ -6,6 +6,6 @@ export const calculateProgressPercent = (
   expected?: string,
 ): number | undefined => {
   if (expected && current) {
-    return Math.floor((current / parseInt(expected)) * 100);
+    return Math.floor((current / parseInt(expected, 10)) * 100);
   }
 };

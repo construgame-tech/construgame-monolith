@@ -1,6 +1,6 @@
 // Use Case: Criar um novo sector
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { createSectorEntity, SectorEntity } from "../entities/sector.entity";
 import { ISectorRepository } from "../repositories/sector.repository.interface";
 

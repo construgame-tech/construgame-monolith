@@ -10,6 +10,8 @@ export interface TeamEntity {
   members?: string[];
   sequence: number;
   photo?: string;
+  color?: string;
+  description?: string;
 }
 
 // Factory function para criar um novo team com valores padrão
@@ -21,6 +23,8 @@ export const createTeamEntity = (props: {
   fieldOfAction?: string;
   members?: string[];
   photo?: string;
+  color?: string;
+  description?: string;
 }): TeamEntity => {
   return {
     id: props.id,
@@ -30,6 +34,8 @@ export const createTeamEntity = (props: {
     fieldOfAction: props.fieldOfAction,
     members: props.members,
     photo: props.photo,
+    color: props.color,
+    description: props.description,
     sequence: 0,
   };
 };

@@ -7,7 +7,6 @@ import {
   getRequest,
   postRequest,
   putRequest,
-  testData,
 } from "../../helpers";
 import { closeTestApp, setupTestApp } from "../../setup";
 
@@ -243,7 +242,7 @@ describe("KaizenController (e2e)", () => {
       });
 
       // Assert
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(204);
     });
   });
 

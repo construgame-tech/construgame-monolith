@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { ProjectPlanningRepository } from "@infrastructure/repositories/project-planning.repository";
 import {
   BadRequestException,
@@ -6,22 +7,25 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpStatus,
   Inject,
   NotFoundException,
   Param,
   Post,
   Put,
-  Query,
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { randomUUID } from "crypto";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
 // DTOs
 class CreateMacrostepDto {
+  @IsNotEmpty()
+  @IsString()
   name: string;
+
+  @IsOptional()
+  @IsString()
   id?: string;
 }
 

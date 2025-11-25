@@ -1,6 +1,6 @@
 // Use Case: Criar uma nova organization
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import {
   createOrganizationEntity,
   OrganizationEntity,

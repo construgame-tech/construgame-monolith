@@ -43,7 +43,7 @@ const recalculatePercentIfNeeded = (
     return currentTask;
   }
 
-  const totalMeasurementExpected = Number.parseInt(newTotalExpected);
+  const totalMeasurementExpected = Number.parseInt(newTotalExpected, 10);
   const percent = Math.round(
     (currentTask.progress.absolute / totalMeasurementExpected) * 100,
   );

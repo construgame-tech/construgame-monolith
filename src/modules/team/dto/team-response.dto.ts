@@ -26,6 +26,12 @@ export class TeamResponseDto {
   @ApiProperty({ required: false })
   photo?: string;
 
+  @ApiProperty({ required: false })
+  color?: string;
+
+  @ApiProperty({ required: false })
+  description?: string;
+
   static fromEntity(entity: TeamEntity): TeamResponseDto {
     const dto = new TeamResponseDto();
     dto.id = entity.id;
@@ -36,6 +42,8 @@ export class TeamResponseDto {
     dto.members = entity.members;
     dto.sequence = entity.sequence;
     dto.photo = entity.photo;
+    dto.color = entity.color;
+    dto.description = entity.description;
     return dto;
   }
 }

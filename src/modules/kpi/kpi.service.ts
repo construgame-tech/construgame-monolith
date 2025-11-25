@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import {
   createKpiEntity,
   KpiEntity,
@@ -5,7 +6,6 @@ import {
 } from "@domain/kpi/entities/kpi.entity";
 import type { IKpiRepository } from "@domain/kpi/repositories/kpi.repository.interface";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { randomUUID } from "crypto";
 
 export interface CreateKpiInput {
   name: string;

@@ -1,6 +1,6 @@
 // Use Case: Criar um novo job role
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import {
   createJobRoleEntity,
   JobRoleEntity,

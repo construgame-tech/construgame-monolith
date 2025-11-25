@@ -2,12 +2,10 @@ import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Inject,
   Param,
   Post,
-  Put,
   Query,
   UseGuards,
 } from "@nestjs/common";

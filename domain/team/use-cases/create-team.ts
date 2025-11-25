@@ -1,6 +1,6 @@
 // Use Case: Criar um novo team
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { createTeamEntity, TeamEntity } from "../entities/team.entity";
 import { ITeamRepository } from "../repositories/team.repository.interface";
 
@@ -11,6 +11,8 @@ export interface CreateTeamInput {
   fieldOfAction?: string;
   members?: string[];
   photo?: string;
+  color?: string;
+  description?: string;
 }
 
 export interface CreateTeamOutput {
@@ -33,6 +35,8 @@ export const createTeam = async (
     fieldOfAction: input.fieldOfAction,
     members: input.members,
     photo: input.photo,
+    color: input.color,
+    description: input.description,
   });
 
   // Persiste no repositório

@@ -1,5 +1,5 @@
+import { randomUUID } from "node:crypto";
 import type { NestFastifyApplication } from "@nestjs/platform-fastify";
-import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
 
 export interface TestResponse<T = any> {

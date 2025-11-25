@@ -7,7 +7,6 @@ import {
   getRequest,
   postRequest,
   putRequest,
-  testData,
 } from "../../helpers";
 import { closeTestApp, setupTestApp } from "../../setup";
 
@@ -297,7 +296,7 @@ describe("ProjectPlanningController (e2e)", () => {
           },
         );
 
-        const m2 = await postRequest(
+        const _m2 = await postRequest(
           app,
           `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
           {
@@ -306,7 +305,7 @@ describe("ProjectPlanningController (e2e)", () => {
           },
         );
 
-        const m3 = await postRequest(
+        const _m3 = await postRequest(
           app,
           `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
           {
@@ -622,7 +621,7 @@ describe("ProjectPlanningController (e2e)", () => {
         },
       );
 
-      const m2 = await postRequest(
+      const _m2 = await postRequest(
         app,
         `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
         {
@@ -631,7 +630,7 @@ describe("ProjectPlanningController (e2e)", () => {
         },
       );
 
-      const m3 = await postRequest(
+      const _m3 = await postRequest(
         app,
         `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
         {

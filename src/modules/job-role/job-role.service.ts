@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import {
   createJobRoleEntity,
   JobRoleEntity,
@@ -5,7 +6,6 @@ import {
 } from "@domain/job-role/entities/job-role.entity";
 import type { IJobRoleRepository } from "@domain/job-role/repositories/job-role.repository.interface";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { randomUUID } from "crypto";
 
 export interface CreateJobRoleInput {
   organizationId: string;

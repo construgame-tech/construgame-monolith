@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { UserEntity } from "@domain/user/entities/user.entity";
 import { authenticateWithEmail } from "@domain/user/use-cases/authenticate-with-email";
 import {
@@ -17,7 +18,6 @@ import {
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
-import { randomBytes } from "crypto";
 
 @Injectable()
 export class AuthService {
@@ -40,7 +40,7 @@ export class AuthService {
         },
       );
       return result.user;
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
@@ -108,7 +108,7 @@ export class AuthService {
           type: result.user.type,
         },
       };
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException("Invalid credentials");
     }
   }

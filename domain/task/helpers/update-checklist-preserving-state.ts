@@ -1,7 +1,7 @@
 // Helper: Atualizar checklist preservando estado de checked
 // Usado ao atualizar uma task para não perder o progresso do checklist
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import {
   TaskChecklistItem,
   TaskChecklistItemInput,

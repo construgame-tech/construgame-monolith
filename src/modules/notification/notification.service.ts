@@ -7,10 +7,7 @@ import {
   CreateWebNotificationInput,
   createWebNotification,
 } from "@domain/notification/use-cases/create-web-notification";
-import {
-  ReadWebNotificationsInput,
-  readWebNotifications,
-} from "@domain/notification/use-cases/read-web-notifications";
+import { readWebNotifications } from "@domain/notification/use-cases/read-web-notifications";
 import { Inject, Injectable } from "@nestjs/common";
 
 @Injectable()

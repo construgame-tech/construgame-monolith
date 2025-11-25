@@ -1,14 +1,7 @@
 // Schema Drizzle para WebNotification
 // Mapeia WebNotificationEntity para tabela PostgreSQL
 
-import {
-  index,
-  json,
-  pgTable,
-  timestamp,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { index, json, pgTable, uuid, varchar } from "drizzle-orm/pg-core";
 
 export interface KaizenCompletedData {
   kaizenId: string;

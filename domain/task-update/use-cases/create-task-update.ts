@@ -1,6 +1,6 @@
 // Use Case: Criar um novo task update
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import {
   createTaskUpdateEntity,
   TaskUpdateChecklistItem,

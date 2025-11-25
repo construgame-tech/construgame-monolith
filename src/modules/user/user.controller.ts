@@ -21,13 +21,11 @@ import {
   Param,
   Post,
   Put,
-  Query,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiParam,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
@@ -94,7 +92,7 @@ export class UserController {
   @ApiOperation({ summary: "Delete user" })
   @ApiParam({ name: "id", example: "123e4567-e89b-12d3-a456-426614174000" })
   @ApiResponse({ status: 204, description: "User deleted" })
-  async remove(@Param("id") id: string): Promise<void> {
+  async remove(@Param("id") id: string, @Body() _body?: any): Promise<void> {
     try {
       await deleteUser({ userId: id }, this.userRepository);
     } catch (error) {
@@ -109,7 +107,10 @@ export class UserController {
   @ApiOperation({ summary: "Activate user" })
   @ApiParam({ name: "id", example: "123e4567-e89b-12d3-a456-426614174000" })
   @ApiResponse({ status: 200, type: UserResponseDto })
-  async activate(@Param("id") id: string): Promise<UserResponseDto> {
+  async activate(
+    @Param("id") id: string,
+    @Body() _body?: any,
+  ): Promise<UserResponseDto> {
     try {
       const result = await activateUser({ userId: id }, this.userRepository);
       return UserResponseDto.fromEntity(result.user);
@@ -125,7 +126,10 @@ export class UserController {
   @ApiOperation({ summary: "Make user a superuser" })
   @ApiParam({ name: "id", example: "123e4567-e89b-12d3-a456-426614174000" })
   @ApiResponse({ status: 200, type: UserResponseDto })
-  async makeSuperuser(@Param("id") id: string): Promise<UserResponseDto> {
+  async makeSuperuser(
+    @Param("id") id: string,
+    @Body() _body?: any,
+  ): Promise<UserResponseDto> {
     try {
       const result = await makeSuperuser({ userId: id }, this.userRepository);
       return UserResponseDto.fromEntity(result.user);

@@ -41,6 +41,8 @@ export interface KaizenEntity {
   sequence: number;
 
   // Campos opcionais
+  authorId?: string; // ID do autor/criador do kaizen
+  description?: string; // Descrição geral do kaizen
   originalKaizenId?: string; // ID do kaizen original quando é uma réplica
   leaderId?: string; // Campo legado (migrar para responsibles.players)
   teamId?: string; // Campo legado (migrar para responsibles.teams)
@@ -77,6 +79,8 @@ export const createKaizenEntity = (props: {
   projectId: string;
   gameId: string;
   name: string;
+  authorId?: string;
+  description?: string;
   leaderId?: string;
   teamId?: string;
   category?: number;
@@ -104,6 +108,8 @@ export const createKaizenEntity = (props: {
     name: props.name,
     createdDate: now,
     sequence: 0,
+    authorId: props.authorId,
+    description: props.description,
     leaderId: props.leaderId,
     teamId: props.teamId,
     category: props.category,

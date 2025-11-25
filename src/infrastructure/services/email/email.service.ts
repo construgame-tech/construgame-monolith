@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import { Injectable, Logger } from "@nestjs/common";
 import type { ConfigService } from "@nestjs/config";
@@ -8,7 +9,6 @@ import {
   TransactionalEmailsApi,
   TransactionalEmailsApiApiKeys,
 } from "@sendinblue/client";
-import { randomUUID } from "crypto";
 import type { IEmailService } from "./email.interface";
 
 @Injectable()

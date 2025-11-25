@@ -17,7 +17,7 @@ const calcUpdateProgressPercent = (
   task: TaskEntity,
   update: TaskUpdate,
 ): number => {
-  const isQuantitative = task.totalMeasurementExpected != undefined;
+  const isQuantitative = task.totalMeasurementExpected !== undefined;
   const hasChecklist = task.checklist && task.checklist.length > 0;
   if (!isQuantitative && !hasChecklist) return 100; // Qualquer update aprovado é 100% de progresso
 
@@ -34,13 +34,11 @@ const calcUpdateProgressPercent = (
       (taskUpdate) => taskUpdate.id === update.id,
     );
     const previousUpdates = task.updates?.slice(0, taskUpdateIndex);
-    const previouslyCheckedItems = previousUpdates
-      ?.map((update) =>
-        update.checklist
-          ?.filter((update) => update.checked)
-          .map((update) => update.id),
-      )
-      .flat();
+    const previouslyCheckedItems = previousUpdates?.flatMap((update) =>
+      update.checklist
+        ?.filter((update) => update.checked)
+        .map((update) => update.id),
+    );
     const checklistCheckedItems =
       update.checklist?.filter(
         (item) => item.checked && !previouslyCheckedItems?.includes(item.id),

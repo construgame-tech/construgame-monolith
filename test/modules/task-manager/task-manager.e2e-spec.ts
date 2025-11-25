@@ -7,7 +7,6 @@ import {
   getRequest,
   postRequest,
   putRequest,
-  testData,
 } from "../../helpers";
 import { closeTestApp, setupTestApp } from "../../setup";
 
@@ -212,27 +211,35 @@ describe("TaskManagerController (e2e)", () => {
   describe("GET /api/v1/games/:gameId/task-managers", () => {
     it("should list all task managers for a game", async () => {
       // Arrange - Create 2 task managers
-      await postRequest(app, `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`, {
-        token: authToken,
-        body: {
-          name: "Task Manager 1",
-          kpiId,
-          rewardPoints: 10,
-          responsible: { type: "team", ids: [] },
-          schedule: { startDate: "2024-01-01", endDate: "2024-12-31" },
+      await postRequest(
+        app,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
+        {
+          token: authToken,
+          body: {
+            name: "Task Manager 1",
+            kpiId,
+            rewardPoints: 10,
+            responsible: { type: "team", ids: [] },
+            schedule: { startDate: "2024-01-01", endDate: "2024-12-31" },
+          },
         },
-      });
+      );
 
-      await postRequest(app, `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`, {
-        token: authToken,
-        body: {
-          name: "Task Manager 2",
-          kpiId,
-          rewardPoints: 20,
-          responsible: { type: "player", ids: [userId] },
-          schedule: { startDate: "2024-01-01", endDate: "2024-12-31" },
+      await postRequest(
+        app,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
+        {
+          token: authToken,
+          body: {
+            name: "Task Manager 2",
+            kpiId,
+            rewardPoints: 20,
+            responsible: { type: "player", ids: [userId] },
+            schedule: { startDate: "2024-01-01", endDate: "2024-12-31" },
+          },
         },
-      });
+      );
 
       // Act
       const response = await getRequest(

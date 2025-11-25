@@ -1,10 +1,10 @@
 // Migration script para Drizzle ORM
 // Executa as migrações do banco de dados
 
+import * as path from "node:path";
 import * as dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
-import * as path from "path";
 import { Pool } from "pg";
 
 // Carrega variáveis de ambiente

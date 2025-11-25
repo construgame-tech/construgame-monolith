@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import {
   createKaizenIdeaEntity,
   KaizenIdeaEntity,
@@ -5,7 +6,6 @@ import {
 } from "@domain/kaizen-idea/entities/kaizen-idea.entity";
 import type { IKaizenIdeaRepository } from "@domain/kaizen-idea/repositories/kaizen-idea.repository.interface";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { randomUUID } from "crypto";
 
 export interface CreateKaizenIdeaInput {
   organizationId: string;

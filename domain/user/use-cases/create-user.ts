@@ -1,11 +1,11 @@
 // Use Case: Criar um novo usuário
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import { createUserEntity, UserEntity } from "../entities/user.entity";
 import { IUserRepository } from "../repositories/user.repository.interface";
 
 export interface CreateUserInput {
-  name: string;
+  name?: string;
   email?: string;
   phone?: string;
   nickname?: string;
@@ -13,6 +13,7 @@ export interface CreateUserInput {
   customId?: string;
   signedTermsOfUse?: boolean;
   passwordRecoveryCode?: string;
+  password?: string;
 }
 
 export interface CreateUserOutput {
@@ -47,7 +48,7 @@ export const createUser = async (
   // Cria a entidade de domínio
   const user = createUserEntity({
     id: userId,
-    name: input.name,
+    name: input.name || input.email || input.phone || "User",
     email: input.email,
     phone: input.phone,
     nickname: input.nickname,

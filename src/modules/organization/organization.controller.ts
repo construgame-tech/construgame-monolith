@@ -88,12 +88,14 @@ export class OrganizationController {
   @Get()
   @ApiOperation({ summary: "List all organizations" })
   @ApiResponse({ status: 200, type: [OrganizationResponseDto] })
-  async findAll(): Promise<OrganizationResponseDto[]> {
+  async findAll() {
     try {
       const result = await listOrganizations({}, this.organizationRepository);
-      return result.organizations.map((org) =>
-        OrganizationResponseDto.fromEntity(org),
-      );
+      return {
+        items: result.organizations.map((org) =>
+          OrganizationResponseDto.fromEntity(org),
+        ),
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

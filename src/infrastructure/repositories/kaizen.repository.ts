@@ -202,6 +202,8 @@ export class KaizenRepository implements IKaizenRepository {
       createdDate: row.createdDate,
       updatedDate: row.updatedDate ?? undefined,
       sequence: row.sequence,
+      authorId: row.authorId ?? undefined,
+      description: row.description ?? undefined,
       originalKaizenId: row.originalKaizenId ?? undefined,
       leaderId: row.leaderId ?? undefined,
       teamId: row.teamId ?? undefined,

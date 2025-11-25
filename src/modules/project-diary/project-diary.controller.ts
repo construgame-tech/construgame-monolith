@@ -1,5 +1,6 @@
 import { ProjectDiaryRepository } from "@infrastructure/repositories/project-diary.repository";
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -19,6 +20,7 @@ import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
 // DTOs
 class UpsertProjectDiaryDto {
+  organizationId?: string;
   date?: string;
   notes?: string;
   weather?: {
@@ -53,8 +55,12 @@ export class ProjectDiaryController {
   @Post()
   async upsertProjectDiary(
     @Param("projectId") projectId: string,
-    @Body() body: UpsertProjectDiaryDto & { organizationId: string },
+    @Body() body: UpsertProjectDiaryDto,
   ) {
+    if (!body.organizationId) {
+      throw new BadRequestException("organizationId is required");
+    }
+
     const diary = await this.repository.upsert({
       organizationId: body.organizationId,
       projectId,

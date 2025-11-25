@@ -1,7 +1,7 @@
 // Game Response DTO
 // Formato de resposta padronizado para entidades de Game
 
-import type { GameEntity, GameKpi, GamePrize, GameStatus } from "@domain/game";
+import type { GameEntity, GameStatus } from "@domain/game";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class GamePrizeResponseDto {

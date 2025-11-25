@@ -1,6 +1,6 @@
 // Use Case: Criar um novo project
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import {
   createProjectEntity,
   ProjectEntity,

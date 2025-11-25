@@ -7,7 +7,6 @@ import {
   getRequest,
   postRequest,
   putRequest,
-  testData,
 } from "../../helpers";
 import { closeTestApp, setupTestApp } from "../../setup";
 

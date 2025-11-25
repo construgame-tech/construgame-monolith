@@ -22,6 +22,8 @@ export const teams = pgTable(
     members: json("members").$type<string[]>(),
     sequence: integer("sequence").notNull().default(0),
     photo: text("photo"),
+    color: varchar("color", { length: 50 }),
+    description: text("description"),
   },
   (table) => ({
     organizationIdx: index("teams_organization_id_idx").on(

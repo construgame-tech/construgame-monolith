@@ -2,8 +2,6 @@ import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
   Controller,
   Get,
-  HttpCode,
-  HttpStatus,
   Inject,
   Param,
   Query,

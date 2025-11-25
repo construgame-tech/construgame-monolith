@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { TaskManagerRepository } from "@infrastructure/repositories/task-manager.repository";
 import {
   BadRequestException,
@@ -6,7 +7,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpStatus,
   Inject,
   NotFoundException,
   Param,
@@ -16,7 +16,6 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { randomUUID } from "crypto";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
 // DTOs

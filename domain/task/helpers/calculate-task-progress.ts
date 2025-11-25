@@ -6,7 +6,7 @@ import { TaskEntity } from "../entities/task.entity";
 const calculateTaskMeasurementProgress = (task: TaskEntity) => {
   if (!task.totalMeasurementExpected) return;
 
-  const expectedMaximum = parseInt(task.totalMeasurementExpected);
+  const expectedMaximum = parseInt(task.totalMeasurementExpected, 10);
   const newProgress =
     task.updates?.reduce((sum, update) => sum + (update.progress || 0), 0) ?? 0;
   const newPercent = Math.round((newProgress / expectedMaximum) * 100);

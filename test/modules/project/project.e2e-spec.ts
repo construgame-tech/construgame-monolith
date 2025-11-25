@@ -7,7 +7,6 @@ import {
   getRequest,
   postRequest,
   putRequest,
-  testData,
 } from "../../helpers";
 import { closeTestApp, setupTestApp } from "../../setup";
 
@@ -28,7 +27,7 @@ describe("ProjectController (e2e)", () => {
     await closeTestApp();
   });
 
-  describe("POST /api/v1/organizations/${organizationId}/projects", () => {
+  describe("POST /api/v1/organizations/:organizationId/projects", () => {
     it("should create a new project", async () => {
       // Arrange
       const projectData = {
@@ -43,10 +42,14 @@ describe("ProjectController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        token: authToken,
-        body: projectData,
-      });
+      const response = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          token: authToken,
+          body: projectData,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(201);
@@ -69,10 +72,14 @@ describe("ProjectController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        token: authToken,
-        body: projectData,
-      });
+      const response = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          token: authToken,
+          body: projectData,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(201);
@@ -86,10 +93,14 @@ describe("ProjectController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        token: authToken,
-        body: invalidData,
-      });
+      const response = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          token: authToken,
+          body: invalidData,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(400);
@@ -103,9 +114,13 @@ describe("ProjectController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        body: projectData,
-      });
+      const response = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          body: projectData,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(401);
@@ -115,13 +130,17 @@ describe("ProjectController (e2e)", () => {
   describe("GET /api/v1/projects/:projectId", () => {
     it("should get a project by id", async () => {
       // Arrange - Create project first
-      const createResponse = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        token: authToken,
-        body: {
-          name: "Projeto para Consulta",
-          organizationId,
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          token: authToken,
+          body: {
+            name: "Projeto para Consulta",
+            organizationId,
+          },
         },
-      });
+      );
 
       const projectId = createResponse.body.id;
 
@@ -156,24 +175,36 @@ describe("ProjectController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/organizations/${organizationId}/projects", () => {
+  describe("GET /api/v1/organizations/:organizationId/projects", () => {
     it("should list all projects for an organization", async () => {
       // Arrange - Create at least 2 projects
-      await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        token: authToken,
-        body: { name: "Projeto List 1", organizationId },
-      });
+      await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          token: authToken,
+          body: { name: "Projeto List 1", organizationId },
+        },
+      );
 
-      await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        token: authToken,
-        body: { name: "Projeto List 2", organizationId },
-      });
+      await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          token: authToken,
+          body: { name: "Projeto List 2", organizationId },
+        },
+      );
 
       // Act
-      const response = await getRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        token: authToken,
-        query: { organizationId },
-      });
+      const response = await getRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          token: authToken,
+          query: { organizationId },
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(200);
@@ -185,14 +216,18 @@ describe("ProjectController (e2e)", () => {
   describe("PUT /api/v1/projects/:projectId", () => {
     it("should update a project", async () => {
       // Arrange - Create project
-      const createResponse = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        token: authToken,
-        body: {
-          name: "Projeto Original",
-          organizationId,
-          description: "Descrição original",
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          token: authToken,
+          body: {
+            name: "Projeto Original",
+            organizationId,
+            description: "Descrição original",
+          },
         },
-      });
+      );
 
       const projectId = createResponse.body.id;
 
@@ -236,13 +271,17 @@ describe("ProjectController (e2e)", () => {
   describe("DELETE /api/v1/projects/:projectId", () => {
     it("should delete a project", async () => {
       // Arrange - Create project
-      const createResponse = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        token: authToken,
-        body: {
-          name: "Projeto para Deletar",
-          organizationId,
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          token: authToken,
+          body: {
+            name: "Projeto para Deletar",
+            organizationId,
+          },
         },
-      });
+      );
 
       const projectId = createResponse.body.id;
 
@@ -291,19 +330,23 @@ describe("ProjectController (e2e)", () => {
   describe("Integration Tests", () => {
     it("should handle complete project lifecycle", async () => {
       // Arrange & Act - Create
-      const createResponse = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        token: authToken,
-        body: {
-          name: "Lifecycle Project",
-          organizationId,
-          description: "Projeto completo",
-          address: "Rua Teste, 100",
-          city: "Belo Horizonte",
-          state: "MG",
-          startDate: "2024-06-01",
-          endDate: "2025-06-01",
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          token: authToken,
+          body: {
+            name: "Lifecycle Project",
+            organizationId,
+            description: "Projeto completo",
+            address: "Rua Teste, 100",
+            city: "Belo Horizonte",
+            state: "MG",
+            startDate: "2024-06-01",
+            endDate: "2025-06-01",
+          },
         },
-      });
+      );
 
       expect(createResponse.statusCode).toBe(201);
       const projectId = createResponse.body.id;
@@ -361,10 +404,14 @@ describe("ProjectController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/organizations/${organizationId}/projects", {
-        token: authToken,
-        body: projectData,
-      });
+      const response = await postRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects`,
+        {
+          token: authToken,
+          body: projectData,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(201);

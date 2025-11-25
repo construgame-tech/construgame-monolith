@@ -1,6 +1,6 @@
 // Use Case: Deletar um usuário
 
-import { incrementUserSequence, UserEntity } from "../entities/user.entity";
+import { incrementUserSequence } from "../entities/user.entity";
 import { IUserRepository } from "../repositories/user.repository.interface";
 
 export interface DeleteUserInput {

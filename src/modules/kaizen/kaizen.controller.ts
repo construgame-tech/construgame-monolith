@@ -8,13 +8,11 @@ import {
   Param,
   Post,
   Put,
-  Query,
   UseGuards,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
@@ -70,11 +68,11 @@ export class KaizenController {
   @Get("games/:gameId/kaizens")
   @ApiOperation({ summary: "List kaizens by game" })
   @ApiResponse({ status: 200, type: [KaizenResponseDto] })
-  async listByGame(
-    @Param("gameId") gameId: string,
-  ): Promise<KaizenResponseDto[]> {
+  async listByGame(@Param("gameId") gameId: string) {
     const kaizens = await this.kaizenService.listByGame(gameId);
-    return kaizens.map(KaizenResponseDto.fromEntity);
+    return {
+      items: kaizens.map(KaizenResponseDto.fromEntity),
+    };
   }
 
   @Get("organizations/:organizationId/projects/:projectId/kaizens")

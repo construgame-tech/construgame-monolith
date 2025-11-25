@@ -1,6 +1,6 @@
 // Use Case: Criar um novo kaizen
 
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import {
   createKaizenEntity,
   KaizenAttachment,
@@ -16,6 +16,8 @@ export interface CreateKaizenInput {
   projectId: string;
   gameId: string;
   name: string;
+  authorId?: string;
+  description?: string;
   leaderId?: string;
   teamId?: string;
   category?: number;
@@ -51,6 +53,8 @@ export const createKaizen = async (
     projectId: input.projectId,
     gameId: input.gameId,
     name: input.name,
+    authorId: input.authorId,
+    description: input.description,
     leaderId: input.leaderId,
     teamId: input.teamId,
     category: input.category,
