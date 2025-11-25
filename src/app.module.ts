@@ -29,6 +29,8 @@ import { TeamModule } from "@modules/team/team.module";
 import { UserModule } from "@modules/user/user.module";
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { APP_GUARD } from "@nestjs/core";
+import { seconds, ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { AppController } from "./app.controller";
 
 @Module({
@@ -38,6 +40,27 @@ import { AppController } from "./app.controller";
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
       ignoreEnvFile: process.env.NODE_ENV === "test",
+    }),
+
+    // Rate limiting
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          name: "short",
+          ttl: seconds(1),
+          limit: 10,
+        },
+        {
+          name: "medium",
+          ttl: seconds(10),
+          limit: 50,
+        },
+        {
+          name: "long",
+          ttl: seconds(60),
+          limit: 200,
+        },
+      ],
     }),
 
     // Database configuration
@@ -75,5 +98,11 @@ import { AppController } from "./app.controller";
     PushNotificationModule,
   ],
   controllers: [AppController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
