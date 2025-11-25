@@ -1,13 +1,18 @@
-import type { TaskManagerRepository } from "@infrastructure/repositories/task-manager.repository";
+import { TaskManagerRepository } from "@infrastructure/repositories/task-manager.repository";
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
   NotFoundException,
   Param,
   Post,
   Put,
+  Query,
 } from "@nestjs/common";
 import { randomUUID } from "crypto";
 
@@ -88,7 +93,10 @@ class UpdateTaskManagerDto {
 
 @Controller()
 export class TaskManagerController {
-  constructor(private readonly repository: TaskManagerRepository) {}
+  constructor(
+    @Inject(TaskManagerRepository)
+    private readonly repository: TaskManagerRepository,
+  ) {}
 
   @Post("games/:gameId/task-managers")
   async createTaskManager(

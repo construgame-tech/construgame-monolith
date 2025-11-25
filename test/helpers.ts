@@ -1,7 +1,6 @@
-import type { INestApplication } from "@nestjs/common";
+import type { NestFastifyApplication } from "@nestjs/platform-fastify";
 import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
-import request from "supertest";
 
 export interface TestResponse<T = any> {
   statusCode: number;
@@ -39,26 +38,36 @@ export function createToken(
  * Make a GET request
  */
 export async function getRequest<T = any>(
-  app: INestApplication,
+  app: NestFastifyApplication,
   url: string,
   options: TestRequest = {},
 ): Promise<TestResponse<T>> {
-  let req = request(app.getHttpServer()).get(url);
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
 
   if (options.token) {
-    req = req.set("Authorization", `Bearer ${options.token}`);
+    headers.Authorization = `Bearer ${options.token}`;
   }
 
+  let finalUrl = url;
   if (options.query) {
-    req = req.query(options.query);
+    const queryString = new URLSearchParams(options.query).toString();
+    finalUrl = `${url}?${queryString}`;
   }
 
-  const response = await req;
+  const response = await app.inject({
+    method: "GET",
+    url: finalUrl,
+    headers,
+  });
 
+  const body = response.payload ? JSON.parse(response.payload) : {};
+  
   return {
-    statusCode: response.status,
-    body: response.body.data || response.body,
-    headers: response.headers,
+    statusCode: response.statusCode,
+    body: body.data || body,
+    headers: response.headers as Record<string, string>,
   };
 }
 
@@ -66,26 +75,31 @@ export async function getRequest<T = any>(
  * Make a POST request
  */
 export async function postRequest<T = any>(
-  app: INestApplication,
+  app: NestFastifyApplication,
   url: string,
   options: TestRequest = {},
 ): Promise<TestResponse<T>> {
-  let req = request(app.getHttpServer()).post(url);
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
 
   if (options.token) {
-    req = req.set("Authorization", `Bearer ${options.token}`);
+    headers.Authorization = `Bearer ${options.token}`;
   }
 
-  if (options.body) {
-    req = req.send(options.body);
-  }
+  const response = await app.inject({
+    method: "POST",
+    url,
+    headers,
+    payload: options.body,
+  });
 
-  const response = await req;
+  const body = response.payload ? JSON.parse(response.payload) : {};
 
   return {
-    statusCode: response.status,
-    body: response.body.data || response.body,
-    headers: response.headers,
+    statusCode: response.statusCode,
+    body: body.data || body,
+    headers: response.headers as Record<string, string>,
   };
 }
 
@@ -93,26 +107,31 @@ export async function postRequest<T = any>(
  * Make a PUT request
  */
 export async function putRequest<T = any>(
-  app: INestApplication,
+  app: NestFastifyApplication,
   url: string,
   options: TestRequest = {},
 ): Promise<TestResponse<T>> {
-  let req = request(app.getHttpServer()).put(url);
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
 
   if (options.token) {
-    req = req.set("Authorization", `Bearer ${options.token}`);
+    headers.Authorization = `Bearer ${options.token}`;
   }
 
-  if (options.body) {
-    req = req.send(options.body);
-  }
+  const response = await app.inject({
+    method: "PUT",
+    url,
+    headers,
+    payload: options.body,
+  });
 
-  const response = await req;
+  const body = response.payload ? JSON.parse(response.payload) : {};
 
   return {
-    statusCode: response.status,
-    body: response.body.data || response.body,
-    headers: response.headers,
+    statusCode: response.statusCode,
+    body: body.data || body,
+    headers: response.headers as Record<string, string>,
   };
 }
 
@@ -120,22 +139,30 @@ export async function putRequest<T = any>(
  * Make a DELETE request
  */
 export async function deleteRequest<T = any>(
-  app: INestApplication,
+  app: NestFastifyApplication,
   url: string,
   options: TestRequest = {},
 ): Promise<TestResponse<T>> {
-  let req = request(app.getHttpServer()).delete(url);
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
 
   if (options.token) {
-    req = req.set("Authorization", `Bearer ${options.token}`);
+    headers.Authorization = `Bearer ${options.token}`;
   }
 
-  const response = await req;
+  const response = await app.inject({
+    method: "DELETE",
+    url,
+    headers,
+  });
+
+  const body = response.payload ? JSON.parse(response.payload) : {};
 
   return {
-    statusCode: response.status,
-    body: response.body.data || response.body,
-    headers: response.headers,
+    statusCode: response.statusCode,
+    body: body.data || body,
+    headers: response.headers as Record<string, string>,
   };
 }
 

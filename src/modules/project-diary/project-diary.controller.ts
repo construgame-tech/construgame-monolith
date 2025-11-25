@@ -1,5 +1,19 @@
-import type { ProjectDiaryRepository } from "@infrastructure/repositories/project-diary.repository";
-import { Body, Controller, Get, Param, Post, Query } from "@nestjs/common";
+import { ProjectDiaryRepository } from "@infrastructure/repositories/project-diary.repository";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Query,
+} from "@nestjs/common";
 
 // DTOs
 class UpsertProjectDiaryDto {
@@ -25,7 +39,10 @@ class UpsertProjectDiaryDto {
 
 @Controller()
 export class ProjectDiaryController {
-  constructor(private readonly repository: ProjectDiaryRepository) {}
+  constructor(
+    @Inject(ProjectDiaryRepository)
+    private readonly repository: ProjectDiaryRepository,
+  ) {}
 
   @Post("organizations/:organizationId/projects/:projectId/diaries/:date")
   async upsertProjectDiary(

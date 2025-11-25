@@ -1,4 +1,4 @@
-import type { INestApplication } from "@nestjs/common";
+import type { NestFastifyApplication } from "@nestjs/platform-fastify";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   createToken,
@@ -7,11 +7,12 @@ import {
   getRequest,
   postRequest,
   putRequest,
+  testData,
 } from "../../helpers";
 import { closeTestApp, setupTestApp } from "../../setup";
 
 describe("OrganizationController (e2e)", () => {
-  let app: INestApplication;
+  let app: NestFastifyApplication;
   let authToken: string;
   let userId: string;
   let organizationId: string;
@@ -31,7 +32,7 @@ describe("OrganizationController (e2e)", () => {
     it("should create a new organization", async () => {
       // Arrange
       const organizationData = {
-        ownerId: authToken,
+        ownerId: userId,
         name: "Construgame Obras",
         tradeName: "Construgame",
         cnpj: "12.345.678/0001-90",

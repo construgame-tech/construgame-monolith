@@ -5,7 +5,7 @@ import {
   listOrganizations,
   updateOrganization,
 } from "@domain/organization";
-import type { OrganizationRepository } from "@infrastructure/repositories/organization.repository";
+import { OrganizationRepository } from "@infrastructure/repositories/organization.repository";
 import {
   BadRequestException,
   Body,
@@ -14,6 +14,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   NotFoundException,
   Param,
   Post,
@@ -34,7 +35,10 @@ import type { UpdateOrganizationDto } from "./dto/update-organization.dto";
 @ApiBearerAuth("JWT-auth")
 @Controller("organizations")
 export class OrganizationController {
-  constructor(private readonly organizationRepository: OrganizationRepository) {
+  constructor(
+    @Inject(OrganizationRepository)
+    private readonly organizationRepository: OrganizationRepository,
+  ) {
     console.log(
       "OrganizationController constructed with repo:",
       !!this.organizationRepository,

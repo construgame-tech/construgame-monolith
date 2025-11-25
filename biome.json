@@ -19,6 +19,9 @@
       "recommended": true,
       "correctness": {
         "noUnusedFunctionParameters": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off"
       }
     }
   },

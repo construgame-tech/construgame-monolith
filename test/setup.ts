@@ -16,7 +16,11 @@ process.env.EMAIL_FROM = "noreply@test.construgame.com";
 process.env.APP_URL = "http://localhost:3000";
 process.env.SMS_SENDER_ID = "ConstrugameTest";
 
-import { type INestApplication, ValidationPipe } from "@nestjs/common";
+import { ValidationPipe } from "@nestjs/common";
+import {
+  FastifyAdapter,
+  type NestFastifyApplication,
+} from "@nestjs/platform-fastify";
 import { Test, type TestingModule } from "@nestjs/testing";
 import { HttpExceptionFilter } from "../src/common/filters/http-exception.filter";
 import { TransformInterceptor } from "../src/common/interceptors/transform.interceptor";
@@ -25,9 +29,9 @@ import { JwtAuthGuard } from "../src/modules/auth/jwt-auth.guard";
 import { MockAuthGuard } from "./mocks/auth.guard";
 import { TestAppModule } from "./test-app.module";
 
-let app: INestApplication | null = null;
+let app: NestFastifyApplication | null = null;
 
-export async function setupTestApp(): Promise<INestApplication> {
+export async function setupTestApp(): Promise<NestFastifyApplication> {
   if (app) {
     return app;
   }
@@ -73,7 +77,9 @@ export async function setupTestApp(): Promise<INestApplication> {
     console.log("OrganizationController NOT found in DI");
   }
 
-  app = testingModule.createNestApplication();
+  app = testingModule.createNestApplication<NestFastifyApplication>(
+    new FastifyAdapter(),
+  );
 
   // Apply same configuration as main.ts
   app.setGlobalPrefix("api/v1");
@@ -90,6 +96,7 @@ export async function setupTestApp(): Promise<INestApplication> {
   app.useGlobalInterceptors(new TransformInterceptor());
 
   await app.init();
+  await app.getHttpAdapter().getInstance().ready();
 
   return app;
 }

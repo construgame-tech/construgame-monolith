@@ -1,14 +1,18 @@
-import type { ProjectPlanningRepository } from "@infrastructure/repositories/project-planning.repository";
+import { ProjectPlanningRepository } from "@infrastructure/repositories/project-planning.repository";
 import {
   BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
   NotFoundException,
   Param,
   Post,
   Put,
+  Query,
 } from "@nestjs/common";
 import { randomUUID } from "crypto";
 
@@ -87,7 +91,10 @@ class MoveMacrostepOrderDto {
 
 @Controller()
 export class ProjectPlanningController {
-  constructor(private readonly repository: ProjectPlanningRepository) {}
+  constructor(
+    @Inject(ProjectPlanningRepository)
+    private readonly repository: ProjectPlanningRepository,
+  ) {}
 
   // ========== Macrostep Routes ==========
 

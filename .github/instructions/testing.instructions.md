@@ -151,7 +151,59 @@ beforeEach(async () => {
 });
 ```
 
-## Override Global Guards
+## Auto-Mocking with useMocker()
+**When to use**: Controller has many dependencies, avoid manually creating all mocks.
+
+```typescript
+import { ModuleMocker, MockFunctionMetadata } from 'jest-mock';
+import { Test } from '@nestjs/testing';
+import { describe, it, beforeEach, expect, vi } from 'vitest';
+
+const moduleMocker = new ModuleMocker(global);
+
+describe('GameController', () => {
+  let controller: GameController;
+  let service: GameService;
+
+  beforeEach(async () => {
+    const moduleRef = await Test.createTestingModule({
+      controllers: [GameController],
+    })
+      .useMocker((token) => {
+        // Specific mock for known services
+        if (token === GameService) {
+          return {
+            create: vi.fn().mockResolvedValue({ id: 'game-123', name: 'Game' }),
+            findById: vi.fn().mockResolvedValue({ id: 'game-123' }),
+          };
+        }
+        
+        // Generic mock for other dependencies
+        if (typeof token === 'function') {
+          const mockMetadata = moduleMocker.getMetadata(token) as MockFunctionMetadata<any, any>;
+          const Mock = moduleMocker.generateFromMetadata(mockMetadata);
+          return new Mock();
+        }
+      })
+      .compile();
+
+    controller = moduleRef.get(GameController);
+    service = moduleRef.get(GameService);
+  });
+
+  it('should create game', async () => {
+    const dto = { organizationId: 'org-123', projectId: 'proj-123', name: 'Game' };
+    const result = await controller.create(dto);
+
+    expect(result).toHaveProperty('id');
+    expect(service.create).toHaveBeenCalledWith(dto);
+  });
+});
+```
+
+## Override Global Enhancers (Guards/Interceptors/Pipes/Filters)
+
+### Guards
 ```typescript
 // 1. In module, change useClass to useExisting
 providers: [
@@ -165,6 +217,111 @@ const module = await Test.createTestingModule({ imports: [AppModule] })
   .useValue({ canActivate: () => true })
   .compile();
 ```
+
+### All Override Methods
+```typescript
+// Override providers (services, repositories)
+.overrideProvider(GameService).useValue(mockService)
+.overrideProvider(GameService).useClass(MockGameService)
+.overrideProvider(GameService).useFactory({ factory: () => mockService })
+
+// Override guards
+.overrideGuard(JwtAuthGuard).useValue({ canActivate: () => true })
+
+// Override interceptors
+.overrideInterceptor(LoggingInterceptor).useValue({ intercept: (ctx, next) => next.handle() })
+
+// Override pipes
+.overridePipe(ValidationPipe).useValue({ transform: (val) => val })
+
+// Override filters
+.overrideFilter(HttpExceptionFilter).useValue({ catch: () => {} })
+
+// Override modules
+.overrideModule(DatabaseModule).useModule(MockDatabaseModule)
+```
+
+## Testing Request-Scoped Providers
+**Challenge**: Request-scoped providers are created per request.
+
+```typescript
+import { ContextIdFactory } from '@nestjs/core';
+import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, beforeEach, expect, vi } from 'vitest';
+
+describe('RequestScopedService', () => {
+  let moduleRef: TestingModule;
+
+  beforeEach(async () => {
+    moduleRef = await Test.createTestingModule({
+      providers: [RequestScopedService],
+    }).compile();
+  });
+
+  it('should resolve request-scoped instance', async () => {
+    const contextId = ContextIdFactory.create();
+    vi.spyOn(ContextIdFactory, 'getByRequest').mockImplementation(() => contextId);
+
+    const service = await moduleRef.resolve(RequestScopedService, contextId);
+    
+    expect(service).toBeDefined();
+  });
+
+  it('should create different instances per request', async () => {
+    const contextId1 = ContextIdFactory.create();
+    const contextId2 = ContextIdFactory.create();
+
+    const service1 = await moduleRef.resolve(RequestScopedService, contextId1);
+    const service2 = await moduleRef.resolve(RequestScopedService, contextId2);
+
+    expect(service1).not.toBe(service2);
+  });
+});
+```
+
+## Module Reference Methods
+
+```typescript
+const moduleRef = await Test.createTestingModule({ ... }).compile();
+
+// get() - Retrieve static instance (singleton/transient)
+const service = moduleRef.get<GameService>(GameService);
+const controller = moduleRef.get<GameController>(GameController);
+
+// resolve() - Retrieve scoped instance (request/transient)
+const scopedService = await moduleRef.resolve(GameService, contextId);
+
+// select() - Navigate module dependency graph
+const gameService = moduleRef.select(GameModule).get(GameService);
+```
+
+**CRITICAL**: 
+- `get()` retrieves **static instances** (singleton scope)
+- `resolve()` retrieves **scoped instances** (request/transient scope)
+- `resolve()` returns different instance each time (unique DI sub-tree)
+
+## Testing Module Compilation Methods
+
+```typescript
+const moduleRef = await Test.createTestingModule({
+  imports: [AppModule],
+}).compile();
+
+// createNestApplication() - Full HTTP app for E2E
+const app = moduleRef.createNestApplication<NestFastifyApplication>(
+  new FastifyAdapter()
+);
+await app.init();
+await app.getHttpAdapter().getInstance().ready();
+
+// createNestMicroservice() - Microservice for E2E
+const microservice = moduleRef.createNestMicroservice({
+  transport: Transport.TCP,
+});
+await microservice.listen();
+```
+
+**Note**: When using `compile()`, `HttpAdapterHost#httpAdapter` is undefined. Use `createNestApplication()` if you need the HTTP adapter during initialization.
 
 ## Test Checklist
 - [ ] Unit test for domain use case
@@ -181,6 +338,7 @@ import { jest } from '@jest/globals';
 const mock = jest.fn();
 const module = Test.createTestingModule({}).compile(); // Missing await
 await app.init(); // Missing ready() for Fastify
+moduleRef.get(GameService); // Missing type parameter
 
 // ✅ Correct
 import { vi } from 'vitest';
@@ -188,4 +346,26 @@ const mock = vi.fn();
 const module = await Test.createTestingModule({}).compile();
 await app.init();
 await app.getHttpAdapter().getInstance().ready();
+moduleRef.get<GameService>(GameService); // Type-safe
 ```
+
+## Testing Best Practices
+
+**DO**:
+- ✅ Keep test files next to source (`.spec.ts` suffix)
+- ✅ Keep E2E tests in `test/` directory (`.e2e-spec.ts` suffix)
+- ✅ Use `beforeEach` for test setup
+- ✅ Use `afterAll` to close app/connections
+- ✅ Mock external dependencies (DB, AWS, APIs)
+- ✅ Use type-safe `moduleRef.get<Type>(Token)`
+- ✅ Verify method calls with `.toHaveBeenCalledWith()`
+- ✅ Test both success and error cases
+
+**DON'T**:
+- ❌ Use real database in unit tests
+- ❌ Make real AWS/API calls
+- ❌ Test framework code (test YOUR code)
+- ❌ Write tests that depend on execution order
+- ❌ Use `any` types in test code
+- ❌ Mix Jest and Vitest syntax
+- ❌ Forget to await async operations

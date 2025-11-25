@@ -10,6 +10,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   NotFoundException,
   Param,
   Post,
@@ -28,13 +29,16 @@ import {
 import type { CreateGameDto } from "./dto/create-game.dto";
 import { GameListResponseDto, GameResponseDto } from "./dto/game-response.dto";
 import type { UpdateGameDto } from "./dto/update-game.dto";
-import type { GameService } from "./game.service";
+import { GameService } from "./game.service";
 
 @ApiTags("games")
 @ApiBearerAuth("JWT-auth")
 @Controller("games")
 export class GameController {
-  constructor(private readonly gameService: GameService) {}
+  constructor(
+    @Inject(GameService)
+    private readonly gameService: GameService,
+  ) {}
 
   @Post()
   @ApiOperation({
