@@ -1,14 +1,27 @@
 import { KaizenEntity } from "@domain/kaizen/entities/kaizen.entity";
 import type { IKaizenRepository } from "@domain/kaizen/repositories/kaizen.repository.interface";
+import { archiveKaizen } from "@domain/kaizen/use-cases/archive-kaizen";
+import { completeKaizen } from "@domain/kaizen/use-cases/complete-kaizen";
 import {
   CreateKaizenInput,
   createKaizen,
 } from "@domain/kaizen/use-cases/create-kaizen";
+import { reopenKaizen } from "@domain/kaizen/use-cases/reopen-kaizen";
+import {
+  ReplicateKaizenInput,
+  replicateKaizen,
+} from "@domain/kaizen/use-cases/replicate-kaizen";
+import { unarchiveKaizen } from "@domain/kaizen/use-cases/unarchive-kaizen";
 import {
   UpdateKaizenInput,
   updateKaizen,
 } from "@domain/kaizen/use-cases/update-kaizen";
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 
 @Injectable()
 export class KaizenService {
@@ -65,5 +78,71 @@ export class KaizenService {
 
   async listByOrganization(organizationId: string): Promise<KaizenEntity[]> {
     return this.kaizenRepository.findByOrganizationId(organizationId);
+  }
+
+  async countByOrganization(organizationId: string): Promise<number> {
+    const kaizens =
+      await this.kaizenRepository.findByOrganizationId(organizationId);
+    return kaizens.length;
+  }
+
+  async complete(kaizenId: string): Promise<KaizenEntity> {
+    try {
+      const result = await completeKaizen({ kaizenId }, this.kaizenRepository);
+      return result.kaizen;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async reopen(kaizenId: string): Promise<KaizenEntity> {
+    try {
+      const result = await reopenKaizen({ kaizenId }, this.kaizenRepository);
+      return result.kaizen;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async archive(kaizenId: string): Promise<KaizenEntity> {
+    try {
+      const result = await archiveKaizen({ kaizenId }, this.kaizenRepository);
+      return result.kaizen;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async unarchive(kaizenId: string): Promise<KaizenEntity> {
+    try {
+      const result = await unarchiveKaizen({ kaizenId }, this.kaizenRepository);
+      return result.kaizen;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async replicate(input: ReplicateKaizenInput): Promise<KaizenEntity> {
+    try {
+      const result = await replicateKaizen(input, this.kaizenRepository);
+      return result.kaizen;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
   }
 }

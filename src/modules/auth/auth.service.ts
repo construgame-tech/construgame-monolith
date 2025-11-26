@@ -249,6 +249,55 @@ export class AuthService {
     }
   }
 
+  // Valida código de recuperação (sem alterar senha)
+  async validateRecoveryCode(userId: string, recoveryCode: string) {
+    const user = await this.userRepository.findById(userId);
+
+    if (!user) {
+      throw new BadRequestException("User not found");
+    }
+
+    if (user.passwordRecoveryCode !== recoveryCode) {
+      throw new BadRequestException("Invalid recovery code");
+    }
+
+    if (user.passwordRecoveryCodeExpires) {
+      const expiresAt = new Date(user.passwordRecoveryCodeExpires);
+      if (expiresAt < new Date()) {
+        throw new BadRequestException("Recovery code expired");
+      }
+    }
+
+    return {
+      valid: true,
+      userId: user.id,
+    };
+  }
+
+  // Recuperação de senha pelo admin (retorna o link ao invés de enviar email)
+  async adminRecoverPassword(email: string) {
+    const recoveryCode = this.generateRandomCode(6);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 horas
+
+    const result = await recoverPassword(
+      { email, recoveryCode, expiresAt },
+      this.userRepository,
+    );
+
+    if (!result.codeGenerated || !result.user) {
+      throw new BadRequestException("User not found");
+    }
+
+    const appUrl = process.env.APP_URL || "https://app.construgame.com.br";
+    const recoveryLink = `${appUrl}/nova-senha?code=${recoveryCode}&userId=${result.user.id}&email=${encodeURIComponent(email)}`;
+
+    return {
+      recoveryLink,
+      userId: result.user.id,
+      expiresAt,
+    };
+  }
+
   // Gera código aleatório numérico
   private generateRandomCode(length: number): string {
     const digits = "0123456789";
