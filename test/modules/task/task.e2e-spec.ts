@@ -16,13 +16,11 @@ describe("TaskController (e2e)", () => {
   let userId: string;
   let organizationId: string;
   let gameId: string;
-  let projectId: string;
 
   beforeAll(async () => {
     app = await setupTestApp();
     userId = faker.uuid();
     organizationId = faker.uuid();
-    projectId = faker.uuid();
     gameId = faker.uuid();
     authToken = createToken(userId, organizationId, ["owner"]);
   });

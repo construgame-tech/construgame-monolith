@@ -6,39 +6,22 @@ import {
   NestInterceptor,
 } from "@nestjs/common";
 import { Observable } from "rxjs";
-import { map } from "rxjs/operators";
-
-export interface Response<T> {
-  data: T;
-  statusCode: number;
-  timestamp: string;
-  path: string;
-}
+import { tap } from "rxjs/operators";
 
 @Injectable()
-export class TransformInterceptor<T>
-  implements NestInterceptor<T, Response<T>>
-{
+export class TransformInterceptor<T> implements NestInterceptor<T, T> {
   private readonly logger = new Logger(TransformInterceptor.name);
 
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler,
-  ): Observable<Response<T>> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<T> {
     const request = context.switchToHttp().getRequest();
-    const statusCode = context.switchToHttp().getResponse().statusCode;
+    const response = context.switchToHttp().getResponse();
 
     return next.handle().pipe(
-      map((data) => {
+      tap(() => {
         // Log successful requests
-        this.logger.log(`${request.method} ${request.url} - ${statusCode}`);
-
-        return {
-          data,
-          statusCode,
-          timestamp: new Date().toISOString(),
-          path: request.url,
-        };
+        this.logger.log(
+          `${request.method} ${request.url} - ${response.statusCode}`,
+        );
       }),
     );
   }

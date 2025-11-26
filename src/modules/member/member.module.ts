@@ -9,11 +9,12 @@ import { MemberService } from "./member.service";
   controllers: [MemberController],
   providers: [
     MemberService,
+    MemberRepository,
     {
       provide: "IMemberRepository",
       useClass: MemberRepository,
     },
   ],
-  exports: [MemberService],
+  exports: [MemberService, MemberRepository],
 })
 export class MemberModule {}

@@ -312,7 +312,7 @@ describe("UserController (e2e)", () => {
   });
 
   describe("POST /api/v1/users/:id/superuser", () => {
-    it("should make a user superuser", async () => {
+    it("should make a user superuser when requester is superuser", async () => {
       // Arrange - Create regular user
       const createResponse = await postRequest(app, "/api/v1/users", {
         token: authToken,
@@ -322,20 +322,50 @@ describe("UserController (e2e)", () => {
         },
       });
 
-      const userId = createResponse.body.id;
+      const targetUserId = createResponse.body.id;
+
+      // Create superuser token
+      const superuserToken = createToken(userId, organizationId, ["owner"], {
+        userType: "superuser",
+      });
 
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/users/${userId}/superuser`,
+        `/api/v1/users/${targetUserId}/superuser`,
         {
-          token: authToken,
+          token: superuserToken,
         },
       );
 
       // Assert
       expect(response.statusCode).toBe(200);
       expect(response.body.superuser).toBe(true);
+    });
+
+    it("should return 403 when requester is not superuser", async () => {
+      // Arrange - Create regular user
+      const createResponse = await postRequest(app, "/api/v1/users", {
+        token: authToken,
+        body: {
+          email: "superuser.forbidden@test.com",
+          password: "senha123",
+        },
+      });
+
+      const targetUserId = createResponse.body.id;
+
+      // Act - Use regular token (not superuser)
+      const response = await postRequest(
+        app,
+        `/api/v1/users/${targetUserId}/superuser`,
+        {
+          token: authToken,
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(403);
     });
   });
 

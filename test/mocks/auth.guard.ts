@@ -1,5 +1,5 @@
 // Mock Auth Guard for E2E tests
-// Checks for authorization header and allows/denies accordingly
+// Checks for authorization header and decodes JWT to get user data
 
 import {
   type CanActivate,
@@ -7,6 +7,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
+import jwt from "jsonwebtoken";
 
 @Injectable()
 export class MockAuthGuard implements CanActivate {
@@ -25,14 +26,27 @@ export class MockAuthGuard implements CanActivate {
       throw new UnauthorizedException("Invalid authorization token");
     }
 
-    // Mock user data - simulate authenticated user
-    request.user = {
-      id: "test-user-id",
-      email: "test@example.com",
-      organizationId: "test-org-id",
-      role: "admin",
-    };
+    try {
+      // Decode JWT to get user data (verify with test secret)
+      const decoded = jwt.verify(
+        token,
+        process.env.JWT_SECRET || "dev_secret_key",
+      ) as any;
 
-    return true; // Has token = allow
+      // Set user data from JWT payload
+      request.user = {
+        id: decoded.sub,
+        userId: decoded.sub,
+        username: decoded.username,
+        email: decoded.email || `${decoded.username}@test.com`,
+        organizationId: decoded.organizationId,
+        roles: decoded.roles || ["user"],
+        userType: decoded.userType || "user",
+      };
+
+      return true;
+    } catch {
+      throw new UnauthorizedException("Invalid authorization token");
+    }
   }
 }

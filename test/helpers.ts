@@ -22,6 +22,7 @@ export function createToken(
   userId: string,
   organizationId?: string,
   roles: string[] = ["user"],
+  options?: { userType?: "user" | "superuser" },
 ): string {
   return jwt.sign(
     {
@@ -29,6 +30,7 @@ export function createToken(
       username: `user-${userId}`,
       organizationId,
       roles,
+      userType: options?.userType ?? "user",
     },
     process.env.JWT_SECRET || "dev_secret_key",
     { expiresIn: "1d" },

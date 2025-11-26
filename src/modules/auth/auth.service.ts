@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { UserEntity } from "@domain/user/entities/user.entity";
 import { authenticateWithEmail } from "@domain/user/use-cases/authenticate-with-email";
 import {
@@ -7,6 +7,7 @@ import {
 } from "@domain/user/use-cases/authenticate-with-phone";
 import { changePassword as changePasswordUseCase } from "@domain/user/use-cases/change-password";
 import { recoverPassword } from "@domain/user/use-cases/recover-password";
+import { MemberRepository } from "@infrastructure/repositories/member.repository";
 import { UserRepository } from "@infrastructure/repositories/user.repository";
 import { EmailService } from "@infrastructure/services/email/email.service";
 import { SmsService } from "@infrastructure/services/sms/sms.service";
@@ -19,11 +20,17 @@ import {
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 
+export interface UserRole {
+  organizationId: string;
+  role: string;
+}
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   constructor(
     private readonly userRepository: UserRepository,
+    private readonly memberRepository: MemberRepository,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly smsService: SmsService,
@@ -47,15 +54,52 @@ export class AuthService {
 
   // Login Web (email + password)
   async loginWeb(user: UserEntity) {
-    const payload = { username: user.email, sub: user.id, roles: user.type };
+    // Buscar roles do usuário (memberships em organizações)
+    const members = await this.memberRepository.findByUserId(user.id);
+    const roles: UserRole[] = members.map((member) => ({
+      organizationId: member.organizationId,
+      role: member.role,
+    }));
+
+    // Payload do access token
+    const accessTokenPayload = {
+      type: "accessToken",
+      roles,
+      userType: user.type,
+      aud: "web",
+      sub: user.id,
+    };
+
+    // Payload do refresh token
+    const refreshTokenPayload = {
+      type: "refreshToken",
+      aud: "web",
+      sub: user.id,
+      jti: randomUUID(), // Identificador único para o refresh token
+    };
+
+    // Gerar tokens
+    const accessToken = this.jwtService.sign(accessTokenPayload, {
+      expiresIn: "30m", // 30 minutos
+    });
+
+    const refreshToken = this.jwtService.sign(refreshTokenPayload, {
+      expiresIn: "30d", // 30 dias
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
+      accessToken,
+      refreshToken,
+      userId: user.id,
+      roles,
       user: {
         id: user.id,
         email: user.email,
         name: user.name,
+        nickname: user.nickname,
+        signedTermsOfUse: user.signedTermsOfUse ?? false,
         photo: user.photo,
-        type: user.type,
+        status: user.status,
       },
     };
   }
@@ -93,19 +137,54 @@ export class AuthService {
         this.userRepository,
       );
 
-      const payload = {
-        username: result.user.phone,
-        sub: result.user.id,
-        roles: result.user.type,
+      const user = result.user;
+
+      // Buscar roles do usuário (memberships em organizações)
+      const members = await this.memberRepository.findByUserId(user.id);
+      const roles: UserRole[] = members.map((member) => ({
+        organizationId: member.organizationId,
+        role: member.role,
+      }));
+
+      // Payload do access token
+      const accessTokenPayload = {
+        type: "accessToken",
+        roles,
+        userType: user.type,
+        aud: "app",
+        sub: user.id,
       };
+
+      // Payload do refresh token
+      const refreshTokenPayload = {
+        type: "refreshToken",
+        aud: "app",
+        sub: user.id,
+        jti: randomUUID(),
+      };
+
+      // Gerar tokens
+      const accessToken = this.jwtService.sign(accessTokenPayload, {
+        expiresIn: "30m",
+      });
+
+      const refreshToken = this.jwtService.sign(refreshTokenPayload, {
+        expiresIn: "30d",
+      });
+
       return {
-        access_token: this.jwtService.sign(payload),
+        accessToken,
+        refreshToken,
+        userId: user.id,
+        roles,
         user: {
-          id: result.user.id,
-          phone: result.user.phone,
-          name: result.user.name,
-          photo: result.user.photo,
-          type: result.user.type,
+          id: user.id,
+          phone: user.phone,
+          name: user.name,
+          nickname: user.nickname,
+          signedTermsOfUse: user.signedTermsOfUse ?? false,
+          photo: user.photo,
+          status: user.status,
         },
       };
     } catch (_error) {

@@ -9,10 +9,10 @@ export class ChangePasswordDto {
   @ApiProperty({ example: "123456" })
   @IsString()
   @Length(6, 6, { message: "Recovery code must be 6 digits" })
-  recoveryCode!: string;
+  code!: string;
 
   @ApiProperty({ example: "newPassword123" })
   @IsString()
   @MinLength(6)
-  newPassword!: string;
+  password!: string;
 }

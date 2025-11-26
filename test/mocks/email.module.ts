@@ -1,5 +1,5 @@
 // Test Email Module - Mock for E2E tests
-import { Module } from "@nestjs/common";
+import { Global, Module } from "@nestjs/common";
 import { EmailService } from "../../src/infrastructure/services/email/email.service";
 
 const mockEmailService = {
@@ -9,8 +9,11 @@ const mockEmailService = {
   sendEmail: async () => true,
   sendInvitationEmail: async () => true,
   sendNotificationEmail: async () => true,
+  sendRecoverPasswordEmail: async () => true,
+  sendAuthCodeEmail: async () => true,
 };
 
+@Global()
 @Module({
   providers: [
     {

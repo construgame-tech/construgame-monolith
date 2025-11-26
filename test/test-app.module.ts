@@ -36,6 +36,7 @@ import { TaskUpdateModule } from "../src/modules/task-update/task-update.module"
 import { TeamModule } from "../src/modules/team/team.module";
 import { UserModule } from "../src/modules/user/user.module";
 import { TestAuthModule } from "./mocks/auth.module";
+import { TestEmailModule } from "./mocks/email.module";
 import { TestImageModule } from "./mocks/image.module";
 
 // Mock services
@@ -76,6 +77,8 @@ export class TestAppModule {
           isGlobal: true,
           ignoreEnvFile: true,
         }),
+        // Test mocks (import before other modules to override)
+        TestEmailModule,
         DatabaseModule,
         PassportModule.register({ defaultStrategy: "jwt" }),
         JwtModule.register({

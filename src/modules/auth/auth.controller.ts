@@ -23,7 +23,7 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
-  @Post("login-web")
+  @Post("web/token")
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Login with email and password (Web)" })
   @ApiResponse({ status: 200, description: "Return JWT access token" })
@@ -53,7 +53,7 @@ export class AuthController {
     return this.authService.generatePhoneAuthCode(generateDto.phone);
   }
 
-  @Post("login-app")
+  @Post("app/token")
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Login with phone and auth code (App)" })
   @ApiResponse({ status: 200, description: "Return JWT access token" })
@@ -73,7 +73,7 @@ export class AuthController {
     return this.authService.recoverPassword(recoverDto.email);
   }
 
-  @Post("change-password")
+  @Post("web/password")
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Change password with recovery code" })
   @ApiResponse({ status: 200, description: "Password changed successfully" })
@@ -84,8 +84,8 @@ export class AuthController {
   async changePassword(@Body() changeDto: ChangePasswordDto) {
     return this.authService.changePassword(
       changeDto.userId,
-      changeDto.recoveryCode,
-      changeDto.newPassword,
+      changeDto.code,
+      changeDto.password,
     );
   }
 }

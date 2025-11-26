@@ -1,0 +1,6662 @@
+openapi: 3.1.1
+info:
+  title: Construgame api
+  description: Description
+  version: 1.0.0
+servers:
+  - url: https://api.construgame.com.br/v1.0
+    description: prod
+security:
+  - accessToken: []
+paths:
+  /organization/{organizationId}/project/{projectId}/macrostep:
+    get:
+      summary: "List project macrosteps"
+      tags: [Project Planning]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+      responses:
+        "200":
+          description: "List of project macrosteps"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      required:
+                        - id
+                        - name
+                        - description
+                        - startDate
+                        - endDate
+                      properties:
+                        organizationId:
+                          type: string
+                          format: uuid
+                        projectId:
+                          type: string
+                        macrosteps:
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/projectMacrostep"
+    post:
+      summary: "Create project macrostep"
+      tags: [Project Planning]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+              allOf:
+                - $ref: "#/components/schemas/projectMacrostepForm"
+      responses:
+        "200":
+          description: "List of project diaries"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/projectMacrostep"
+
+  /organization/{organizationId}/project/{projectId}/macrosteps/import:
+    post:
+      summary: "Import macrosteps with activities"
+      description: "Import multiple macrosteps at once, optionally with nested activities. Checks for duplicates by name (case-insensitive)."
+      tags: [Project Planning]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - macrosteps
+              properties:
+                macrosteps:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                      - name
+                    properties:
+                      name:
+                        type: string
+                      activities:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - name
+                          properties:
+                            name:
+                              type: string
+                            description:
+                              type: string
+                            startDate:
+                              type: string
+                              format: date
+                            endDate:
+                              type: string
+                              format: date
+                            totalMeasurementExpected:
+                              type: number
+                            measurementUnit:
+                              type: string
+                            duration:
+                              type: number
+                            location:
+                              type: string
+                            expectedCost:
+                              type: number
+                            trackingValue:
+                              type: number
+                            trackingUnit:
+                              type: string
+                            laborCompositionList:
+                              type: array
+                              items:
+                                type: object
+                            prizesPerRange:
+                              type: array
+                              items:
+                                type: object
+                            prizesPerProductivity:
+                              type: array
+                              items:
+                                type: object
+      responses:
+        "200":
+          description: "Bulk import completed"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - duplicates
+                  - summary
+                properties:
+                  success:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - name
+                        - activitiesCount
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        activitiesCount:
+                          type: number
+                  duplicates:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - name
+                        - reason
+                      properties:
+                        name:
+                          type: string
+                        reason:
+                          type: string
+                  summary:
+                    type: object
+                    required:
+                      - total
+                      - imported
+                      - duplicated
+                    properties:
+                      total:
+                        type: number
+                      imported:
+                        type: number
+                      duplicated:
+                        type: number
+        "400":
+          description: "Validation error"
+
+  /organization/{organizationId}/project/{projectId}/macrostep/{macrostepId}:
+    put:
+      summary: "Update project macrostep"
+      tags: [Project Planning]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+        - $ref: "#/components/parameters/macrostepId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+              allOf:
+                - $ref: "#/components/schemas/projectMacrostepForm"
+      responses:
+        "200":
+          description: "List of project diaries"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/projectMacrostep"
+    delete:
+      summary: "Delete project macrostep"
+      tags: [Project Planning]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+        - $ref: "#/components/parameters/macrostepId"
+      responses:
+        "200":
+          description: "List of project diaries"
+  /organization/{organizationId}/project/{projectId}/macrostep/{macrostepId}/activity:
+    get:
+      summary: "List macrostep activities"
+      tags: [Project Planning]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+        - $ref: "#/components/parameters/macrostepId"
+      responses:
+        "200":
+          description: "List of project diaries"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      properties:
+                        activities:
+                          type: array
+                          items:
+                            required:
+                              - id
+                              - name
+                              - description
+                              - startDate
+                              - endDate
+                            $ref: "#/components/schemas/projectMacrostepActivity"
+    post:
+      summary: "Create macrostep activity"
+      tags: [Project Planning]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+        - $ref: "#/components/parameters/macrostepId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+              allOf:
+                - $ref: "#/components/schemas/projectMacrostepActivityForm"
+      responses:
+        "200":
+          description: "List of project diaries"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/projectMacrostepActivity"
+
+  /organization/{organizationId}/project/{projectId}/macrostep/{macrostepId}/activity/{activityId}:
+    put:
+      summary: "Update macrostep activity"
+      tags: [Project Planning]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+        - $ref: "#/components/parameters/macrostepId"
+        - $ref: "#/components/parameters/activityId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+              allOf:
+                - $ref: "#/components/schemas/projectMacrostepActivityForm"
+      responses:
+        "200":
+          description: "List of project diaries"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/projectMacrostepActivity"
+    delete:
+      summary: "Delete macrostep activity"
+      tags: [Project Planning]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+        - $ref: "#/components/parameters/macrostepId"
+        - $ref: "#/components/parameters/activityId"
+      responses:
+        "200":
+          description: "List of project diaries"
+
+  /organization/{organizationId}/project/{projectId}/diary:
+    get:
+      summary: "List project diaries"
+      tags: [Project Diary]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+        - $ref: "#/components/parameters/paginationLimit"
+        - $ref: "#/components/parameters/paginationKey"
+      responses:
+        "200":
+          description: "List of project diaries"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - items
+                      - paginationKey
+                    properties:
+                      paginationKey:
+                        type: string
+                        format: uuid
+                      items:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/projectDiary"
+
+  /organization/{organizationId}/project/{projectId}/diary/options:
+    get:
+      summary: "List project diaries"
+      tags: [Project Diary]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+      responses:
+        "200":
+          description: "List of project diaries"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - equipment
+                      - manpower
+                      - indirectManpower
+                    properties:
+                      equipment:
+                        type: array
+                        items:
+                          type: string
+                      manpower:
+                        type: array
+                        items:
+                          type: string
+                      indirectManpower:
+                        type: array
+                        items:
+                          type: string
+
+  /organization/{organizationId}/project/{projectId}/diary/{date}:
+    get:
+      summary: "Read project diary"
+      tags: [Project Diary]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+        - $ref: "#/components/parameters/date"
+      responses:
+        "200":
+          description: "Project diary"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/projectDiary"
+    put:
+      summary: "Create or update project diary"
+      tags: [Project Diary]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+        - $ref: "#/components/parameters/date"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/projectDiaryForm"
+      responses:
+        "200":
+          description: "Project diary updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/projectDiary"
+
+  /organization/{organizationId}/user/{userId}/notification:
+    get:
+      summary: "List user notifications"
+      tags: [Notification]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/paginationLimit"
+        - $ref: "#/components/parameters/paginationKey"
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [UNREAD, READ, ALL]
+            default: UNREAD
+      responses:
+        "200":
+          description: "List of leagues"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - items
+                      - paginationKey
+                    properties:
+                      paginationKey:
+                        type: string
+                        format: uuid
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - status
+                            - type
+                            - createdDate
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            status:
+                              type: string
+                              enum: [UNREAD, READ]
+                            type:
+                              type: string
+                              enum: [KAIZEN_COMPLETED]
+                            createdDate:
+                              type: string
+                              format: date-time
+                            kaizenCompletedData:
+                              type: object
+                              properties:
+                                kaizenId:
+                                  type: string
+                                  format: uuid
+                                kaizenName:
+                                  type: string
+                                kaizenLeaderId:
+                                  type: string
+                                  format: uuid
+                                gameId:
+                                  type: string
+                                  format: uuid
+                                gameName:
+                                  type: string
+                                projectId:
+                                  type: string
+                                  format: uuid
+                                projectName:
+                                  type: string
+                                leagueId:
+                                  type: string
+                                  format: uuid
+                                leagueName:
+                                  type: string
+
+                  #- $ref: "#/components/schemas/pagination"
+
+  /organization/{organizationId}/user/{userId}/notification/{notificationId}/read:
+    put:
+      summary: "Mark notification as read"
+      tags: [Notification]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/notificationId"
+      responses:
+        "200":
+          description: "Success"
+
+  /organization/{organizationId}/league:
+    get:
+      summary: "List organization leagues"
+      tags: [League]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "List of leagues"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - organizationId
+                  - status
+                  - name
+                  - responsibleId
+                allOf:
+                  - $ref: "#/components/schemas/league"
+    post:
+      summary: "Create league"
+      tags: [League]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - responsibleId
+              allOf:
+                - $ref: "#/components/schemas/leagueForm"
+      responses:
+        "201":
+          description: "League created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - organizationId
+                  - status
+                  - name
+                  - responsibleId
+                allOf:
+                  - $ref: "#/components/schemas/league"
+
+  /organization/{organizationId}/league/{leagueId}:
+    get:
+      summary: "Get league details"
+      tags: [League]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+      responses:
+        "200":
+          description: "League details"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - organizationId
+                  - status
+                  - name
+                  - responsibleId
+                allOf:
+                  - $ref: "#/components/schemas/league"
+    put:
+      summary: "Update league"
+      tags: [League]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - responsibleId
+              allOf:
+                - $ref: "#/components/schemas/leagueForm"
+      responses:
+        "200":
+          description: "League updated"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - organizationId
+                            - status
+                            - name
+                            - responsibleId
+                          allOf:
+                            - $ref: "#/components/schemas/league"
+                  #- $ref: "#/components/schemas/pagination"
+    delete:
+      summary: "Delete league"
+      tags: [League]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+      responses:
+        "200":
+          description: "League deleted"
+
+  /organization/{organizationId}/league/{leagueId}/reports/most-replicated-kaizens:
+    get:
+      summary: "Get most replicated kaizens"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: isReplica
+          schema:
+            type: boolean
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: [1, 2, 3, 4, 5]
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Most replicated kaizens"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - name
+                        - replicationCount
+                        - kaizenTypeId
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        gameId:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        photo:
+                          type: string
+                        replicationCount:
+                          type: number
+                        kaizenTypeId:
+                          type: string
+                          format: uuid
+                        benefits:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              kpiId:
+                                type: string
+                                format: uuid
+                              description:
+                                type: string
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizen-counters:
+    get:
+      summary: "Get kaizen counters"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Kaizen counters"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  projectCount:
+                    type: number
+                  kaizenCount:
+                    type: number
+                  kaizenAveragePerProject:
+                    type: number
+                  kaizensPerProject:
+                    type: number
+                  kaizensPerParticipant:
+                    type: number
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizens-per-project-per-participant:
+    get:
+      summary: "Get kaizens per project per participant"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: isReplica
+          schema:
+            type: boolean
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: [1, 2, 3, 4, 5]
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Kaizens per project per participant"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        projectId:
+                          type: string
+                          format: uuid
+                        projectName:
+                          type: string
+                        kaizenCount:
+                          type: number
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizens-per-project:
+    get:
+      summary: "Get kaizens per project"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Kaizens per project"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        projectId:
+                          type: string
+                          format: uuid
+                        projectName:
+                          type: string
+                        kaizenCount:
+                          type: number
+                        participantCount:
+                          type: number
+                        averageKaizensPerParticipant:
+                          type: number
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizens-per-week:
+    get:
+      summary: "Get kaizens per week"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: isReplica
+          schema:
+            type: boolean
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: [1, 2, 3, 4, 5]
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Kaizens per week"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        weekStart:
+                          type: string
+                          format: date
+                        weekEnd:
+                          type: string
+                          format: date
+                        kaizenCount:
+                          type: number
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizens-per-sector:
+    get:
+      summary: "Get league kaizen count per sector"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: isReplica
+          schema:
+            type: boolean
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: [1, 2, 3, 4, 5]
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Kaizen count per sector"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        sectorId:
+                          type: string
+                          format: uuid
+                        sectorName:
+                          type: string
+                        kaizenCount:
+                          type: number
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizens-per-position:
+    get:
+      summary: "Get league kaizen count per position"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Kaizen count per position"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        position:
+                          type: string
+                        kaizenCount:
+                          type: number
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizens-per-type:
+    get:
+      summary: "Get league kaizen count per type"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: kaizenTypeId
+          schema:
+            type: string
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Kaizen count per type"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        kaizenTypeId:
+                          type: string
+                        name:
+                          type: string
+                        kaizenCount:
+                          type: number
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizens-per-benefit:
+    get:
+      summary: "Get league kaizen count per benefit"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: kaizenTypeId
+          schema:
+            type: string
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Kaizen count per benefit"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        kpiId:
+                          type: string
+                        kpiName:
+                          type: string
+                        kaizenCount:
+                          type: number
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizens-per-type-per-project:
+    get:
+      summary: "Get league kaizen count per type per project"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: kaizenTypeId
+          schema:
+            type: string
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Kaizen count per type per project"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        kaizenTypeId:
+                          type: string
+                        name:
+                          type: string
+                        projects:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              name:
+                                type: string
+                              kaizenCount:
+                                type: number
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizens-adherence-percentage:
+    get:
+      summary: "Get league kaizen adherence percentage for recommended kaizens per project"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: kaizenTypeId
+          schema:
+            type: string
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Kaizen adherence"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        projectId:
+                          type: string
+                        name:
+                          type: string
+                        adherence:
+                          type: number
+                          description: "Adherence percentage"
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizens-adherence:
+    get:
+      summary: "Get league kaizen adherence for recommended kaizens per project"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: kaizenTypeId
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Kaizen adherence"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        kaizenIdeaId:
+                          type: string
+                        name:
+                          type: string
+                        adherence:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              projectId:
+                                type: string
+                                format: uuid
+                              name:
+                                type: string
+                              checked:
+                                type: boolean
+
+  /organization/{organizationId}/league/{leagueId}/reports/kaizens-participants-per-project:
+    get:
+      summary: "Get kaizens participant count per project"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+      tags: [League Dashboards]
+      responses:
+        "200":
+          description: "Kaizens per project per participant"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        projectId:
+                          type: string
+                          format: uuid
+                        projectName:
+                          type: string
+                        participantCount:
+                          type: number
+
+  /league/{leagueId}/ranking:
+    get:
+      summary: "Get league ranking"
+      parameters:
+        - $ref: "#/components/parameters/leagueId"
+        - in: query
+          name: groupBy
+          schema:
+            type: string
+            default: user
+            enum: [project, team, user]
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+      tags: [Ranking]
+      responses:
+        "200":
+          description: "League ranking, depending on the groupBy parameter either userId, teamId, gameId or projectId will be set"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ranking:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        userId:
+                          type: string
+                          format: uuid
+                        teamId:
+                          type: string
+                          format: uuid
+                        gameId:
+                          type: string
+                          format: uuid
+                        projectId:
+                          type: string
+                          format: uuid
+                        points:
+                          type: number
+                        sector:
+                          type: string
+
+  /project/{projectId}/ranking:
+    get:
+      summary: "Get project ranking"
+      parameters:
+        - $ref: "#/components/parameters/projectId"
+        - in: query
+          name: groupBy
+          schema:
+            type: string
+            default: user
+            enum: [team, user]
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+      tags: [Ranking]
+      responses:
+        "200":
+          description: "Project ranking, depending on the groupBy parameter either userId, teamId or gameId will be set"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ranking:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        userId:
+                          type: string
+                          format: uuid
+                        teamId:
+                          type: string
+                          format: uuid
+                        gameId:
+                          type: string
+                          format: uuid
+                        points:
+                          type: number
+                        sector:
+                          type: string
+
+  /organization/{organizationId}/user/{userId}/ranking:
+    get:
+      summary: "Get project ranking"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/userId"
+      tags: [Ranking]
+      responses:
+        "200":
+          description: List of rankings the user is part of, or is responsible for
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rankings:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        rankingType:
+                          type: string
+                          enum: [gameRanking, leagueRanking]
+                        name:
+                          type: string
+                        status:
+                          type: string
+                          enum: [ACTIVE, DONE, PAUSED]
+                        userRanking:
+                          type: object
+                          properties:
+                            prizes:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  prizeId:
+                                    type: string
+                                    format: uuid
+                                  type:
+                                    type: string
+                                    enum: ["points", "placement"]
+                                  value:
+                                    type: number
+                            placements:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                    format: uuid
+                                  name:
+                                    type: string
+                                  photo:
+                                    type: string
+                                  points:
+                                    type: number
+                                  placement:
+                                    type: number
+
+  /game/{gameId}/ranking:
+    get:
+      summary: "Get game ranking, depending on the groupBy parameter either userId or teamId will be set"
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - in: query
+          name: groupBy
+          schema:
+            type: string
+            default: user
+            enum: [team, user]
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+      tags: [Ranking]
+      responses:
+        "200":
+          description: "Game ranking"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ranking:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - points
+                        - name
+                      properties:
+                        userId:
+                          type: string
+                          description: only set if groupBy is user
+                          format: uuid
+                        teamId:
+                          type: string
+                          description: only set if groupBy is team
+                          format: uuid
+                        points:
+                          type: number
+                        name:
+                          type: string
+                        photo:
+                          type: string
+                          description: only set if groupBy is user
+
+  /organization/{organizationId}/config:
+    get:
+      summary: "Read organization configuration"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      tags: [Config]
+      responses:
+        "200":
+          description: "Organization config"
+          content:
+            application/json:
+              schema:
+                required:
+                  - missionsEnabled
+                  - kaizensEnabled
+                allOf:
+                  - $ref: "#/components/schemas/organizationConfig"
+    put:
+      summary: "Update organization configuration"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      tags: [Config]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - missionsEnabled
+                - kaizensEnabled
+              allOf:
+                - $ref: "#/components/schemas/organizationConfig"
+      responses:
+        "200":
+          description: "Organization config updated"
+          content:
+            application/json:
+              schema:
+                required:
+                  - missionsEnabled
+                  - kaizensEnabled
+                allOf:
+                  - $ref: "#/components/schemas/organizationConfig"
+
+  /organization/{organizationId}/config/kaizen:
+    get:
+      summary: "Read organization kaizen configuration"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      tags: [Config]
+      responses:
+        "200":
+          description: "Organization config"
+          content:
+            application/json:
+              schema:
+                required:
+                  - missionsEnabled
+                  - kaizensEnabled
+                allOf:
+                  - $ref: "#/components/schemas/organizationKaizenConfig"
+    put:
+      summary: "Update organization kaizen configuration"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      tags: [Config]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - missionsEnabled
+                - kaizensEnabled
+              allOf:
+                - $ref: "#/components/schemas/organizationKaizenConfig"
+      responses:
+        "200":
+          description: "Organization config updated"
+          content:
+            application/json:
+              schema:
+                required:
+                  - missionsEnabled
+                  - kaizensEnabled
+                allOf:
+                  - $ref: "#/components/schemas/organizationConfig"
+
+  /organization/{organizationId}/config/sector:
+    get:
+      summary: "Read organization sectors"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      tags: [Config]
+      responses:
+        "200":
+          description: "Organization sectors"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - name
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+    post:
+      summary: "Created organization sector"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      tags: [Config]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+      responses:
+        "200":
+          description: "Organization sector created"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - name
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+
+  /organization/{organizationId}/config/sector/{sectorId}:
+    delete:
+      summary: "Delete organization sector"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/sectorId"
+      tags: [Config]
+      responses:
+        "200":
+          description: "Organization sector deleted"
+
+  /organization/{organizationId}/config/kpi:
+    get:
+      summary: "Read organization kpi"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      tags: [Config]
+      responses:
+        "200":
+          description: "Organization kpis"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - name
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        type:
+                          type: string
+    post:
+      summary: "Created organization kpis"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      tags: [Config]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+      responses:
+        "200":
+          description: "Organization kpi created"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - name
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+
+  /organization/{organizationId}/config/kpi/{kpiId}:
+    put:
+      summary: "Update organization kpi"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/kpiId"
+      tags: [Config]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+      responses:
+        "200":
+          description: "Organization kpi updated"
+
+    delete:
+      summary: "Delete organization kpi"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/kpiId"
+      tags: [Config]
+      responses:
+        "200":
+          description: "Organization kpi deleted"
+
+  /organization/{organizationId}/config/prize:
+    get:
+      summary: "Read organization prizes"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      tags: [Config]
+      responses:
+        "200":
+          description: "Organization prizes"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - organizationId
+                        - name
+                      properties:
+                        id:
+                          type: string
+                        organizationId:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+                        photo:
+                          type: string
+                        icon:
+                          type: string
+    post:
+      summary: "Create organization prize"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      tags: [Config]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                photo:
+                  type: string
+                icon:
+                  type: string
+      responses:
+        "200":
+          description: "Organization prize created"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - organizationId
+                  - name
+                properties:
+                  id:
+                    type: string
+                  organizationId:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  photo:
+                    type: string
+                  icon:
+                    type: string
+
+  /organization/{organizationId}/config/prize/{prizeId}:
+    put:
+      summary: "Update organization prize"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/prizeId"
+      tags: [Config]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                photo:
+                  type: string
+                icon:
+                  type: string
+      responses:
+        "200":
+          description: "Organization prize updated"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - organizationId
+                  - name
+                properties:
+                  id:
+                    type: string
+                  organizationId:
+                    type: string
+                  name:
+                    type: string
+                  description:
+                    type: string
+                  photo:
+                    type: string
+                  icon:
+                    type: string
+    delete:
+      summary: "Delete organization prize"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/prizeId"
+      tags: [Config]
+      responses:
+        "200":
+          description: "Organization prize deleted"
+
+  /organization/{organizationId}/kaizen:
+    get:
+      summary: "List organization kaizens"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/paginationLimit"
+        - $ref: "#/components/parameters/paginationPage"
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [ACTIVE, ARCHIVED, DONE, APPROVED]
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: gameIds
+          schema:
+            type: array
+            format: uuid
+        - in: query
+          name: leaderId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: kaizenIdeaId
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: "Kaizens"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      required:
+                        - id
+                        - name
+                        - status
+                        - leaderId
+                      allOf:
+                        - $ref: "#/components/schemas/kaizen"
+
+  /organization/{organizationId}/kaizen/count:
+    get:
+      summary: "Count organization kaizens"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [ACTIVE, ARCHIVED, DONE, APPROVED]
+        - in: query
+          name: sectorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: projectId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: gameIds
+          schema:
+            type: array
+            format: uuid
+        - in: query
+          name: leaderId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: isReplica
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: "Kaizens"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - total
+                  - open
+                  - done
+                  - approved
+                  - archived
+                  - replicated
+                properties:
+                  total:
+                    type: number
+                  open:
+                    type: number
+                  done:
+                    type: number
+                  approved:
+                    type: number
+                  archived:
+                    type: number
+                  replicated:
+                    type: number
+
+  /game/{gameId}/kaizen:
+    get:
+      summary: "List game kaizens"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+      responses:
+        "200":
+          description: "Kaizens"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - id
+                  - name
+                  - leaderId
+                properties:
+                  items:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: "#/components/schemas/kaizen"
+    post:
+      summary: "Create kaizen"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - leaderId
+              allOf:
+                - $ref: "#/components/schemas/kaizenForm"
+      responses:
+        "200":
+          description: "Kaizen created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                  - leaderId
+                allOf:
+                  - $ref: "#/components/schemas/kaizenDetail"
+
+  /game/{gameId}/kaizen/replicate:
+    post:
+      summary: "Replicate kaizen"
+      description: "Replicated kaizens that are completed give the original kaizen leader bonus points"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - originalKaizenId
+              type: object
+              properties:
+                originalKaizenId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: "Kaizen created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                  - leaderId
+                allOf:
+                  - $ref: "#/components/schemas/kaizenDetail"
+
+  /game/{gameId}/kaizen/{kaizenId}:
+    get:
+      summary: "Read kaizen"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/kaizenId"
+      responses:
+        "200":
+          description: "Kaizen details"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                  - leaderId
+                allOf:
+                  - $ref: "#/components/schemas/kaizenDetail"
+    put:
+      summary: "Update kaizen"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/kaizenId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - leaderId
+              allOf:
+                - $ref: "#/components/schemas/kaizenForm"
+      responses:
+        "200":
+          description: "Kaizen updated"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                  - leaderId
+                allOf:
+                  - $ref: "#/components/schemas/kaizenDetail"
+    delete:
+      summary: "Delete kaizen"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/kaizenId"
+      responses:
+        "200":
+          description: "Kaizen deleted"
+
+  /game/{gameId}/kaizen/{kaizenId}/comments:
+    get:
+      summary: "Read kaizen comments"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/kaizenId"
+      responses:
+        "200":
+          description: "Kaizen comments"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      required:
+                        - id
+                        - userId
+                        - kaizenId
+                        - text
+                        - createdAt
+                      allOf:
+                        - $ref: "#/components/schemas/kaizenComment"
+    post:
+      summary: "Create kaizen comment"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/kaizenId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - text
+              allOf:
+                - $ref: "#/components/schemas/kaizenCommentForm"
+      responses:
+        "200":
+          description: "Kaizen comment created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - userId
+                  - kaizenId
+                  - text
+                  - createdAt
+                allOf:
+                  - $ref: "#/components/schemas/kaizenComment"
+
+  /game/{gameId}/kaizen/{kaizenId}/comments/{commentId}:
+    delete:
+      summary: "Delete kaizen comment"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/kaizenId"
+        - $ref: "#/components/parameters/commentId"
+      responses:
+        "200":
+          description: "Kaizen comment deleted"
+
+  /game/{gameId}/kaizen/{kaizenId}/complete:
+    put:
+      summary: "Complete kaizen"
+      description: "Mark kaizen as completed, distributing points to the leader"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/kaizenId"
+      responses:
+        "200":
+          description: "Kaizen finished"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                  - leaderId
+                allOf:
+                  - $ref: "#/components/schemas/kaizen"
+
+  /game/{gameId}/kaizen/{kaizenId}/reopen:
+    put:
+      summary: "Reopen kaizen"
+      description: "Reopen a kaizen that was completed, removing the points given previusly"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/kaizenId"
+      responses:
+        "200":
+          description: "Kaizen reopened"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                  - leaderId
+                allOf:
+                  - $ref: "#/components/schemas/kaizen"
+
+  /game/{gameId}/kaizen/{kaizenId}/archive:
+    put:
+      summary: "Archive kaizen"
+      description: "Archive an active kaizen"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/kaizenId"
+      responses:
+        "200":
+          description: "Kaizen archived"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                  - leaderId
+                allOf:
+                  - $ref: "#/components/schemas/kaizen"
+
+  /game/{gameId}/kaizen/{kaizenId}/unarchive:
+    put:
+      summary: "Unarchive kaizen"
+      description: "Unarchive an active kaizen"
+      tags: [Kaizen]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/kaizenId"
+      responses:
+        "200":
+          description: "Kaizen unarchived"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                  - leaderId
+                allOf:
+                  - $ref: "#/components/schemas/kaizen"
+
+  /organization/{organizationId}/kaizen/idea/search:
+    get:
+      summary: "List organization kaizens ideas"
+      tags: [Kaizen Idea]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/paginationLimit"
+        - $ref: "#/components/parameters/paginationPage"
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [DRAFT, APPROVED, ARCHIVED]
+        - in: query
+          name: isRecommended
+          schema:
+            type: boolean
+        - in: query
+          name: isPlayer
+          schema:
+            type: boolean
+        - in: query
+          name: kaizenTypeId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: gameIds
+          schema:
+            type: array
+            format: uuid
+      responses:
+        "200":
+          description: "Kaizen ideas"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      required:
+                        - id
+                        - organizationId
+                        - name
+                        - points
+                      allOf:
+                        - $ref: "#/components/schemas/kaizenIdea"
+
+  /organization/{organizationId}/kaizen/idea:
+    post:
+      summary: "Create kaizen idea"
+      tags: [Kaizen Idea]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - points
+              allOf:
+                - $ref: "#/components/schemas/kaizenIdeaForm"
+      responses:
+        "200":
+          description: "Kaizen idea created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - organizationId
+                  - name
+                  - points
+                allOf:
+                  - $ref: "#/components/schemas/kaizenIdea"
+
+  /organization/{organizationId}/kaizen/idea/{kaizenIdeaId}:
+    put:
+      summary: "Update kaizen idea"
+      tags: [Kaizen Idea]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/kaizenIdeaId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - points
+              allOf:
+                - $ref: "#/components/schemas/kaizenIdeaForm"
+      responses:
+        "200":
+          description: "Kaizen idea updated"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - organizationId
+                  - name
+                  - points
+                allOf:
+                  - $ref: "#/components/schemas/kaizenIdea"
+    delete:
+      summary: "Delete kaizen idea"
+      tags: [Kaizen Idea]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/kaizenIdeaId"
+      responses:
+        "200":
+          description: "Kaizen idea created"
+
+  /organization/{organizationId}/kaizen/type:
+    get:
+      summary: "List organization kaizens types"
+      tags: [Kaizen Type]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "Kaizen types"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      required:
+                        - id
+                        - organizationId
+                        - name
+                        - points
+                      allOf:
+                        - $ref: "#/components/schemas/kaizenType"
+    post:
+      summary: "Create kaizen type"
+      tags: [Kaizen Type]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - points
+              allOf:
+                - $ref: "#/components/schemas/kaizenTypeForm"
+      responses:
+        "200":
+          description: "Kaizen type created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - organizationId
+                  - name
+                  - points
+                allOf:
+                  - $ref: "#/components/schemas/kaizenType"
+
+  /organization/{organizationId}/kaizen/type/{kaizenTypeId}:
+    put:
+      summary: "Update kaizen type"
+      tags: [Kaizen Type]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/kaizenTypeId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - points
+              allOf:
+                - $ref: "#/components/schemas/kaizenTypeForm"
+      responses:
+        "200":
+          description: "Kaizen type updated"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - organizationId
+                  - name
+                  - points
+                allOf:
+                  - $ref: "#/components/schemas/kaizenType"
+    delete:
+      summary: "Delete kaizen type"
+      tags: [Kaizen Type]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/kaizenTypeId"
+      responses:
+        "200":
+          description: "Kaizen type created"
+
+  /auth/web/token:
+    post:
+      summary: "Login web"
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: "Login succeeded"
+          content:
+            application/json:
+              schema:
+                required:
+                  - accessToken
+                  - refreshToken
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                  userId:
+                    type: string
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      nickname:
+                        type: string
+                      photo:
+                        type: string
+                      status:
+                        type: string
+                        enum: ["WAITING_CONFIRMATION", "ACTIVE"]
+                      email:
+                        type: string
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        organizationId:
+                          type: string
+                        role:
+                          type: string
+                          enum: [owner, admin, player]
+
+  /auth/app/token:
+    post:
+      summary: "Login app"
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - phone
+              properties:
+                phone:
+                  type: string
+                authCode:
+                  type: string
+                otpHash:
+                  type: string
+      responses:
+        "200":
+          description: "Login succeeded"
+          content:
+            application/json:
+              schema:
+                required:
+                  - accessToken
+                  - refreshToken
+                  - userId
+                  - roles
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                  userId:
+                    type: string
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        organizationId:
+                          type: string
+                        role:
+                          type: string
+                          enum: [owner, admin, player]
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      nickname:
+                        type: string
+                      photo:
+                        type: string
+                      status:
+                        type: string
+                        enum: ["WAITING_CONFIRMATION", "ACTIVE"]
+                      email:
+                        type: string
+
+  /auth/sso/microsoft:
+    post:
+      summary: "Login SSO Microsoft"
+      description: https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - code
+              properties:
+                code:
+                  type: string
+                  description: the code received from microsoft /authorize call.
+      responses:
+        "200":
+          description: "Login succeeded"
+          content:
+            application/json:
+              schema:
+                required:
+                  - accessToken
+                  - refreshToken
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                  userId:
+                    type: string
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        organizationId:
+                          type: string
+                        role:
+                          type: string
+                          enum: [owner, admin, player]
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      nickname:
+                        type: string
+                      photo:
+                        type: string
+                      status:
+                        type: string
+                        enum: ["WAITING_CONFIRMATION", "ACTIVE"]
+                      email:
+                        type: string
+
+  /auth/web/refresh:
+    post:
+      summary: "Refresh web tokens"
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "200":
+          description: "Login succeeded"
+          content:
+            application/json:
+              schema:
+                required:
+                  - accessToken
+                  - refreshToken
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                  userId:
+                    type: string
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        organizationId:
+                          type: string
+                        role:
+                          type: string
+                          enum: [owner, admin, player]
+
+  /auth/app/refresh:
+    post:
+      summary: "Refresh app tokens"
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        "200":
+          description: "Login succeeded"
+          content:
+            application/json:
+              schema:
+                required:
+                  - accessToken
+                  - refreshToken
+                properties:
+                  accessToken:
+                    type: string
+                  refreshToken:
+                    type: string
+                  userId:
+                    type: string
+                  roles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        organizationId:
+                          type: string
+                        role:
+                          type: string
+                          enum: [owner, admin, player]
+
+  /auth/web/password/recover:
+    post:
+      summary: "Start recover password"
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+      responses:
+        "200":
+          description: "Recover code sent"
+
+  /auth/web/password/recover/validate:
+    post:
+      summary: "Check if a recovery code can be used"
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - userId
+                - code
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                code:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: "Validation response"
+          content:
+            application/json:
+              schema:
+                required:
+                  - isValid
+                properties:
+                  isValid:
+                    type: boolean
+
+  /auth/admin/password/recover:
+    post:
+      summary: "Admin recover password (returns recovery link)"
+      description: "Admin endpoint to recover user password. Returns the recovery link instead of sending email. Requires superuser authentication."
+      tags: [Auth, Admin]
+      security:
+        - accessToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: "User email to recover password"
+      responses:
+        "200":
+          description: "Recovery link generated successfully"
+          content:
+            application/json:
+              schema:
+                properties:
+                  recoveryLink:
+                    type: string
+                    format: uri
+                    description: "URL with recovery code to reset password"
+                    example: "https://app.construgame.com.br/nova-senha?code=uuid&userId=uuid&email=user@example.com"
+        "401":
+          description: "Unauthorized - Token invalid or missing"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: "Forbidden - User is not superuser"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth/web/password:
+    post:
+      summary: "Finish recover password"
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - userId
+                - code
+                - password
+              properties:
+                userId:
+                  type: string
+                code:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: "Password changed"
+
+  /user:
+    post:
+      summary: "Create user"
+      tags: [User]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - email
+              allOf:
+                - $ref: "#/components/schemas/userForm"
+                - type: object
+                  properties:
+                    organization:
+                      type: object
+                      required:
+                        - organizationId
+                        - role
+                      properties:
+                        organizationId:
+                          type: string
+                        role:
+                          type: string
+                          enum: [admin, manager, player]
+                        sectorId:
+                          type: string
+                          format: uuid
+                        sector:
+                          type: string
+                          example: "alvenaria"
+                        position:
+                          type: string
+                          example: "carpinteiro"
+      responses:
+        "201":
+          description: "User created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                $ref: "#/components/schemas/user"
+
+  /user/{userId}:
+    get:
+      summary: "Get user"
+      tags: [User]
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: "user found"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                $ref: "#/components/schemas/user"
+    patch:
+      summary: "Update user"
+      tags: [User]
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/userForm"
+
+      responses:
+        "200":
+          description: "user updated"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                $ref: "#/components/schemas/organization"
+    put:
+      summary: "Replace user"
+      tags: [User]
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+              $ref: "#/components/schemas/userForm"
+
+      responses:
+        "200":
+          description: "user replaced"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                $ref: "#/components/schemas/user"
+    delete:
+      summary: "delete user"
+      tags: [User]
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: "user deleted"
+
+  /user/{userId}/push-token/{pushToken}:
+    put:
+      summary: "Create push token"
+      tags: [Push notification]
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/pushToken"
+      responses:
+        "200":
+          description: "Push token created"
+
+    delete:
+      summary: "Clear push tokens, should be called when user logs out"
+      tags: [Push notification]
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/pushToken"
+      responses:
+        "200":
+          description: "Push token deleted"
+
+  /organization:
+    get:
+      summary: "List organizations"
+      tags: [Organization]
+      responses:
+        "200":
+          description: "Organization created"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          $ref: "#/components/schemas/organization"
+                  #- $ref: "#/components/schemas/pagination"
+    post:
+      summary: "Create an organization"
+      tags: [Organization]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/organizationForm"
+              required:
+                - name
+      responses:
+        "201":
+          description: "Organization created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/organization"
+
+  /user/{userId}/organization:
+    get:
+      summary: "List user organizations"
+      tags: [Members]
+      parameters:
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: "Organization found"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/organization"
+                  #- $ref: "#/components/schemas/pagination"
+
+  /organization/{organizationId}:
+    get:
+      summary: "Get an organization"
+      tags: [Organization]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "Organization found"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/organization"
+    patch:
+      summary: "Update an organization"
+      tags: [Organization]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/organizationForm"
+
+      responses:
+        "200":
+          description: "Organization updated"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/organization"
+    delete:
+      summary: "delete an organization"
+      tags: [Organization]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "Organization deleted"
+
+  /organization/{organizationId}/member:
+    post:
+      summary: "Create member"
+      tags: [Members]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - userId
+                - role
+              allOf:
+                - type: object
+                  properties:
+                    userId:
+                      type: string
+                      format: uuid
+                - $ref: "#/components/schemas/memberForm"
+
+      responses:
+        "200":
+          description: "Member created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - userId
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/member"
+    get:
+      summary: "List organization members"
+      tags: [Members]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "Organization found"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                            - email
+                            - sector
+                            - role
+                          allOf:
+                            - $ref: "#/components/schemas/member"
+                  #- $ref: "#/components/schemas/pagination"
+
+  /organization/{organizationId}/members/import:
+    post:
+      summary: "Import members"
+      description: "Import multiple members at once. Checks for duplicates by name (case-insensitive) and returns detailed report."
+      tags: [Members]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - members
+              properties:
+                members:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                      - name
+                      - email
+                      - role
+                    properties:
+                      name:
+                        type: string
+                      email:
+                        type: string
+                        format: email
+                      nickname:
+                        type: string
+                      phone:
+                        type: string
+                      role:
+                        type: string
+                        enum: [admin, manager, player, financial]
+                      position:
+                        type: string
+                      sector:
+                        type: string
+                      sectorId:
+                        type: string
+                        format: uuid
+                      jobRoleId:
+                        type: string
+                        format: uuid
+                      jobRoleVariantId:
+                        type: string
+                        format: uuid
+                      salary:
+                        type: number
+                      seniority:
+                        type: string
+                      state:
+                        type: string
+                      hoursPerDay:
+                        type: number
+      responses:
+        "200":
+          description: "Bulk import completed"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - duplicates
+                  - summary
+                properties:
+                  success:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - userId
+                        - name
+                        - email
+                      properties:
+                        userId:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                        email:
+                          type: string
+                  duplicates:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - name
+                        - email
+                        - reason
+                      properties:
+                        name:
+                          type: string
+                        email:
+                          type: string
+                        reason:
+                          type: string
+                  summary:
+                    type: object
+                    required:
+                      - total
+                      - imported
+                      - duplicated
+                    properties:
+                      total:
+                        type: number
+                      imported:
+                        type: number
+                      duplicated:
+                        type: number
+        "400":
+          description: "Validation error"
+
+  /organization/{organizationId}/member/{userId}:
+    patch:
+      summary: "Update member"
+      tags: [Members]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/userId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/memberForm"
+
+      responses:
+        "200":
+          description: "Member updated"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/member"
+    delete:
+      summary: "Delete member"
+      tags: [Members]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/userId"
+      responses:
+        "200":
+          description: "Member deleted"
+
+  # /user/{userId}/organization/{organizationId}/team:
+  #   get:
+  #     summary: "List member teams"
+  #     tags: [Team]
+  #     parameters:
+  #       - $ref: "#/components/parameters/userId"
+  #       - $ref: "#/components/parameters/organizationId"
+  #     responses:
+  #       "200":
+  #         description: "Organization found"
+  #         content:
+  #           application/json:
+  #             schema:
+  #               allOf:
+  #                 - type: object
+  #                   properties:
+  #                     items:
+  #                       type: array
+  #                       items:
+  #                         required:
+  #                           - id
+  #                           - name
+  #                         $ref: "#/components/schemas/team"
+  #                 #- $ref: "#/components/schemas/pagination"
+
+  /organization/{organizationId}/team:
+    get:
+      summary: "List organization teams"
+      tags: [Team]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "Organization found"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/team"
+                  #- $ref: "#/components/schemas/pagination"
+
+  /organization/{organizationId}/teams/import:
+    post:
+      summary: "Import teams"
+      description: "Import multiple teams at once. Checks for duplicates by name (case-insensitive) and validates manager and members exist."
+      tags: [Team]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - teams
+              properties:
+                teams:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                      - name
+                    properties:
+                      name:
+                        type: string
+                      managerId:
+                        type: string
+                        format: uuid
+                      members:
+                        type: array
+                        items:
+                          type: string
+                          format: uuid
+                      fieldOfAction:
+                        type: string
+                      photo:
+                        type: string
+      responses:
+        "200":
+          description: "Bulk import completed"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - success
+                  - duplicates
+                  - summary
+                properties:
+                  success:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - name
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        name:
+                          type: string
+                  duplicates:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - name
+                        - reason
+                      properties:
+                        name:
+                          type: string
+                        reason:
+                          type: string
+                  summary:
+                    type: object
+                    required:
+                      - total
+                      - imported
+                      - duplicated
+                    properties:
+                      total:
+                        type: number
+                      imported:
+                        type: number
+                      duplicated:
+                        type: number
+        "400":
+          description: "Validation error"
+
+  /organization/{organizationId}/team:
+    post:
+      summary: "Create team"
+      tags: [Team]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - email
+              allOf:
+                - $ref: "#/components/schemas/teamForm"
+      responses:
+        "201":
+          description: "User created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/team"
+
+  /organization/{organizationId}/team/{teamId}:
+    patch:
+      summary: "Update team"
+      tags: [Team]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/teamId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/teamForm"
+      responses:
+        "200":
+          description: "Team updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/teamForm"
+    delete:
+      summary: "Delete team"
+      tags: [Team]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/teamId"
+      responses:
+        "200":
+          description: "Team deleted"
+
+  /organization/{organizationId}/job-roles:
+    get:
+      summary: "List organization job roles"
+      tags: [Job Roles]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "List of job roles"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/jobRole"
+    post:
+      summary: "Create job role"
+      tags: [Job Roles]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+              allOf:
+                - $ref: "#/components/schemas/jobRoleForm"
+      responses:
+        "201":
+          description: "Job role created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/jobRole"
+
+  /organization/{organizationId}/job-roles/{jobRoleId}:
+    put:
+      summary: "Update job role"
+      tags: [Job Roles]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/jobRoleId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/jobRoleForm"
+      responses:
+        "200":
+          description: "Job role updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/jobRole"
+    delete:
+      summary: "Delete job role"
+      tags: [Job Roles]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/jobRoleId"
+      responses:
+        "200":
+          description: "Job role deleted"
+
+  /organization/{organizationId}/project:
+    get:
+      summary: "List projects"
+      tags: [Project]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "List of projects"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/project"
+                  #- $ref: "#/components/schemas/pagination"
+    post:
+      summary: "Create projects"
+      tags: [Project]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - email
+              allOf:
+                - $ref: "#/components/schemas/projectForm"
+      responses:
+        "201":
+          description: "User created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/project"
+
+  /organization/{organizationId}/project/{projectId}:
+    get:
+      summary: "Read project details"
+      tags: [Project]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+      responses:
+        "200":
+          description: "List of projects"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - organizationId
+                  - name
+                  - status
+                allOf:
+                  - $ref: "#/components/schemas/project"
+                  - type: object
+                    properties:
+                      games:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            photo:
+                              type: string
+    patch:
+      summary: "Update project"
+      tags: [Project]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/projectForm"
+      responses:
+        "200":
+          description: "Project updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/project"
+    delete:
+      summary: "Delete projects"
+      tags: [Project]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+      responses:
+        "200":
+          description: "Project deleted"
+
+  /organization/{organizationId}/game-manager:
+    get:
+      summary: "List organization games managers"
+      tags: [Game Manager]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "List of games managers"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/gameManager"
+                  #- $ref: "#/components/schemas/pagination"
+    post:
+      summary: "Create game manager"
+      tags: [Game Manager]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - projectId
+              allOf:
+                - type: object
+                  properties:
+                    projectId:
+                      type: string
+                      format: uuid
+                - $ref: "#/components/schemas/gameManagerForm"
+      responses:
+        "201":
+          description: "User created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/gameManager"
+
+  /organization/{organizationId}/game-manager/{gameManagerId}:
+    put:
+      summary: "Update game manager"
+      tags: [Game Manager]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/gameManagerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+              allOf:
+                - $ref: "#/components/schemas/gameManagerForm"
+      responses:
+        "200":
+          description: "Games manager updated"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - id
+                      - organizationId
+                      - projectId
+                      - name
+                    allOf:
+                      - $ref: "#/components/schemas/gameManager"
+                  #- $ref: "#/components/schemas/pagination"
+    delete:
+      summary: "Delete game manager"
+      tags: [Game Manager]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/gameManagerId"
+      responses:
+        "200":
+          description: "User created"
+
+  /organization/{organizationId}/game-manager/{gameManagerId}/task-manager:
+    get:
+      summary: "List game manager tasks"
+      tags: [Game Manager]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/gameManagerId"
+      responses:
+        "200":
+          description: "List of games managers"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/gameManager"
+                  #- $ref: "#/components/schemas/pagination"
+    post:
+      summary: "Create game manager task"
+      tags: [Game Manager]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/gameManagerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - projectId
+              allOf:
+                - type: object
+                  properties:
+                    projectId:
+                      type: string
+                      format: uuid
+                - $ref: "#/components/schemas/gameManagerForm"
+      responses:
+        "201":
+          description: "Game manager task created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/gameManager"
+
+  /organization/{organizationId}/game-manager/{gameManagerId}/task-manager/{taskManagerId}:
+    put:
+      summary: "Update game manager task"
+      tags: [Game Manager]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/gameManagerId"
+        - $ref: "#/components/parameters/taskManagerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+              allOf:
+                - $ref: "#/components/schemas/taskManagerForm"
+      responses:
+        "200":
+          description: "Game manager task updated"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - id
+                      - organizationId
+                      - projectId
+                      - name
+                    allOf:
+                      - $ref: "#/components/schemas/taskManager"
+                  #- $ref: "#/components/schemas/pagination"
+    delete:
+      summary: "Delete game manager task"
+      tags: [Game Manager]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/gameManagerId"
+        - $ref: "#/components/parameters/taskManagerId"
+      responses:
+        "200":
+          description: "Game manager deleted"
+
+  /organization/{organizationId}/game:
+    get:
+      summary: "List organization games"
+      tags: [Game]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "List of games"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/game"
+                  #- $ref: "#/components/schemas/pagination"
+    post:
+      summary: "Create game"
+      tags: [Game]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - email
+              allOf:
+                - type: object
+                  properties:
+                    projectId:
+                      type: string
+                      format: uuid
+                - $ref: "#/components/schemas/gameManagerForm"
+      responses:
+        "201":
+          description: "User created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/gameManager"
+
+  /organization/{organizationId}/game/{gameId}:
+    patch:
+      summary: "Update game"
+      tags: [Game]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/gameId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/gameForm"
+      responses:
+        "200":
+          description: "Game updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/game"
+    delete:
+      summary: "Delete game"
+      tags: [Game]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/gameId"
+      responses:
+        "200":
+          description: "Game deleted"
+
+  /organization/{organizationId}/game/{gameId}/archive:
+    put:
+      summary: "Archive game"
+      tags: [Game]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/gameId"
+      responses:
+        "200":
+          description: "Game archived"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/game"
+
+  /organization/{organizationId}/game/{gameId}/unarchive:
+    put:
+      summary: "Unarchive game"
+      tags: [Game]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/gameId"
+      responses:
+        "200":
+          description: "Game unarchived"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/game"
+
+  /user/{userId}/organization/{organizationId}/game:
+    get:
+      summary: "List user games"
+      tags: [Game]
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "User games"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/game"
+                  #- $ref: "#/components/schemas/pagination"
+
+  /organization/{organizationId}/game/{gameId}/ranking:
+    get:
+      summary: "Get game ranking"
+      tags: [Game]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/gameId"
+      responses:
+        "200":
+          description: "List of games"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  placements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        teamId:
+                          type: string
+                        teamName:
+                          type: string
+                        points:
+                          type: string
+
+  /game/{gameId}/task-manager:
+    get:
+      summary: "List game task managers"
+      tags: [Task Manager]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+      responses:
+        "200":
+          description: "List of games managers"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/taskManager"
+                  #- $ref: "#/components/schemas/pagination"
+    post:
+      summary: "Create task manager"
+      tags: [Task Manager]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - projectId
+              allOf:
+                - type: object
+                  properties:
+                    projectId:
+                      type: string
+                      format: uuid
+                - $ref: "#/components/schemas/taskManagerForm"
+      responses:
+        "201":
+          description: "User created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/taskManager"
+
+  /game/{gameId}/task-manager/{taskManagerId}:
+    put:
+      summary: "Update task manager"
+      tags: [Task Manager]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/taskManagerId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+              allOf:
+                - $ref: "#/components/schemas/taskManagerForm"
+      responses:
+        "200":
+          description: "Games manager updated"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    required:
+                      - id
+                      - organizationId
+                      - projectId
+                      - name
+                    allOf:
+                      - $ref: "#/components/schemas/taskManager"
+                  #- $ref: "#/components/schemas/pagination"
+    delete:
+      summary: "Delete task manager"
+      tags: [Task Manager]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/taskManagerId"
+      responses:
+        "200":
+          description: "Task manager deleted"
+
+  /organization/{organizationId}/task-template:
+    get:
+      summary: "List organization task templates"
+      tags: [Task Template]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "List of task templates"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/taskTemplate"
+                  #- $ref: "#/components/schemas/pagination"
+    post:
+      summary: "Create task template"
+      tags: [Task Template]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - email
+              allOf:
+                - $ref: "#/components/schemas/taskTemplateForm"
+      responses:
+        "201":
+          description: "Task template created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/taskTemplate"
+
+  /organization/{organizationId}/task-template/{taskTemplateId}:
+    delete:
+      summary: "Delete task template"
+      tags: [Task Template]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/taskTemplateId"
+      responses:
+        "200":
+          description: "Task template deleted"
+
+  /organization/{organizationId}/checklist-template:
+    get:
+      summary: "List organization checklist templates"
+      tags: [Task Template]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      responses:
+        "200":
+          description: "List of checklist templates"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/checklistTemplate"
+                  #- $ref: "#/components/schemas/pagination"
+    post:
+      summary: "Create checklist template"
+      tags: [Task Template]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - email
+              allOf:
+                - $ref: "#/components/schemas/checklistTemplateForm"
+      responses:
+        "201":
+          description: "Checklist template created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/checklistTemplate"
+
+  /organization/{organizationId}/checklist-template/{checklistTemplateId}:
+    delete:
+      summary: "Delete checklist template"
+      tags: [Task Template]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/checklistTemplateId"
+      responses:
+        "200":
+          description: "Checklist template deleted"
+
+  /user/{userId}/game/{gameId}/task:
+    get:
+      summary: "List user tasks for a given game"
+      tags: [Task]
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/gameId"
+        - in: query
+          name: startDateBefore
+          description: Inclusive
+          schema:
+            type: string
+            format: date
+            example: "2023-12-31"
+        - in: query
+          name: endDateAfter
+          description: Inclusive
+          schema:
+            type: string
+            format: date
+            example: "2023-12-31"
+      responses:
+        "200":
+          description: "List of tasks"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/task"
+                            - type: object
+                              properties:
+                                wasUpdatedRecently:
+                                  description: "Indicates if the task was updated today"
+                                  type: boolean
+                  #- $ref: "#/components/schemas/pagination"
+
+  /game/{gameId}/task:
+    get:
+      summary: "List game tasks"
+      tags: [Task]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+      responses:
+        "200":
+          description: "List of game tasks"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          required:
+                            - id
+                            - name
+                          allOf:
+                            - $ref: "#/components/schemas/task"
+                  #- $ref: "#/components/schemas/pagination"
+    post:
+      summary: "Create task"
+      tags: [Task]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - email
+              allOf:
+                - $ref: "#/components/schemas/taskForm"
+      responses:
+        "201":
+          description: "Task created"
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - name
+                allOf:
+                  - $ref: "#/components/schemas/task"
+
+  /game/{gameId}/task/{taskId}:
+    patch:
+      summary: "Update task"
+      tags: [Task]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/taskId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/taskForm"
+      responses:
+        "200":
+          description: "task updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/task"
+    delete:
+      summary: "Delete task"
+      tags: [Task]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/taskId"
+      responses:
+        "200":
+          description: "Task deleted"
+
+  /task/batch:
+    post:
+      summary: "Batch send command"
+      description: "Esse endpoint é assincrono e não retornara nenhum erro caso algum dos comandos não seja executado com sucesso."
+      tags: [Task]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  properties:
+                    commands:
+                      type: array
+                      items:
+                        allOf:
+                          - type: object
+                            properties:
+                              action:
+                                type: string
+                                enum: [create, update, delete]
+                              taskId:
+                                type: string
+                              gameId:
+                                type: string
+                          - $ref: "#/components/schemas/taskForm"
+      responses:
+        "200":
+          description: "User created"
+
+  /game/{gameId}/task/{taskId}/update:
+    post:
+      summary: "Add task update"
+      tags: [Task update]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/taskId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - absolute
+                - hours
+              allOf:
+                - $ref: "#/components/schemas/taskUpdateForm"
+      responses:
+        "200":
+          description: "Project updated"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/taskUpdate"
+
+  /organization/{organizationId}/task/update:
+    get:
+      summary: "List task updates"
+      tags: [Task update]
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [PENDING_REVIEW, ACCEPTED, REJECTED, CANCELLED]
+        - in: query
+          name: submittedBy
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: taskId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: teamId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: gameId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: kpiId
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/paginationPage"
+        - $ref: "#/components/parameters/paginationLimit"
+      responses:
+        "200":
+          description: "List of games"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            status:
+                              type: string
+                              enum:
+                                [PENDING_REVIEW, ACCEPTED, REJECTED, CANCELLED]
+                            startDate:
+                              type: string
+                              format: date
+                            endDate:
+                              type: string
+                              format: date
+                            project:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                            game:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                            task:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                                progressAbsolute:
+                                  type: number
+                                kpiId:
+                                  type: string
+                                  format: uuid
+                                location:
+                                  type: string
+                                startDate:
+                                  type: string
+                                  format: date
+                                endDate:
+                                  type: string
+                                  format: date
+                            team:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                            submitter:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                                photo:
+                                  type: string
+                            reviwer:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                                photo:
+                                  type: string
+                            progress:
+                              type: object
+                              properties:
+                                absolute:
+                                  type: number
+                                percent:
+                                  type: number
+                                hours:
+                                  type: number
+                                note:
+                                  type: string
+                                updateAt:
+                                  type: string
+                                  format: date-time
+                  - $ref: "#/components/schemas/pagination"
+
+  /user/{userId}/organization/{organizationId}/task/update:
+    get:
+      summary: "List task updates the user can edit"
+      tags: [Task update]
+      parameters:
+        - $ref: "#/components/parameters/userId"
+        - $ref: "#/components/parameters/organizationId"
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [PENDING_REVIEW, ACCEPTED, REJECTED, CANCELLED]
+        - in: query
+          name: submittedBy
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: taskId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: teamId
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/paginationPage"
+        - $ref: "#/components/parameters/paginationLimit"
+      responses:
+        "200":
+          description: "List of games"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            project:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                            game:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                            task:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                                progressAbsolute:
+                                  type: number
+                            team:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                            submitter:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                                photo:
+                                  type: string
+                            reviwer:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                  format: uuid
+                                name:
+                                  type: string
+                                photo:
+                                  type: string
+                            status:
+                              type: string
+                              enum:
+                                [PENDING_REVIEW, ACCEPTED, REJECTED, CANCELLED]
+                            progress:
+                              type: object
+                              properties:
+                                absolute:
+                                  type: number
+                                percent:
+                                  type: number
+                                hours:
+                                  type: number
+                                note:
+                                  type: string
+                                updateAt:
+                                  type: string
+                                  format: date-time
+                  - $ref: "#/components/schemas/pagination"
+
+  /game/{gameId}/task/{taskId}/update/{taskUpdateId}/approve:
+    put:
+      summary: "Approve task update"
+      tags: [Task update]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/taskId"
+        - $ref: "#/components/parameters/taskUpdateId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                progressAbsolute:
+                  type: number
+                reviewNote:
+                  type: string
+                participants:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                checklist:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      label:
+                        type: string
+                      checked:
+                        type: boolean
+                startDate:
+                  $ref: "#/components/schemas/date"
+                endDate:
+                  $ref: "#/components/schemas/date"
+      responses:
+        "200":
+          description: "Task update approved"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/taskUpdate"
+
+  /game/{gameId}/task/{taskId}/update/{taskUpdateId}/reject:
+    put:
+      summary: "Reject task update"
+      tags: [Task update]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/taskId"
+        - $ref: "#/components/parameters/taskUpdateId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reviewNote:
+                  type: string
+      responses:
+        "200":
+          description: "Task update rejected"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/taskUpdate"
+
+  /game/{gameId}/task/{taskId}/update/{taskUpdateId}/cancel:
+    put:
+      summary: "Cancel task update"
+      tags: [Task update]
+      parameters:
+        - $ref: "#/components/parameters/gameId"
+        - $ref: "#/components/parameters/taskId"
+        - $ref: "#/components/parameters/taskUpdateId"
+      responses:
+        "200":
+          description: "Task update cancelled"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/taskUpdate"
+
+  /prize:
+    get:
+      summary: "List prizes"
+      tags: [Prize]
+      responses:
+        "200":
+          description: "List of games"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: string
+                            name:
+                              type: string
+                            photo:
+                              type: string
+                  #- $ref: "#/components/schemas/pagination"
+
+  /organization/{organizationId}/{resourceType}/{resourceId}/prize:
+    get:
+      summary: "List financial prizes by resource"
+      tags: [Financial Prize]
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: "Organization ID"
+        - name: resourceType
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [organization, project, activity, user, member, task]
+          description: "Type of resource to filter prizes"
+        - name: resourceId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "ID of the specific resource"
+      responses:
+        "200":
+          description: "List of financial prizes"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - userId
+                        - memberId
+                        - organizationId
+                        - awardedAt
+                        - amount
+                      properties:
+                        id:
+                          type: string
+                        userId:
+                          type: string
+                        memberId:
+                          type: string
+                        organizationId:
+                          type: string
+                        awardedAt:
+                          type: string
+                          format: date-time
+                        amount:
+                          type: number
+                        gameId:
+                          type: string
+                          nullable: true
+                        projectId:
+                          type: string
+                          nullable: true
+                        activityId:
+                          type: string
+                          nullable: true
+                        taskId:
+                          type: string
+                          nullable: true
+                        jobRoleId:
+                          type: string
+                          nullable: true
+                        jobRoleName:
+                          type: string
+                          nullable: true
+                        state:
+                          type: string
+                          nullable: true
+                        seniority:
+                          type: string
+                          nullable: true
+
+  # /kpi:
+  #   get:
+  #     summary: "List kpis"
+  #     tags: [Kpi]
+  #     responses:
+  #       "200":
+  #         description: "List of kpis"
+  #         content:
+  #           application/json:
+  #             schema:
+  #               allOf:
+  #                 - type: object
+  #                   properties:
+  #                     items:
+  #                       type: array
+  #                       items:
+  #                         type: object
+  #                         required:
+  #                           - id
+  #                           - name
+  #                         properties:
+  #                           id:
+  #                             type: string
+  #                           name:
+  #                             type: string
+  #                           photo:
+  #                             type: string
+  #- $ref: "#/components/schemas/pagination"
+  /search/user:
+    get:
+      summary: "Search users"
+      tags: [Search]
+      parameters:
+        - in: query
+          name: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "List of users"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: string
+                            name:
+                              type: string
+                            nickname:
+                              type: string
+                            photo:
+                              type: string
+                  #- $ref: "#/components/schemas/pagination"
+  /search/organization:
+    get:
+      summary: "Search organizations"
+      tags: [Search]
+      parameters:
+        - in: query
+          name: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "List of organizations"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          type: object
+                          required:
+                            - id
+                            - name
+                          properties:
+                            id:
+                              type: string
+                            name:
+                              type: string
+                            photo:
+                              type: string
+                  #- $ref: "#/components/schemas/pagination"
+
+  /image/bucket/presigned-url:
+    post:
+      summary: "Create image upload presigned url"
+      parameters:
+        - in: query
+          name: extension
+          required: true
+          schema:
+            type: string
+            enum: ["png", "jpeg", "jpg", "webp"]
+      tags: [Files]
+      responses:
+        "200":
+          description: "Presigned url created"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - url
+                properties:
+                  url:
+                    type: string
+
+  /file/bucket/presigned-url:
+    post:
+      summary: "Create file upload presigned url"
+      parameters:
+        - in: query
+          name: extension
+          required: true
+          schema:
+            type: string
+      tags: [Files]
+      responses:
+        "200":
+          description: "Presigned url created"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - url
+                properties:
+                  url:
+                    type: string
+
+  /organization/{organizationId}/project/{projectId}/report:
+    get:
+      summary: "Create a project report"
+      parameters:
+        - $ref: "#/components/parameters/organizationId"
+        - $ref: "#/components/parameters/projectId"
+      tags: [Report]
+      responses:
+        "200":
+          description: "The url of the excel file"
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - reportUrl
+                properties:
+                  reportUrl:
+                    type: string
+
+components:
+  parameters:
+    organizationId:
+      in: path
+      name: organizationId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    prizeId:
+      in: path
+      name: prizeId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    sectorId:
+      in: path
+      name: sectorId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    kpiId:
+      in: path
+      name: kpiId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    userId:
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    notificationId:
+      in: path
+      name: notificationId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    pushToken:
+      in: path
+      name: pushToken
+      required: true
+      schema:
+        type: string
+    memberId:
+      in: path
+      name: memberId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    teamId:
+      in: path
+      name: teamId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    jobRoleId:
+      in: path
+      name: jobRoleId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    projectId:
+      in: path
+      name: projectId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    macrostepId:
+      in: path
+      name: macrostepId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    activityId:
+      in: path
+      name: activityId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    date:
+      in: path
+      name: date
+      required: true
+      schema:
+        type: string
+        format: date
+    leagueId:
+      in: path
+      name: leagueId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    gameManagerId:
+      in: path
+      name: gameManagerId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    gameId:
+      in: path
+      name: gameId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    taskTemplateId:
+      in: path
+      name: taskTemplateId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    checklistTemplateId:
+      in: path
+      name: checklistTemplateId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    taskManagerId:
+      in: path
+      name: taskManagerId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    taskId:
+      in: path
+      name: taskId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    kaizenId:
+      in: path
+      name: kaizenId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    commentId:
+      in: path
+      name: commentId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    kaizenIdeaId:
+      in: path
+      name: kaizenIdeaId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    kaizenTypeId:
+      in: path
+      name: kaizenTypeId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    taskUpdateId:
+      in: path
+      name: taskUpdateId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    paginationPage:
+      in: query
+      name: page
+      schema:
+        type: number
+        default: 1
+    paginationLimit:
+      in: query
+      name: limit
+      schema:
+        type: number
+        default: 10
+    paginationKey:
+      in: query
+      name: paginationKey
+      description: the paginationKey returned in the last request
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    organizationForm:
+      type: object
+      properties:
+        name:
+          type: string
+        ownerId:
+          type: string
+        photo:
+          type: string
+    organization:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+        - $ref: "#/components/schemas/organizationForm"
+    userForm:
+      type: object
+      properties:
+        name:
+          type: string
+        nickname:
+          type: string
+        signedTermsOfUse:
+          type: boolean
+        email:
+          type: string
+        phone:
+          type: string
+        photo:
+          type: string
+    user:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+            emailConfirmed:
+              type: string
+            phoneConfirmed:
+              type: string
+            status:
+              type: string
+              enum: ["WAITING_CONFIRMATION", "ACTIVE"]
+        - $ref: "#/components/schemas/userForm"
+    memberForm:
+      allOf:
+        - type: object
+          properties:
+            role:
+              type: string
+              enum: [owner, admin, manager, player, financial]
+            sector:
+              type: string
+            sectorId:
+              type: string
+              format: uuid
+            position:
+              type: string
+            jobRoleId:
+              type: string
+              format: uuid
+            jobRoleVariantId:
+              type: string
+              format: uuid
+            salary:
+              type: number
+            seniority:
+              type: string
+            state:
+              type: string
+            hoursPerDay:
+              type: number
+    member:
+      allOf:
+        - type: object
+          properties:
+            userId:
+              type: string
+              format: uuid
+            name:
+              type: string
+            photo:
+              type: string
+            status:
+              type: string
+              enum: ["WAITING_CONFIRMATION", "ACTIVE"]
+            nickname:
+              type: string
+        - $ref: "#/components/schemas/memberForm"
+    teamForm:
+      type: object
+      properties:
+        name:
+          type: string
+        managerId:
+          type: string
+          format: uuid
+        fieldOfAction:
+          type: string
+        members:
+          type: array
+          items:
+            type: string
+            format: uuid
+    team:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        fieldOfAction:
+          type: string
+        manager:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+            photo:
+              type: string
+        members:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              name:
+                type: string
+              photo:
+                type: string
+    jobRoleForm:
+      type: object
+      properties:
+        name:
+          type: string
+        variants:
+          type: array
+          items:
+            type: object
+            properties:
+              salary:
+                type: number
+                minimum: 0
+              seniority:
+                type: string
+              state:
+                type: string
+              hoursPerDay:
+                type: number
+                minimum: 0
+    jobRole:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organizationId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        variants:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              salary:
+                type: number
+                minimum: 0
+              seniority:
+                type: string
+              state:
+                type: string
+              hoursPerDay:
+                type: number
+                minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          format: uuid
+        updatedAt:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+          format: uuid
+    projectForm:
+      type: object
+      properties:
+        name:
+          type: string
+        activeGameId:
+          type: string
+          format: uuid
+        photo:
+          type: string
+        type:
+          type: string
+          enum: [TYPE]
+        state:
+          type: string
+        city:
+          type: string
+        startDate:
+          $ref: "#/components/schemas/date"
+        endDate:
+          $ref: "#/components/schemas/date"
+        teams:
+          type: array
+          items:
+            type: string
+            format: uuid
+        prizes:
+          type: array
+          description: list of prizes, the array position determines the placement
+          items:
+            type: object
+            properties:
+              prizeId:
+                type: string
+                format: uuid
+    project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organizationId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        activeGameId:
+          type: string
+          format: uuid
+        photo:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, PAUSED, DONE]
+        state:
+          type: string
+        city:
+          type: string
+        startDate:
+          $ref: "#/components/schemas/date"
+        endDate:
+          $ref: "#/components/schemas/date"
+        teams:
+          type: array
+          items:
+            type: string
+            format: uuid
+        prizes:
+          type: array
+          description: list of prizes, the array position determines the placement
+          items:
+            type: object
+            properties:
+              prizeId:
+                type: string
+                format: uuid
+    gameForm:
+      type: object
+      properties:
+        name:
+          type: string
+        photo:
+          type: string
+        objective:
+          type: string
+        updateFrequency:
+          type: number
+          description: number of days between updates
+        responsibles:
+          type: array
+          items:
+            type: string
+            format: uuid
+        prizes:
+          type: array
+          description: list of prizes, the array position determines the placement
+          items:
+            type: object
+            properties:
+              prizeId:
+                type: string
+                format: uuid
+              rankingType:
+                type: string
+                enum: ["gameRanking", "leagueRanking"]
+              type:
+                type: string
+                enum: ["points", "placement"]
+              value:
+                type: number
+        kpis:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              points:
+                type: number
+        startDate:
+          $ref: "#/components/schemas/date"
+        endDate:
+          $ref: "#/components/schemas/date"
+    game:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+            organizationId:
+              type: string
+            archived:
+              type: boolean
+            status:
+              type: string
+              enum: [ACTIVE, PAUSED, DONE]
+        - $ref: "#/components/schemas/gameForm"
+    gameManagerForm:
+      allOf:
+        - $ref: "#/components/schemas/gameForm"
+        - type: object
+          properties:
+            gameLength:
+              description: "The length of each game in days, if not set only one game will be created beggining at startDate and ending at endDate"
+              type: number
+    gameManager:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            organizationId:
+              type: string
+              format: uuid
+            projectId:
+              type: string
+              format: uuid
+        - $ref: "#/components/schemas/gameManagerForm"
+    taskForm:
+      type: object
+      properties:
+        name:
+          type: string
+        teamId:
+          type: string
+          format: uuid
+        managerId:
+          type: string
+          format: uuid
+        kpiId:
+          type: string
+          format: uuid
+        description:
+          type: string
+        videoUrl:
+          type: string
+          format: uri
+        embedVideoUrl:
+          type: string
+          format: uri
+        measurementUnit:
+          type: string
+          enum: [m3]
+        totalMeasurementExpected:
+          type: string
+        rewardPoints:
+          type: string
+        startDate:
+          $ref: "#/components/schemas/date"
+        endDate:
+          $ref: "#/components/schemas/date"
+        checklist:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              label:
+                type: string
+    task:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            gameId:
+              type: string
+              format: uuid
+        - $ref: "#/components/schemas/taskForm"
+        - type: object
+          properties:
+            progress:
+              type: object
+              properties:
+                absolute:
+                  type: number
+                percent:
+                  type: number
+                updatedAt:
+                  $ref: "#/components/schemas/date"
+            checklist:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  label:
+                    type: string
+                  checked:
+                    type: boolean
+
+    taskTemplateForm:
+      type: object
+      properties:
+        kpiId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        measurementUnit:
+          type: string
+          example: m3
+        totalMeasurementExpected:
+          type: string
+        rewardPoints:
+          type: string
+
+    taskTemplate:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            organizationId:
+              type: string
+              format: uuid
+        - $ref: "#/components/schemas/taskTemplateForm"
+
+    checklistTemplateForm:
+      type: object
+      properties:
+        name:
+          type: string
+        checklist:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+
+    checklistTemplate:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            organizationId:
+              type: string
+              format: uuid
+        - $ref: "#/components/schemas/checklistTemplateForm"
+
+    taskManagerForm:
+      type: object
+      properties:
+        kpiId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        rewardPoints:
+          type: number
+        description:
+          type: string
+        measurementUnit:
+          type: string
+        totalMeasurementExpected:
+          type: string
+        videoUrl:
+          type: string
+          format: uri
+        embedVideoUrl:
+          type: string
+          format: uri
+        checklist:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              label:
+                type: string
+              checked:
+                type: boolean
+        responsible:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [team, player]
+            ids:
+              type: array
+              items:
+                type: string
+                format: uuid
+        schedule:
+          type: object
+          properties:
+            startDate:
+              $ref: "#/components/schemas/date"
+            endDate:
+              $ref: "#/components/schemas/date"
+            recurrence:
+              type: object
+              properties:
+                mon:
+                  type: boolean
+                tue:
+                  type: boolean
+                wed:
+                  type: boolean
+                thu:
+                  type: boolean
+                fri:
+                  type: boolean
+                sat:
+                  type: boolean
+                sun:
+                  type: boolean
+    taskManager:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            organizationId:
+              type: string
+              format: uuid
+            projectId:
+              type: string
+              format: uuid
+            gameId:
+              type: string
+              format: uuid
+        - $ref: "#/components/schemas/taskManagerForm"
+
+    projectDiaryForm:
+      type: object
+      properties:
+        notes:
+          type: string
+        weather:
+          type: object
+          properties:
+            morning:
+              type: string
+              enum: [SUNNY, CLOUDY, RAINY]
+            afternoon:
+              type: string
+              enum: [SUNNY, CLOUDY, RAINY]
+            night:
+              type: string
+              enum: [SUNNY, CLOUDY, RAINY]
+        equipment:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - quantity
+            properties:
+              name:
+                type: string
+              quantity:
+                type: number
+        manpower:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - quantity
+            properties:
+              name:
+                type: string
+              quantity:
+                type: number
+        indirectManpower:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - quantity
+            properties:
+              name:
+                type: string
+              quantity:
+                type: number
+
+    projectDiary:
+      allOf:
+        - type: object
+          required:
+            - organizationId
+            - projectId
+            - date
+          properties:
+            organizationId:
+              type: string
+              format: uuid
+            projectId:
+              type: string
+              format: uuid
+            date:
+              type: string
+              format: date
+        - $ref: "#/components/schemas/projectDiaryForm"
+
+    taskUpdateForm:
+      type: object
+      properties:
+        absolute:
+          type: number
+        hours:
+          type: number
+        checklist:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              checked:
+                type: boolean
+        startDate:
+          $ref: "#/components/schemas/date"
+        endDate:
+          $ref: "#/components/schemas/date"
+        participants:
+          type: array
+          items:
+            type: string
+            format: uuid
+        photos:
+          type: array
+          items:
+            type: string
+        note:
+          type: string
+
+    taskUpdate:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            taskId:
+              type: string
+              format: uuid
+            submittedBy:
+              type: string
+              format: uuid
+            reviwedBy:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [PENDING_REVIEW, ACCEPTED, REJECTED, CANCELLED]
+            progress:
+              allOf:
+                - $ref: "#/components/schemas/taskUpdateForm"
+                - type: object
+                  properties:
+                    percent:
+                      type: number
+                    updatedAt:
+                      type: string
+                      format: date-time
+
+    organizationConfig:
+      type: object
+      properties:
+        missionsEnabled:
+          type: boolean
+        kaizensEnabled:
+          type: boolean
+        financialEnabled:
+          type: boolean
+        projectDiaryEnabled:
+          type: boolean
+        missionConfig:
+          type: object
+          properties:
+            autoApproveUpdates:
+              type: boolean
+        theme:
+          type: object
+          properties:
+            menu:
+              type: object
+              properties:
+                background:
+                  type: string
+                color:
+                  type: string
+        auth:
+          type: object
+          properties:
+            login:
+              type: object
+              properties:
+                email:
+                  type: boolean
+                microsoftSSO:
+                  type: boolean
+
+    organizationKaizenConfig:
+      type: object
+      properties:
+        categoryPoints:
+          type: object
+          properties:
+            1:
+              type: object
+              properties:
+                points:
+                  type: number
+                description:
+                  type: string
+            2:
+              type: object
+              properties:
+                points:
+                  type: number
+                description:
+                  type: string
+            3:
+              type: object
+              properties:
+                points:
+                  type: number
+                description:
+                  type: string
+            4:
+              type: object
+              properties:
+                points:
+                  type: number
+                description:
+                  type: string
+            5:
+              type: object
+              properties:
+                points:
+                  type: number
+                description:
+                  type: string
+
+    leagueForm:
+      type: object
+      properties:
+        name:
+          type: string
+        photo:
+          type: string
+        objective:
+          type: string
+        responsibleId:
+          type: string
+          format: uuid
+        startDate:
+          $ref: "#/components/schemas/date"
+        endDate:
+          $ref: "#/components/schemas/date"
+        prizes:
+          type: array
+          description: list of prizes, the array position determines the placement
+          items:
+            type: object
+            properties:
+              prizeId:
+                type: string
+                format: uuid
+        projects:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    league:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            organizationId:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [ACTIVE, ARCHIVED, DONE]
+        - $ref: "#/components/schemas/leagueForm"
+
+    kaizenForm:
+      type: object
+      properties:
+        name:
+          type: string
+        responsibles:
+          type: object
+          properties:
+            players:
+              type: array
+              items:
+                type: string
+                format: uuid
+            teams:
+              type: array
+              items:
+                type: string
+                format: uuid
+        kaizenTypeId:
+          type: string
+        kaizenIdeaId:
+          type: string
+        currentSituation:
+          type: string
+        currentSituationImages:
+          type: array
+          items:
+            type: string
+            format: uuid
+        solution:
+          type: string
+        solutionImages:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tasks:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              responsibleId:
+                type: string
+                format: uuid
+              endDate:
+                type: string
+                format: date
+              budget:
+                type: number
+              isComplete:
+                type: boolean
+        benefits:
+          type: array
+          items:
+            type: object
+            properties:
+              kpiId:
+                type: string
+                format: uuid
+              description:
+                type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+              name:
+                type: string
+              filetype:
+                type: string
+              size:
+                type: number
+              createdAt:
+                type: string
+        isApproved:
+          type: boolean
+        leaderId:
+          type: string
+        category:
+          type: number
+          enum: [1, 2, 3, 4, 5]
+        files:
+          type: array
+          items:
+            type: string
+        resources:
+          type: string
+
+    kaizen:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            originalKaizenId:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [ACTIVE, CANCELLED, DONE, APPROVED]
+            leader:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                photo:
+                  type: string
+            createdDate:
+              type: string
+              format: date
+        - $ref: "#/components/schemas/kaizenForm"
+
+    kaizenDetail:
+      allOf:
+        - $ref: "#/components/schemas/kaizen"
+        - type: object
+          properties:
+            tasks:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  responsibleId:
+                    type: string
+                    format: uuid
+                  responsible:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      photo:
+                        type: string
+                  endDate:
+                    type: string
+                    format: date
+                  budget:
+                    type: number
+                  isComplete:
+                    type: boolean
+
+    kaizenCommentForm:
+      type: object
+      properties:
+        text:
+          type: string
+
+    kaizenComment:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            kaizenId:
+              type: string
+              format: uuid
+            userId:
+              type: string
+              format: uuid
+            createdAt:
+              type: string
+              format: date
+        - $ref: "#/components/schemas/kaizenCommentForm"
+
+    kaizenIdeaForm:
+      type: object
+      properties:
+        name:
+          type: string
+        projectId:
+          type: string
+          format: uuid
+        gameId:
+          type: string
+          format: uuid
+        kaizenTypeId:
+          type: string
+          format: uuid
+        authors:
+          type: object
+          properties:
+            players:
+              type: array
+              items:
+                type: string
+                format: uuid
+            teams:
+              type: array
+              items:
+                type: string
+                format: uuid
+        problem:
+          type: object
+          properties:
+            description:
+              type: string
+            images:
+              type: array
+              items:
+                type: string
+                format: url
+        solution:
+          type: object
+          properties:
+            description:
+              type: string
+            images:
+              type: array
+              items:
+                type: string
+                format: url
+        tasks:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              responsibleId:
+                type: string
+                format: uuid
+              endDate:
+                type: string
+                format: date
+              budget:
+                type: number
+              isComplete:
+                type: boolean
+        benefits:
+          type: array
+          items:
+            type: object
+            properties:
+              kpiId:
+                type: string
+                format: uuid
+              description:
+                type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+              name:
+                type: string
+              filetype:
+                type: string
+              size:
+                type: number
+              createdAt:
+                type: string
+
+    kaizenIdea:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            organizationId:
+              type: string
+              format: uuid
+            status:
+              type: string
+              enum: [DRAFT, APPROVED, ARCHIVED]
+            createdDate:
+              type: string
+              format: date
+        - $ref: "#/components/schemas/kaizenIdeaForm"
+
+    kaizenTypeForm:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        points:
+          type: number
+        ideaPoints:
+          type: number
+        ideaExecutionPoints:
+          type: number
+
+    kaizenType:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            organizationId:
+              type: string
+              format: uuid
+        - $ref: "#/components/schemas/kaizenTypeForm"
+
+    projectMacrostepForm:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    projectMacrostep:
+      allOf:
+        - $ref: "#/components/schemas/projectMacrostepForm"
+        - type: object
+          properties:
+            organizationId:
+              type: string
+              format: uuid
+            projectId:
+              type: string
+              format: uuid
+            startDate:
+              $ref: "#/components/schemas/date"
+            endDate:
+              $ref: "#/components/schemas/date"
+            expectedCost:
+              type: number
+            delayedActivitiesCount:
+              type: number
+
+    projectMacrostepActivityForm:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        totalMeasurementExpected:
+          type: number
+        measurementUnit:
+          type: string
+        startDate:
+          $ref: "#/components/schemas/date"
+        endDate:
+          $ref: "#/components/schemas/date"
+        location:
+          type: string
+        expectedCost:
+          type: number
+        duration:
+          type: number
+          description: "Duração da atividade em dias"
+        trackingValue:
+          type: number
+          description: "Valor de acompanhamento da atividade"
+        trackingUnit:
+          type: string
+          description: "Unidade de acompanhamento (ex: Concretagem, Alvenaria)"
+        laborCompositionList:
+          type: array
+          description: "Lista de composição de mão de obra"
+          items:
+            type: object
+            properties:
+              jobRoleId:
+                type: string
+                format: uuid
+              jobRoleName:
+                type: string
+              jobRoleSeniority:
+                type: string
+              hourlyCost:
+                type: number
+              dailyProductivity:
+                type: number
+              unitCost:
+                type: number
+              unitHours:
+                type: number
+                description: "Horas por unidade"
+              laborHours:
+                type: number
+                description: "Índice"
+              personQuantity:
+                type: number
+                description: "Pessoas"
+        prizesPerRange:
+          type: array
+          description: "Premiações por faixa"
+          items:
+            type: object
+            properties:
+              jobRoleId:
+                type: string
+                format: uuid
+              jobRoleName:
+                type: string
+              jobRoleSeniority:
+                type: string
+              range:
+                type: number
+                description: "Faixa em unidades (ex: 50)"
+              prizeAmount:
+                type: number
+                description: "Valor da premiação em reais"
+        prizesPerProductivity:
+          type: array
+          description: "Premiações por produtividade"
+          items:
+            type: object
+            properties:
+              jobRoleId:
+                type: string
+                format: uuid
+              jobRoleName:
+                type: string
+              jobRoleSeniority:
+                type: string
+              unitQuantity:
+                type: number
+                description: "Quantidade de unidades (ex: 1)"
+              prizeAmount:
+                type: number
+                description: "Valor da premiação em reais"
+
+    projectMacrostepActivity:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            projectId:
+              type: string
+              format: uuid
+            macrostepId:
+              type: string
+              format: uuid
+        - $ref: "#/components/schemas/projectMacrostepActivityForm"
+        - type: object
+          properties:
+            aggregatedCost:
+              type: number
+            executedStartDate:
+              type: string
+              format: date
+            executedEndDate:
+              type: string
+              format: date
+            progressPercent:
+              type: number
+            isDelayed:
+              type: boolean
+            tasks:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  gameId:
+                    type: string
+                    format: uuid
+                  points:
+                    type: number
+                  startDate:
+                    type: string
+                    format: date
+                  endDate:
+                    type: string
+                    format: date
+                  progressAbsolute:
+                    type: number
+                  totalMeasurementExpected:
+                    type: number
+                  responsible:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      id:
+                        type: string
+                        format: uuid
+
+    pagination:
+      type: object
+      properties:
+        pagination:
+          type: object
+          properties:
+            currentPage:
+              type: number
+            itemsPerPage:
+              type: number
+            # pagecount:
+            #   type: number
+            # itemCount:
+            #   type: number
+    date:
+      type: string
+      format: date
+    dateTime:
+      type: string
+      format: date-time
+  securitySchemes:
+    accessToken:
+      type: http
+      scheme: bearer
