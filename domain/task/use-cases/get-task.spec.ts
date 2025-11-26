@@ -1,9 +1,9 @@
 // Testes unitários para o use case getTask
 
-import { describe, it, expect, vi } from "vitest";
-import { getTask, type GetTaskInput } from "./get-task";
-import type { ITaskRepository } from "../repositories/task.repository.interface";
+import { describe, expect, it, vi } from "vitest";
 import type { TaskEntity } from "../entities/task.entity";
+import type { ITaskRepository } from "../repositories/task.repository.interface";
+import { type GetTaskInput, getTask } from "./get-task";
 
 describe("getTask use case", () => {
   const existingTask: TaskEntity = {
@@ -15,7 +15,9 @@ describe("getTask use case", () => {
     sequence: 0,
   } as unknown as TaskEntity;
 
-  const createMockRepository = (task: TaskEntity | null = existingTask): ITaskRepository => ({
+  const createMockRepository = (
+    task: TaskEntity | null = existingTask,
+  ): ITaskRepository => ({
     save: vi.fn(),
     delete: vi.fn().mockResolvedValue(undefined),
     findById: vi.fn().mockResolvedValue(task),
@@ -41,6 +43,8 @@ describe("getTask use case", () => {
 
     const input: GetTaskInput = { gameId: "game-1", taskId: "nope" };
 
-    await expect(getTask(input, mockRepository)).rejects.toThrow("Task not found: nope");
+    await expect(getTask(input, mockRepository)).rejects.toThrow(
+      "Task not found: nope",
+    );
   });
 });

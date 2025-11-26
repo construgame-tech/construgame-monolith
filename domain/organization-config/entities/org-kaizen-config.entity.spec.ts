@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createOrgKaizenConfigEntity,
-  updateOrgKaizenConfigEntity,
   type OrgKaizenConfigEntity,
+  updateOrgKaizenConfigEntity,
 } from "./org-kaizen-config.entity";
 
 describe("OrgKaizenConfigEntity", () => {
@@ -59,7 +59,7 @@ describe("OrgKaizenConfigEntity", () => {
       });
 
       expect(config.categoryPoints["1"].description).toBe(
-        "Simple improvements"
+        "Simple improvements",
       );
       expect(config.categoryPoints["2"]?.description).toBe("Medium complexity");
     });
@@ -136,7 +136,7 @@ describe("OrgKaizenConfigEntity", () => {
       });
 
       expect(updated.categoryPoints["1"].description).toBe(
-        "Updated description"
+        "Updated description",
       );
     });
 

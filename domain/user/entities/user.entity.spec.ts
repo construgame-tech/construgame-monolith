@@ -1,21 +1,21 @@
 // Testes unitários para entidades do domínio User
 // Testando as factory functions e regras de negócio
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  activateUserEntity,
+  canReuseAuthCode,
+  clearAuthCode,
   createUserEntity,
+  incrementUserSequence,
+  isAuthCodeValid,
+  isPasswordRecoveryCodeValid,
+  makeUserSuperuser,
+  setAuthCode,
+  setPasswordRecoveryCode,
+  type UserEntity,
   updateUserEntity,
   updateUserPassword,
-  activateUserEntity,
-  setPasswordRecoveryCode,
-  setAuthCode,
-  clearAuthCode,
-  makeUserSuperuser,
-  incrementUserSequence,
-  isPasswordRecoveryCodeValid,
-  isAuthCodeValid,
-  canReuseAuthCode,
-  type UserEntity,
 } from "./user.entity";
 
 describe("User Entity", () => {
@@ -147,10 +147,16 @@ describe("User Entity", () => {
         sequence: 0,
       };
 
-      const updated = setPasswordRecoveryCode(user, "ABC123", "2025-12-31T00:00:00.000Z");
+      const updated = setPasswordRecoveryCode(
+        user,
+        "ABC123",
+        "2025-12-31T00:00:00.000Z",
+      );
 
       expect(updated.passwordRecoveryCode).toBe("ABC123");
-      expect(updated.passwordRecoveryCodeExpires).toBe("2025-12-31T00:00:00.000Z");
+      expect(updated.passwordRecoveryCodeExpires).toBe(
+        "2025-12-31T00:00:00.000Z",
+      );
       expect(updated.sequence).toBe(1);
     });
   });

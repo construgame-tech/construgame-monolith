@@ -1,9 +1,9 @@
 // Testes unitários para o use case createTask
 // Testando lógica de criação de tasks e integração com repositório mockado
 
-import { describe, it, expect, vi } from "vitest";
-import { createTask, type CreateTaskInput } from "./create-task";
+import { describe, expect, it, vi } from "vitest";
 import type { ITaskRepository } from "../repositories/task.repository.interface";
+import { type CreateTaskInput, createTask } from "./create-task";
 
 describe("createTask use case", () => {
   const createMockRepository = (): ITaskRepository => ({

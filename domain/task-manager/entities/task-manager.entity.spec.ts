@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createTaskManagerEntity,
-  updateTaskManagerEntity,
   incrementTaskManagerSequence,
   type TaskManagerEntity,
+  updateTaskManagerEntity,
 } from "./task-manager.entity";
 
 describe("TaskManagerEntity", () => {

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createFinancialPrizeEntity } from "./financial-prize.entity";
 
 describe("FinancialPrizeEntity", () => {

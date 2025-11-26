@@ -1,12 +1,12 @@
 // Testes unitários para entidades do domínio Organization
 // Testando as factory functions
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createOrganizationEntity,
-  updateOrganizationEntity,
   incrementOrganizationSequence,
   type OrganizationEntity,
+  updateOrganizationEntity,
 } from "./organization.entity";
 
 describe("Organization Entity", () => {

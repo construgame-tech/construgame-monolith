@@ -1,19 +1,19 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  createUserKaizenPointsEntity,
-  addPointsToUserKaizenPoints,
-  type UserKaizenPointsEntity,
-} from "./user-kaizen-points.entity";
+  addPointsToGameKaizenPoints,
+  createGameKaizenPointsEntity,
+  type GameKaizenPointsEntity,
+} from "./game-kaizen-points.entity";
 import {
-  createTeamKaizenPointsEntity,
   addPointsToTeamKaizenPoints,
+  createTeamKaizenPointsEntity,
   type TeamKaizenPointsEntity,
 } from "./team-kaizen-points.entity";
 import {
-  createGameKaizenPointsEntity,
-  addPointsToGameKaizenPoints,
-  type GameKaizenPointsEntity,
-} from "./game-kaizen-points.entity";
+  addPointsToUserKaizenPoints,
+  createUserKaizenPointsEntity,
+  type UserKaizenPointsEntity,
+} from "./user-kaizen-points.entity";
 
 describe("KaizenPointsEntities", () => {
   describe("UserKaizenPointsEntity", () => {

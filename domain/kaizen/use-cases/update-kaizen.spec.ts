@@ -1,9 +1,9 @@
 // Testes unitários para o use case updateKaizen
 
-import { describe, it, expect, vi } from "vitest";
-import { updateKaizen, type UpdateKaizenInput } from "./update-kaizen";
-import type { IKaizenRepository } from "../repositories/kaizen.repository.interface";
+import { describe, expect, it, vi } from "vitest";
 import type { KaizenEntity } from "../entities/kaizen.entity";
+import type { IKaizenRepository } from "../repositories/kaizen.repository.interface";
+import { type UpdateKaizenInput, updateKaizen } from "./update-kaizen";
 
 describe("updateKaizen use case", () => {
   const baseKaizen: KaizenEntity = {
@@ -17,7 +17,9 @@ describe("updateKaizen use case", () => {
     sequence: 0,
   };
 
-  const createMockRepository = (kaizen: KaizenEntity | null = baseKaizen): IKaizenRepository => ({
+  const createMockRepository = (
+    kaizen: KaizenEntity | null = baseKaizen,
+  ): IKaizenRepository => ({
     save: vi.fn().mockResolvedValue(undefined),
     saveMultiple: vi.fn().mockResolvedValue(undefined),
     delete: vi.fn().mockResolvedValue(undefined),
@@ -80,7 +82,10 @@ describe("updateKaizen use case", () => {
 
     await updateKaizen(input, mockRepository);
 
-    expect(mockRepository.findByIds).toHaveBeenCalledWith(["replica-1", "replica-2"]);
+    expect(mockRepository.findByIds).toHaveBeenCalledWith([
+      "replica-1",
+      "replica-2",
+    ]);
     expect(mockRepository.saveMultiple).toHaveBeenCalledTimes(1);
   });
 

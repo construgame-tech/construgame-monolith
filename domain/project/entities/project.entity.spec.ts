@@ -1,13 +1,13 @@
 // Testes unitários para entidades do domínio Project
 // Testando as factory functions
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createProjectEntity,
-  updateProjectEntity,
   incrementProjectSequence,
   type ProjectEntity,
   type ProjectPrize,
+  updateProjectEntity,
 } from "./project.entity";
 
 describe("Project Entity", () => {
@@ -27,7 +27,10 @@ describe("Project Entity", () => {
     });
 
     it("deve criar projeto com todos os campos opcionais", () => {
-      const prizes: ProjectPrize[] = [{ prizeId: "prize-1" }, { prizeId: "prize-2" }];
+      const prizes: ProjectPrize[] = [
+        { prizeId: "prize-1" },
+        { prizeId: "prize-2" },
+      ];
 
       const project = createProjectEntity({
         id: "proj-123",

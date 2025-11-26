@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createWebNotificationEntity,
+  type KaizenCompletedData,
   markWebNotificationAsRead,
   validateWebNotificationData,
   type WebNotificationEntity,
-  type KaizenCompletedData,
 } from "./web-notification.entity";
 
 describe("WebNotificationEntity", () => {
@@ -124,13 +124,13 @@ describe("WebNotificationEntity", () => {
   describe("validateWebNotificationData", () => {
     it("should not throw for KAIZEN_COMPLETED with data", () => {
       expect(() =>
-        validateWebNotificationData("KAIZEN_COMPLETED", kaizenCompletedData)
+        validateWebNotificationData("KAIZEN_COMPLETED", kaizenCompletedData),
       ).not.toThrow();
     });
 
     it("should throw for KAIZEN_COMPLETED without data", () => {
       expect(() =>
-        validateWebNotificationData("KAIZEN_COMPLETED", undefined)
+        validateWebNotificationData("KAIZEN_COMPLETED", undefined),
       ).toThrow("KAIZEN_COMPLETED notification requires kaizenCompletedData");
     });
 
@@ -146,7 +146,7 @@ describe("WebNotificationEntity", () => {
       };
 
       expect(() =>
-        validateWebNotificationData("KAIZEN_COMPLETED", validData)
+        validateWebNotificationData("KAIZEN_COMPLETED", validData),
       ).not.toThrow();
     });
 
@@ -162,7 +162,7 @@ describe("WebNotificationEntity", () => {
       };
 
       expect(() =>
-        validateWebNotificationData("KAIZEN_COMPLETED", minimalData)
+        validateWebNotificationData("KAIZEN_COMPLETED", minimalData),
       ).not.toThrow();
     });
   });

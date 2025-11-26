@@ -1,13 +1,13 @@
 // Testes unitários para entidades do domínio JobRole
 // Testando as factory functions
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createJobRoleEntity,
-  updateJobRoleEntity,
   incrementJobRoleSequence,
   type JobRoleEntity,
   type JobRoleVariant,
+  updateJobRoleEntity,
 } from "./job-role.entity";
 
 describe("JobRole Entity", () => {
@@ -34,9 +34,27 @@ describe("JobRole Entity", () => {
 
     it("deve criar job role com múltiplas variantes", () => {
       const variants: JobRoleVariant[] = [
-        { id: "v1", salary: 3000, seniority: "junior", state: "SP", hoursPerDay: 8 },
-        { id: "v2", salary: 5000, seniority: "pleno", state: "SP", hoursPerDay: 8 },
-        { id: "v3", salary: 8000, seniority: "senior", state: "SP", hoursPerDay: 8 },
+        {
+          id: "v1",
+          salary: 3000,
+          seniority: "junior",
+          state: "SP",
+          hoursPerDay: 8,
+        },
+        {
+          id: "v2",
+          salary: 5000,
+          seniority: "pleno",
+          state: "SP",
+          hoursPerDay: 8,
+        },
+        {
+          id: "v3",
+          salary: 8000,
+          seniority: "senior",
+          state: "SP",
+          hoursPerDay: 8,
+        },
       ];
 
       const jobRole = createJobRoleEntity({

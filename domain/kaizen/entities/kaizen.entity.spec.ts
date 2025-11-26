@@ -1,22 +1,22 @@
 // Testes unitários para entidades do domínio Kaizen
 // Testando as factory functions e regras de negócio
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  createKaizenEntity,
-  updateKaizenEntity,
-  completeKaizenEntity,
-  approveKaizenEntity,
-  reopenKaizenEntity,
-  archiveKaizenEntity,
-  unarchiveKaizenEntity,
-  createKaizenReplicaEntity,
   addReplicaToKaizenEntity,
-  updateReplicaFromOriginal,
+  approveKaizenEntity,
+  archiveKaizenEntity,
+  completeKaizenEntity,
+  createKaizenEntity,
+  createKaizenReplicaEntity,
   incrementKaizenSequence,
+  type KaizenBenefit,
   type KaizenEntity,
   type KaizenTask,
-  type KaizenBenefit,
+  reopenKaizenEntity,
+  unarchiveKaizenEntity,
+  updateKaizenEntity,
+  updateReplicaFromOriginal,
 } from "./kaizen.entity";
 
 describe("Kaizen Entity", () => {
@@ -44,7 +44,9 @@ describe("Kaizen Entity", () => {
       const tasks: KaizenTask[] = [
         { name: "Tarefa 1", isComplete: false, responsibleId: "user-1" },
       ];
-      const benefits: KaizenBenefit[] = [{ kpiId: "kpi-1", description: "Benefício" }];
+      const benefits: KaizenBenefit[] = [
+        { kpiId: "kpi-1", description: "Benefício" },
+      ];
 
       const kaizen = createKaizenEntity({
         id: "kaizen-123",
@@ -89,7 +91,9 @@ describe("Kaizen Entity", () => {
         projectId: "proj-123",
         gameId: "game-123",
         name: "Kaizen",
-        tasks: [{ name: "Task", isComplete: false, responsibleId: "u1", budget: 0 }],
+        tasks: [
+          { name: "Task", isComplete: false, responsibleId: "u1", budget: 0 },
+        ],
       });
 
       expect(kaizen.tasks?.[0].budget).toBeUndefined();
@@ -185,7 +189,9 @@ describe("Kaizen Entity", () => {
         sequence: 0,
       };
 
-      expect(() => completeKaizenEntity(kaizen)).toThrow("Kaizen is not active");
+      expect(() => completeKaizenEntity(kaizen)).toThrow(
+        "Kaizen is not active",
+      );
     });
   });
 
@@ -238,7 +244,9 @@ describe("Kaizen Entity", () => {
         sequence: 0,
       };
 
-      expect(() => approveKaizenEntity(kaizen)).toThrow("Kaizen is not completed");
+      expect(() => approveKaizenEntity(kaizen)).toThrow(
+        "Kaizen is not completed",
+      );
     });
   });
 
@@ -357,7 +365,9 @@ describe("Kaizen Entity", () => {
         sequence: 0,
       };
 
-      expect(() => unarchiveKaizenEntity(kaizen)).toThrow("Kaizen is not archived");
+      expect(() => unarchiveKaizenEntity(kaizen)).toThrow(
+        "Kaizen is not archived",
+      );
     });
   });
 
@@ -372,7 +382,9 @@ describe("Kaizen Entity", () => {
         leaderId: "leader-123",
         name: "Kaizen Original",
         category: 1,
-        tasks: [{ name: "Task", isComplete: true, responsibleId: "old-leader" }],
+        tasks: [
+          { name: "Task", isComplete: true, responsibleId: "old-leader" },
+        ],
       });
 
       expect(replica.id).toBe("replica-123");

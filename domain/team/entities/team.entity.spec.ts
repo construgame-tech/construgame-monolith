@@ -1,12 +1,12 @@
 // Testes unitários para entidades do domínio Team
 // Testando as factory functions
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createTeamEntity,
-  updateTeamEntity,
   incrementTeamSequence,
   type TeamEntity,
+  updateTeamEntity,
 } from "./team.entity";
 
 describe("Team Entity", () => {

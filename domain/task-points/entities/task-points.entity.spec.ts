@@ -1,19 +1,19 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  createUserTaskPointsEntity,
-  addPointsToUserTaskPoints,
-  type UserTaskPointsEntity,
-} from "./user-task-points.entity";
+  addPointsToGameTaskPoints,
+  createGameTaskPointsEntity,
+  type GameTaskPointsEntity,
+} from "./game-task-points.entity";
 import {
-  createTeamTaskPointsEntity,
   addPointsToTeamTaskPoints,
+  createTeamTaskPointsEntity,
   type TeamTaskPointsEntity,
 } from "./team-task-points.entity";
 import {
-  createGameTaskPointsEntity,
-  addPointsToGameTaskPoints,
-  type GameTaskPointsEntity,
-} from "./game-task-points.entity";
+  addPointsToUserTaskPoints,
+  createUserTaskPointsEntity,
+  type UserTaskPointsEntity,
+} from "./user-task-points.entity";
 
 describe("TaskPointsEntities", () => {
   describe("UserTaskPointsEntity", () => {

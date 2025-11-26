@@ -1,9 +1,5 @@
-import { describe, it, expect } from "vitest";
-import {
-  createKpiEntity,
-  updateKpiEntity,
-  type KpiEntity,
-} from "./kpi.entity";
+import { describe, expect, it } from "vitest";
+import { createKpiEntity, type KpiEntity, updateKpiEntity } from "./kpi.entity";
 
 describe("KpiEntity", () => {
   describe("createKpiEntity", () => {

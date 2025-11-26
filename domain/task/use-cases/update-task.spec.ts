@@ -1,10 +1,10 @@
 // Testes unitários para o use case updateTask
 // Testando lógica de atualização de tasks, checklist e recalculo de progresso
 
-import { describe, it, expect, vi } from "vitest";
-import { updateTask, type UpdateTaskInput } from "./update-task";
-import type { ITaskRepository } from "../repositories/task.repository.interface";
+import { describe, expect, it, vi } from "vitest";
 import type { TaskEntity } from "../entities/task.entity";
+import type { ITaskRepository } from "../repositories/task.repository.interface";
+import { type UpdateTaskInput, updateTask } from "./update-task";
 
 describe("updateTask use case", () => {
   const baseTask: TaskEntity = {
@@ -14,11 +14,17 @@ describe("updateTask use case", () => {
     name: "Task Base",
     rewardPoints: 100,
     sequence: 0,
-    progress: { absolute: 50, percent: 50, updatedAt: new Date().toISOString() },
+    progress: {
+      absolute: 50,
+      percent: 50,
+      updatedAt: new Date().toISOString(),
+    },
     totalMeasurementExpected: undefined,
   } as unknown as TaskEntity;
 
-  const createMockRepository = (task: TaskEntity | null = baseTask): ITaskRepository => ({
+  const createMockRepository = (
+    task: TaskEntity | null = baseTask,
+  ): ITaskRepository => ({
     save: vi.fn().mockResolvedValue(undefined),
     delete: vi.fn().mockResolvedValue(undefined),
     findById: vi.fn().mockResolvedValue(task),
@@ -45,7 +51,11 @@ describe("updateTask use case", () => {
   it("deve atualizar campos e recalcular percent quando totalMeasurementExpected muda", async () => {
     const taskWithProgress: TaskEntity = {
       ...baseTask,
-      progress: { absolute: 50, percent: 50, updatedAt: new Date().toISOString() },
+      progress: {
+        absolute: 50,
+        percent: 50,
+        updatedAt: new Date().toISOString(),
+      },
       totalMeasurementExpected: "100",
     } as unknown as TaskEntity;
 

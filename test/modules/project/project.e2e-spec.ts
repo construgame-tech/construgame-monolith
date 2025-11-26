@@ -140,9 +140,13 @@ describe("ProjectController (e2e)", () => {
       const projectId = createResponse.body.id;
 
       // Act
-      const response = await getRequest(app, `/api/v1/organizations/${organizationId}/projects/${projectId}`, {
-        token: authToken,
-      });
+      const response = await getRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects/${projectId}`,
+        {
+          token: authToken,
+        },
+      );
 
       // Assert
       expect(response.statusCode).toBe(200);
@@ -225,14 +229,18 @@ describe("ProjectController (e2e)", () => {
       const projectId = createResponse.body.id;
 
       // Act
-      const response = await putRequest(app, `/api/v1/organizations/${organizationId}/projects/${projectId}`, {
-        token: authToken,
-        body: {
-          name: "Projeto Atualizado",
-          city: "Rio de Janeiro",
-          state: "RJ",
+      const response = await putRequest(
+        app,
+        `/api/v1/organizations/${organizationId}/projects/${projectId}`,
+        {
+          token: authToken,
+          body: {
+            name: "Projeto Atualizado",
+            city: "Rio de Janeiro",
+            state: "RJ",
+          },
         },
-      });
+      );
 
       // Assert
       expect(response.statusCode).toBe(200);

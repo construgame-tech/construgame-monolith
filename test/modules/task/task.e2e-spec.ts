@@ -42,14 +42,10 @@ describe("TaskController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(
-        app,
-        `/api/v1/games/${gameId}/tasks`,
-        {
-          token: authToken,
-          body: taskData,
-        },
-      );
+      const response = await postRequest(app, `/api/v1/games/${gameId}/tasks`, {
+        token: authToken,
+        body: taskData,
+      });
 
       // Assert
       expect(response.statusCode).toBe(201);
@@ -71,14 +67,10 @@ describe("TaskController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(
-        app,
-        `/api/v1/games/${gameId}/tasks`,
-        {
-          token: authToken,
-          body: taskData,
-        },
-      );
+      const response = await postRequest(app, `/api/v1/games/${gameId}/tasks`, {
+        token: authToken,
+        body: taskData,
+      });
 
       // Assert
       expect(response.statusCode).toBe(201);
@@ -93,14 +85,10 @@ describe("TaskController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(
-        app,
-        `/api/v1/games/${gameId}/tasks`,
-        {
-          token: authToken,
-          body: invalidData,
-        },
-      );
+      const response = await postRequest(app, `/api/v1/games/${gameId}/tasks`, {
+        token: authToken,
+        body: invalidData,
+      });
 
       // Assert
       expect(response.statusCode).toBe(400);
@@ -115,13 +103,9 @@ describe("TaskController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(
-        app,
-        `/api/v1/games/${gameId}/tasks`,
-        {
-          body: taskData,
-        },
-      );
+      const response = await postRequest(app, `/api/v1/games/${gameId}/tasks`, {
+        body: taskData,
+      });
 
       // Assert
       expect(response.statusCode).toBe(401);
@@ -187,31 +171,23 @@ describe("TaskController (e2e)", () => {
       const testGameId = faker.uuid();
 
       // Arrange - Create at least 2 tasks
-      await postRequest(
-        app,
-        `/api/v1/games/${testGameId}/tasks`,
-        {
-          token: authToken,
-          body: {
-            name: "Tarefa List 1",
-            gameId: testGameId,
-            rewardPoints: 10,
-          },
+      await postRequest(app, `/api/v1/games/${testGameId}/tasks`, {
+        token: authToken,
+        body: {
+          name: "Tarefa List 1",
+          gameId: testGameId,
+          rewardPoints: 10,
         },
-      );
+      });
 
-      await postRequest(
-        app,
-        `/api/v1/games/${testGameId}/tasks`,
-        {
-          token: authToken,
-          body: {
-            name: "Tarefa List 2",
-            gameId: testGameId,
-            rewardPoints: 20,
-          },
+      await postRequest(app, `/api/v1/games/${testGameId}/tasks`, {
+        token: authToken,
+        body: {
+          name: "Tarefa List 2",
+          gameId: testGameId,
+          rewardPoints: 20,
         },
-      );
+      });
 
       // Act
       const response = await getRequest(

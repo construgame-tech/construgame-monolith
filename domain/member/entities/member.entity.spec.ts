@@ -1,12 +1,12 @@
 // Testes unitários para entidades do domínio Member
 // Testando as factory functions
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createMemberEntity,
-  updateMemberEntity,
   incrementMemberSequence,
   type MemberEntity,
+  updateMemberEntity,
 } from "./member.entity";
 
 describe("Member Entity", () => {

@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  createUserGamePointsEntity,
   createTeamGamePointsEntity,
-  updateUserGamePoints,
-  updateTeamGamePoints,
-  type UserGamePointsEntity,
+  createUserGamePointsEntity,
   type TeamGamePointsEntity,
+  type UserGamePointsEntity,
+  updateTeamGamePoints,
+  updateUserGamePoints,
 } from "./game-points.entity";
 
 describe("GamePointsEntity", () => {

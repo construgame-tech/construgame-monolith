@@ -36,7 +36,10 @@ export class UserResponseDto {
   @ApiProperty({ example: true, description: "Whether the user is active" })
   active!: boolean;
 
-  @ApiProperty({ example: false, description: "Whether the user is a superuser" })
+  @ApiProperty({
+    example: false,
+    description: "Whether the user is a superuser",
+  })
   superuser!: boolean;
 
   static fromEntity(entity: UserEntity): UserResponseDto {

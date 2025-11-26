@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createLeagueEntity,
-  updateLeagueEntity,
   incrementLeagueSequence,
   type LeagueEntity,
   type LeagueStatus,
+  updateLeagueEntity,
 } from "./league.entity";
 
 describe("LeagueEntity", () => {

@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createPushTokenEntity,
-  validatePushToken,
   type PlatformType,
+  validatePushToken,
 } from "./push-token.entity";
 
 describe("PushTokenEntity", () => {
@@ -10,7 +10,8 @@ describe("PushTokenEntity", () => {
     const validInput = {
       userId: "user-123",
       pushToken: "ExponentPushToken[abc123]",
-      platformEndpoint: "arn:aws:sns:us-east-1:123456789:endpoint/GCM/app/token",
+      platformEndpoint:
+        "arn:aws:sns:us-east-1:123456789:endpoint/GCM/app/token",
     };
 
     it("should create entity with required fields", () => {
@@ -19,7 +20,7 @@ describe("PushTokenEntity", () => {
       expect(token.userId).toBe("user-123");
       expect(token.pushToken).toBe("ExponentPushToken[abc123]");
       expect(token.platformEndpoint).toBe(
-        "arn:aws:sns:us-east-1:123456789:endpoint/GCM/app/token"
+        "arn:aws:sns:us-east-1:123456789:endpoint/GCM/app/token",
       );
     });
 
@@ -63,13 +64,13 @@ describe("PushTokenEntity", () => {
 
     it("should throw for whitespace-only string", () => {
       expect(() => validatePushToken("   ")).toThrow(
-        "Push token cannot be empty"
+        "Push token cannot be empty",
       );
     });
 
     it("should throw for string with tabs and newlines", () => {
       expect(() => validatePushToken("\t\n")).toThrow(
-        "Push token cannot be empty"
+        "Push token cannot be empty",
       );
     });
 

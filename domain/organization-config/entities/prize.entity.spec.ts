@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createPrizeEntity,
-  updatePrizeEntity,
   type PrizeEntity,
+  updatePrizeEntity,
 } from "./prize.entity";
 
 describe("PrizeEntity", () => {

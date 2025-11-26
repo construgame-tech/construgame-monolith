@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createTaskTemplateEntity,
-  updateTaskTemplateEntity,
   type TaskTemplateEntity,
+  updateTaskTemplateEntity,
 } from "./task-template.entity";
 
 describe("TaskTemplateEntity", () => {

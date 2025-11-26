@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  createTaskUpdateEntity,
   approveTaskUpdateEntity,
-  rejectTaskUpdateEntity,
   cancelTaskUpdateEntity,
-  validateCanApprove,
-  validateCanReject,
-  validateCanCancel,
+  createTaskUpdateEntity,
+  rejectTaskUpdateEntity,
   type TaskUpdateEntity,
+  validateCanApprove,
+  validateCanCancel,
+  validateCanReject,
 } from "./task-update.entity";
 
 describe("TaskUpdateEntity", () => {
@@ -328,7 +328,7 @@ describe("TaskUpdateEntity", () => {
       };
 
       expect(() => validateCanApprove(update)).toThrow(
-        "Task update must be in PENDING_REVIEW status to be approved"
+        "Task update must be in PENDING_REVIEW status to be approved",
       );
     });
 
@@ -344,7 +344,7 @@ describe("TaskUpdateEntity", () => {
       };
 
       expect(() => validateCanApprove(update)).toThrow(
-        "Task update must be in PENDING_REVIEW status to be approved"
+        "Task update must be in PENDING_REVIEW status to be approved",
       );
     });
   });
@@ -376,7 +376,7 @@ describe("TaskUpdateEntity", () => {
       };
 
       expect(() => validateCanReject(update)).toThrow(
-        "Task update must be in PENDING_REVIEW status to be rejected"
+        "Task update must be in PENDING_REVIEW status to be rejected",
       );
     });
   });
@@ -408,7 +408,7 @@ describe("TaskUpdateEntity", () => {
       };
 
       expect(() => validateCanCancel(update)).toThrow(
-        "Task update must be in APPROVED status to be cancelled"
+        "Task update must be in APPROVED status to be cancelled",
       );
     });
 
@@ -424,7 +424,7 @@ describe("TaskUpdateEntity", () => {
       };
 
       expect(() => validateCanCancel(update)).toThrow(
-        "Task update must be in APPROVED status to be cancelled"
+        "Task update must be in APPROVED status to be cancelled",
       );
     });
   });

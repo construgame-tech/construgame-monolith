@@ -1,17 +1,33 @@
 // Testes unitários para o use case listGameTasks
 
-import { describe, it, expect, vi } from "vitest";
-import { listGameTasks, type ListGameTasksInput } from "./list-game-tasks";
-import type { ITaskRepository } from "../repositories/task.repository.interface";
+import { describe, expect, it, vi } from "vitest";
 import type { TaskEntity } from "../entities/task.entity";
+import type { ITaskRepository } from "../repositories/task.repository.interface";
+import { type ListGameTasksInput, listGameTasks } from "./list-game-tasks";
 
 describe("listGameTasks use case", () => {
   const tasks: TaskEntity[] = [
-    { id: "t1", gameId: "game-1", status: "active", name: "T1", rewardPoints: 10, sequence: 0 } as TaskEntity,
-    { id: "t2", gameId: "game-1", status: "active", name: "T2", rewardPoints: 20, sequence: 0 } as TaskEntity,
+    {
+      id: "t1",
+      gameId: "game-1",
+      status: "active",
+      name: "T1",
+      rewardPoints: 10,
+      sequence: 0,
+    } as TaskEntity,
+    {
+      id: "t2",
+      gameId: "game-1",
+      status: "active",
+      name: "T2",
+      rewardPoints: 20,
+      sequence: 0,
+    } as TaskEntity,
   ];
 
-  const createMockRepository = (tasksList: TaskEntity[] = tasks): ITaskRepository => ({
+  const createMockRepository = (
+    tasksList: TaskEntity[] = tasks,
+  ): ITaskRepository => ({
     save: vi.fn(),
     delete: vi.fn().mockResolvedValue(undefined),
     findById: vi.fn(),

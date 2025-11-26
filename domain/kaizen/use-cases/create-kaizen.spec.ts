@@ -1,8 +1,8 @@
 // Testes unitários para o use case createKaizen
 
-import { describe, it, expect, vi } from "vitest";
-import { createKaizen, type CreateKaizenInput } from "./create-kaizen";
+import { describe, expect, it, vi } from "vitest";
 import type { IKaizenRepository } from "../repositories/kaizen.repository.interface";
+import { type CreateKaizenInput, createKaizen } from "./create-kaizen";
 
 describe("createKaizen use case", () => {
   const createMockRepository = (): IKaizenRepository => ({
@@ -77,6 +77,8 @@ describe("createKaizen use case", () => {
       name: "Kaizen",
     };
 
-    await expect(createKaizen(input, mockRepository)).rejects.toThrow("DB error");
+    await expect(createKaizen(input, mockRepository)).rejects.toThrow(
+      "DB error",
+    );
   });
 });

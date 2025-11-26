@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   createSectorEntity,
-  updateSectorEntity,
   type SectorEntity,
+  updateSectorEntity,
 } from "./sector.entity";
 
 describe("SectorEntity", () => {

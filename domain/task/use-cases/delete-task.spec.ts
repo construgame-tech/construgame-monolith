@@ -1,9 +1,9 @@
 // Testes unitários para o use case deleteTask
 
-import { describe, it, expect, vi } from "vitest";
-import { deleteTask, type DeleteTaskInput } from "./delete-task";
-import type { ITaskRepository } from "../repositories/task.repository.interface";
+import { describe, expect, it, vi } from "vitest";
 import type { TaskEntity } from "../entities/task.entity";
+import type { ITaskRepository } from "../repositories/task.repository.interface";
+import { type DeleteTaskInput, deleteTask } from "./delete-task";
 
 describe("deleteTask use case", () => {
   const existingTask: TaskEntity = {
@@ -15,7 +15,9 @@ describe("deleteTask use case", () => {
     sequence: 0,
   } as unknown as TaskEntity;
 
-  const createMockRepository = (task: TaskEntity | null = existingTask): ITaskRepository => ({
+  const createMockRepository = (
+    task: TaskEntity | null = existingTask,
+  ): ITaskRepository => ({
     save: vi.fn(),
     delete: vi.fn().mockResolvedValue(undefined),
     findById: vi.fn().mockResolvedValue(task),
@@ -50,10 +52,14 @@ describe("deleteTask use case", () => {
 
   it("deve propagar erro se repository.delete falhar", async () => {
     const mockRepository = createMockRepository();
-    vi.spyOn(mockRepository, "delete").mockRejectedValue(new Error("Delete error"));
+    vi.spyOn(mockRepository, "delete").mockRejectedValue(
+      new Error("Delete error"),
+    );
 
     const input: DeleteTaskInput = { gameId: "game-1", taskId: "task-123" };
 
-    await expect(deleteTask(input, mockRepository)).rejects.toThrow("Delete error");
+    await expect(deleteTask(input, mockRepository)).rejects.toThrow(
+      "Delete error",
+    );
   });
 });
