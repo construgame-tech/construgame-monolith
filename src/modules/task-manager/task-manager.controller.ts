@@ -15,82 +15,246 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiProperty, ApiTags } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from "class-validator";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
-// DTOs
+// Nested DTOs
+class MacrostepDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  macrostepId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  activityId: string;
+}
+
+class ResponsibleDto {
+  @ApiProperty({ enum: ["team", "player"] })
+  @IsString()
+  @IsNotEmpty()
+  type: "team" | "player";
+
+  @ApiProperty({ type: [String] })
+  @IsArray()
+  @IsString({ each: true })
+  ids: string[];
+}
+
+class RecurrenceDto {
+  @ApiProperty()
+  @IsBoolean()
+  mon: boolean;
+
+  @ApiProperty()
+  @IsBoolean()
+  tue: boolean;
+
+  @ApiProperty()
+  @IsBoolean()
+  wed: boolean;
+
+  @ApiProperty()
+  @IsBoolean()
+  thu: boolean;
+
+  @ApiProperty()
+  @IsBoolean()
+  fri: boolean;
+
+  @ApiProperty()
+  @IsBoolean()
+  sat: boolean;
+
+  @ApiProperty()
+  @IsBoolean()
+  sun: boolean;
+}
+
+class ScheduleDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  startDate: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  endDate: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => RecurrenceDto)
+  recurrence?: RecurrenceDto;
+}
+
+class ChecklistItemDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  id?: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  label: string;
+}
+
+// Main DTOs
 class CreateTaskManagerDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   name: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   kpiId: string;
-  macrostep?: {
-    macrostepId: string;
-    activityId: string;
-  };
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MacrostepDto)
+  macrostep?: MacrostepDto;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   description?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   measurementUnit?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   totalMeasurementExpected?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   videoUrl?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   embedVideoUrl?: string;
+
+  @ApiProperty()
+  @IsNumber()
   rewardPoints: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   location?: string;
-  responsible: {
-    type: "team" | "player";
-    ids: string[];
-  };
-  schedule: {
-    startDate: string;
-    endDate: string;
-    recurrence?: {
-      mon: boolean;
-      tue: boolean;
-      wed: boolean;
-      thu: boolean;
-      fri: boolean;
-      sat: boolean;
-      sun: boolean;
-    };
-  };
-  checklist?: Array<{
-    id?: string;
-    label: string;
-  }>;
+
+  @ApiProperty()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ResponsibleDto)
+  responsible: ResponsibleDto;
+
+  @ApiProperty()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ScheduleDto)
+  schedule: ScheduleDto;
+
+  @ApiProperty({ type: [ChecklistItemDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ChecklistItemDto)
+  checklist?: ChecklistItemDto[];
 }
 
 class UpdateTaskManagerDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   name: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   kpiId: string;
-  macrostep?: {
-    macrostepId: string;
-    activityId: string;
-  };
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MacrostepDto)
+  macrostep?: MacrostepDto;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   description?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   measurementUnit?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   totalMeasurementExpected?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   videoUrl?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   embedVideoUrl?: string;
+
+  @ApiProperty()
+  @IsNumber()
   rewardPoints: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   location?: string;
-  responsible: {
-    type: "team" | "player";
-    ids: string[];
-  };
-  schedule: {
-    startDate: string;
-    endDate: string;
-    recurrence?: {
-      mon: boolean;
-      tue: boolean;
-      wed: boolean;
-      thu: boolean;
-      fri: boolean;
-      sat: boolean;
-      sun: boolean;
-    };
-  };
-  checklist?: Array<{
-    id?: string;
-    label: string;
-  }>;
+
+  @ApiProperty()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ResponsibleDto)
+  responsible: ResponsibleDto;
+
+  @ApiProperty()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ScheduleDto)
+  schedule: ScheduleDto;
+
+  @ApiProperty({ type: [ChecklistItemDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ChecklistItemDto)
+  checklist?: ChecklistItemDto[];
 }
 
 @ApiTags("task-manager")

@@ -214,8 +214,8 @@ describe("MemberController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(200);
-      expect(response.body.items).toBeInstanceOf(Array);
-      expect(response.body.items.length).toBeGreaterThanOrEqual(2);
+      expect(response.body).toBeInstanceOf(Array);
+      expect(response.body.length).toBeGreaterThanOrEqual(2);
     });
   });
 

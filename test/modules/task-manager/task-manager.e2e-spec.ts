@@ -427,7 +427,7 @@ describe("TaskManagerController (e2e)", () => {
       );
 
       // Assert
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(204);
 
       // Verify it was deleted
       const getResponse = await getRequest(

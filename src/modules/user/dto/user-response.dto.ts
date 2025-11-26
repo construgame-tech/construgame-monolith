@@ -33,6 +33,12 @@ export class UserResponseDto {
   @ApiProperty({ example: true })
   signedTermsOfUse!: boolean;
 
+  @ApiProperty({ example: true, description: "Whether the user is active" })
+  active!: boolean;
+
+  @ApiProperty({ example: false, description: "Whether the user is a superuser" })
+  superuser!: boolean;
+
   static fromEntity(entity: UserEntity): UserResponseDto {
     const dto = new UserResponseDto();
     dto.id = entity.id;
@@ -44,6 +50,8 @@ export class UserResponseDto {
     dto.status = entity.status;
     dto.type = entity.type;
     dto.signedTermsOfUse = entity.signedTermsOfUse || false;
+    dto.active = entity.status === "ACTIVE";
+    dto.superuser = entity.type === "superuser";
     return dto;
   }
 }

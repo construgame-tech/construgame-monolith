@@ -14,85 +14,247 @@ import {
   Put,
   UseGuards,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { ApiBearerAuth, ApiProperty, ApiTags } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from "class-validator";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
-// DTOs
+// Nested DTOs
+class LaborCompositionDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  jobRoleId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  jobRoleName: string;
+
+  @ApiProperty()
+  @IsNumber()
+  quantity: number;
+
+  @ApiProperty()
+  @IsNumber()
+  unitCost: number;
+}
+
+class PrizePerRangeDto {
+  @ApiProperty()
+  @IsNumber()
+  min: number;
+
+  @ApiProperty()
+  @IsNumber()
+  max: number;
+
+  @ApiProperty()
+  @IsNumber()
+  points: number;
+}
+
+class PrizePerProductivityDto {
+  @ApiProperty()
+  @IsNumber()
+  productivity: number;
+
+  @ApiProperty()
+  @IsNumber()
+  points: number;
+}
+
+// Main DTOs
 class CreateMacrostepDto {
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   name: string;
 
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   id?: string;
 }
 
 class UpdateMacrostepDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   name: string;
 }
 
 class CreateActivityDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
   name: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   description?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   totalMeasurementExpected?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   measurementUnit?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   startDate?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   endDate?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
   duration?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   location?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
   expectedCost?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
   trackingValue?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   trackingUnit?: string;
-  laborCompositionList?: Array<{
-    jobRoleId: string;
-    jobRoleName: string;
-    quantity: number;
-    unitCost: number;
-  }>;
-  prizesPerRange?: Array<{
-    min: number;
-    max: number;
-    points: number;
-  }>;
-  prizesPerProductivity?: Array<{
-    productivity: number;
-    points: number;
-  }>;
+
+  @ApiProperty({ type: [LaborCompositionDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => LaborCompositionDto)
+  laborCompositionList?: LaborCompositionDto[];
+
+  @ApiProperty({ type: [PrizePerRangeDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PrizePerRangeDto)
+  prizesPerRange?: PrizePerRangeDto[];
+
+  @ApiProperty({ type: [PrizePerProductivityDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PrizePerProductivityDto)
+  prizesPerProductivity?: PrizePerProductivityDto[];
 }
 
 class UpdateActivityDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   name?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   description?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   totalMeasurementExpected?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   measurementUnit?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   startDate?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   endDate?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
   duration?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   location?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
   expectedCost?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
   trackingValue?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   trackingUnit?: string;
-  laborCompositionList?: Array<{
-    jobRoleId: string;
-    jobRoleName: string;
-    quantity: number;
-    unitCost: number;
-  }>;
-  prizesPerRange?: Array<{
-    min: number;
-    max: number;
-    points: number;
-  }>;
-  prizesPerProductivity?: Array<{
-    productivity: number;
-    points: number;
-  }>;
+
+  @ApiProperty({ type: [LaborCompositionDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => LaborCompositionDto)
+  laborCompositionList?: LaborCompositionDto[];
+
+  @ApiProperty({ type: [PrizePerRangeDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PrizePerRangeDto)
+  prizesPerRange?: PrizePerRangeDto[];
+
+  @ApiProperty({ type: [PrizePerProductivityDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => PrizePerProductivityDto)
+  prizesPerProductivity?: PrizePerProductivityDto[];
 }
 
 class MoveMacrostepOrderDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
   macrostepId: string;
+
+  @ApiProperty()
+  @IsNumber()
   newIndex: number;
 }
 

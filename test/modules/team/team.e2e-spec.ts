@@ -34,8 +34,6 @@ describe("TeamController (e2e)", () => {
       // Arrange
       const teamData = {
         name: "Equipe de Fundação",
-        organizationId,
-        projectId,
         description: "Equipe responsável pela fundação",
         color: "#FF5733",
       };
@@ -55,8 +53,6 @@ describe("TeamController (e2e)", () => {
       expect(response.body).toMatchObject({
         id: expect.any(String),
         name: teamData.name,
-        organizationId,
-        projectId,
         description: teamData.description,
         color: teamData.color,
       });
@@ -66,8 +62,6 @@ describe("TeamController (e2e)", () => {
       // Arrange
       const teamData = {
         name: "Equipe Mínima",
-        organizationId,
-        projectId,
       };
 
       // Act
@@ -137,8 +131,6 @@ describe("TeamController (e2e)", () => {
           token: authToken,
           body: {
             name: "Equipe para Consulta",
-            organizationId,
-            projectId,
           },
         },
       );
@@ -187,8 +179,6 @@ describe("TeamController (e2e)", () => {
         token: authToken,
         body: {
           name: "Equipe List 1",
-          organizationId,
-          projectId,
         },
       });
 
@@ -196,8 +186,6 @@ describe("TeamController (e2e)", () => {
         token: authToken,
         body: {
           name: "Equipe List 2",
-          organizationId,
-          projectId,
         },
       });
 
@@ -213,8 +201,8 @@ describe("TeamController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(200);
-      expect(response.body.items).toBeInstanceOf(Array);
-      expect(response.body.items.length).toBeGreaterThanOrEqual(2);
+      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body.length).toBeGreaterThanOrEqual(2);
     });
   });
 
@@ -228,8 +216,6 @@ describe("TeamController (e2e)", () => {
           token: authToken,
           body: {
             name: "Equipe Original",
-            organizationId,
-            projectId,
             color: "#000000",
           },
         },
@@ -287,8 +273,6 @@ describe("TeamController (e2e)", () => {
           token: authToken,
           body: {
             name: "Equipe para Deletar",
-            organizationId,
-            projectId,
           },
         },
       );
@@ -347,8 +331,6 @@ describe("TeamController (e2e)", () => {
           token: authToken,
           body: {
             name: "Lifecycle Team",
-            organizationId,
-            projectId,
             description: "Equipe completa",
             color: "#00FF00",
           },
@@ -411,8 +393,6 @@ describe("TeamController (e2e)", () => {
             token: authToken,
             body: {
               name: `Equipe ${color}`,
-              organizationId,
-              projectId,
               color,
             },
           },

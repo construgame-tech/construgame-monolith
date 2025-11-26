@@ -16,30 +16,92 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import {
+  IsArray,
+  IsEnum,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from "class-validator";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+
+// Enums e classes auxiliares
+enum WeatherType {
+  SUNNY = "SUNNY",
+  CLOUDY = "CLOUDY",
+  RAINY = "RAINY",
+}
+
+class WeatherDto {
+  @IsOptional()
+  @IsEnum(WeatherType)
+  morning?: WeatherType;
+
+  @IsOptional()
+  @IsEnum(WeatherType)
+  afternoon?: WeatherType;
+
+  @IsOptional()
+  @IsEnum(WeatherType)
+  night?: WeatherType;
+}
+
+class EquipmentItemDto {
+  @IsString()
+  name: string;
+
+  @IsNumber()
+  quantity: number;
+}
+
+class ManpowerItemDto {
+  @IsString()
+  name: string;
+
+  @IsNumber()
+  quantity: number;
+}
 
 // DTOs
 class UpsertProjectDiaryDto {
+  @IsOptional()
+  @IsString()
   organizationId?: string;
+
+  @IsOptional()
+  @IsString()
   date?: string;
+
+  @IsOptional()
+  @IsString()
   notes?: string;
-  weather?: {
-    morning?: "SUNNY" | "CLOUDY" | "RAINY";
-    afternoon?: "SUNNY" | "CLOUDY" | "RAINY";
-    night?: "SUNNY" | "CLOUDY" | "RAINY";
-  };
-  equipment?: Array<{
-    name: string;
-    quantity: number;
-  }>;
-  manpower?: Array<{
-    name: string;
-    quantity: number;
-  }>;
-  indirectManpower?: Array<{
-    name: string;
-    quantity: number;
-  }>;
+
+  @IsOptional()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => WeatherDto)
+  weather?: WeatherDto;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EquipmentItemDto)
+  equipment?: EquipmentItemDto[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ManpowerItemDto)
+  manpower?: ManpowerItemDto[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ManpowerItemDto)
+  indirectManpower?: ManpowerItemDto[];
 }
 
 @ApiTags("project-diary")

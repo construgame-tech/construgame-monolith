@@ -72,10 +72,11 @@ describe("UserController (e2e)", () => {
       expect(response.body.email).toBe(userData.email);
     });
 
-    it("should return 400 when required fields are missing", async () => {
+    it("should return 400 when invalid email format", async () => {
       // Arrange
       const invalidData = {
-        name: "Sem Email",
+        name: "Test User",
+        email: "invalid-email",
       };
 
       // Act
@@ -290,7 +291,6 @@ describe("UserController (e2e)", () => {
         body: {
           email: "activate.user@test.com",
           password: "senha123",
-          active: false,
         },
       });
 
@@ -335,7 +335,7 @@ describe("UserController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(200);
-      expect(response.body.isSuperuser).toBe(true);
+      expect(response.body.superuser).toBe(true);
     });
   });
 

@@ -6,14 +6,13 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
 } from "class-validator";
 
 export class CreateMemberDto {
   @ApiProperty({ description: "User ID" })
   @IsNotEmpty()
-  @IsUUID()
-  userId!: string;
+  @IsString()
+  userId: string;
 
   @ApiProperty({
     description: "Member role",
@@ -21,7 +20,7 @@ export class CreateMemberDto {
   })
   @IsNotEmpty()
   @IsEnum(["owner", "admin", "manager", "player", "financial"])
-  role!: MemberRole;
+  role: MemberRole;
 
   @ApiProperty({ description: "Sector ID", required: false })
   @IsOptional()

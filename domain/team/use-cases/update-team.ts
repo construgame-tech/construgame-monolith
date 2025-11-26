@@ -11,6 +11,8 @@ export interface UpdateTeamInput {
   fieldOfAction?: string;
   members?: string[];
   photo?: string;
+  color?: string;
+  description?: string;
 }
 
 export interface UpdateTeamOutput {
@@ -38,6 +40,8 @@ export const updateTeam = async (
     fieldOfAction: input.fieldOfAction,
     members: input.members,
     photo: input.photo,
+    color: input.color,
+    description: input.description,
   });
 
   // Persiste no repositório

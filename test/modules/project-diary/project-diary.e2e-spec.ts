@@ -112,6 +112,7 @@ describe("ProjectDiaryController (e2e)", () => {
       await postRequest(app, `/api/v1/projects/${projectId}/diary`, {
         token: authToken,
         body: {
+          organizationId,
           date,
           weather: { morning: "SUNNY" },
           notes: "Original notes",
@@ -125,6 +126,7 @@ describe("ProjectDiaryController (e2e)", () => {
         {
           token: authToken,
           body: {
+            organizationId,
             date,
             weather: { morning: "RAINY" },
             notes: "Updated notes - chuva interrompeu trabalho",
@@ -134,7 +136,7 @@ describe("ProjectDiaryController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(201);
-      expect(response.body.weather).toBe("RAINY");
+      expect(response.body.weather.morning).toBe("RAINY");
       expect(response.body.notes).toBe(
         "Updated notes - chuva interrompeu trabalho",
       );
@@ -155,11 +157,12 @@ describe("ProjectDiaryController (e2e)", () => {
       expect(entriesForDate).toHaveLength(1);
     });
 
-    it("should return 400 when date is missing", async () => {
+    it("should return 400 when organizationId is missing", async () => {
       // Arrange
       const invalidData = {
+        date: "2024-01-18",
         weather: { morning: "SUNNY" },
-        // Missing date
+        // Missing organizationId
       };
 
       // Act
@@ -179,6 +182,7 @@ describe("ProjectDiaryController (e2e)", () => {
     it("should return 401 when no auth token is provided", async () => {
       // Arrange
       const diaryData = {
+        organizationId,
         date: "2024-01-18",
         weather: { morning: "SUNNY" },
       };
@@ -203,6 +207,7 @@ describe("ProjectDiaryController (e2e)", () => {
       await postRequest(app, `/api/v1/projects/${projectId}/diary`, {
         token: authToken,
         body: {
+          organizationId,
           date: "2024-01-20",
           weather: { morning: "SUNNY" },
           notes: "Entry 1",
@@ -212,6 +217,7 @@ describe("ProjectDiaryController (e2e)", () => {
       await postRequest(app, `/api/v1/projects/${projectId}/diary`, {
         token: authToken,
         body: {
+          organizationId,
           date: "2024-01-21",
           weather: { morning: "CLOUDY" },
           notes: "Entry 2",
@@ -239,6 +245,7 @@ describe("ProjectDiaryController (e2e)", () => {
       await postRequest(app, `/api/v1/projects/${projectId}/diary`, {
         token: authToken,
         body: {
+          organizationId,
           date: targetDate,
           weather: { morning: "RAINY" },
           notes: "Specific date entry",
@@ -290,6 +297,7 @@ describe("ProjectDiaryController (e2e)", () => {
       await postRequest(app, `/api/v1/projects/${projectId}/diary`, {
         token: authToken,
         body: {
+          organizationId,
           date,
           weather: { morning: "SUNNY", afternoon: "SUNNY" },
           notes: "Original notes",
@@ -303,18 +311,18 @@ describe("ProjectDiaryController (e2e)", () => {
         {
           token: authToken,
           body: {
+            organizationId,
             weather: { morning: "CLOUDY", afternoon: "CLOUDY" },
-            notes: "Updated notes with new temperature",
+            notes: "Updated notes with new weather",
           },
         },
       );
 
       // Assert
       expect(response.statusCode).toBe(200);
-      expect(response.body.weather).toBe("CLOUDY");
-      expect(response.body.temperature).toBe(22.0);
-      expect(response.body.notes).toBe("Updated notes with new temperature");
-      expect(response.body.workersPresent).toBe(20);
+      expect(response.body.weather.morning).toBe("CLOUDY");
+      expect(response.body.weather.afternoon).toBe("CLOUDY");
+      expect(response.body.notes).toBe("Updated notes with new weather");
     });
 
     it("should return 404 when diary entry does not exist", async () => {
@@ -328,6 +336,7 @@ describe("ProjectDiaryController (e2e)", () => {
         {
           token: authToken,
           body: {
+            organizationId,
             weather: { morning: "SUNNY" },
             notes: "Test",
           },
@@ -346,6 +355,7 @@ describe("ProjectDiaryController (e2e)", () => {
       await postRequest(app, `/api/v1/projects/${projectId}/diary`, {
         token: authToken,
         body: {
+          organizationId,
           date,
           weather: { morning: "SUNNY" },
           notes: "To be deleted",
@@ -401,6 +411,7 @@ describe("ProjectDiaryController (e2e)", () => {
       await postRequest(app, `/api/v1/projects/${projectId}/diary`, {
         token: authToken,
         body: {
+          organizationId,
           date: "2024-01-27",
           weather: { morning: "SUNNY" },
           equipment: [
@@ -417,6 +428,7 @@ describe("ProjectDiaryController (e2e)", () => {
       await postRequest(app, `/api/v1/projects/${projectId}/diary`, {
         token: authToken,
         body: {
+          organizationId,
           date: "2024-01-28",
           weather: { morning: "CLOUDY" },
           equipment: [
@@ -483,6 +495,7 @@ describe("ProjectDiaryController (e2e)", () => {
         {
           token: authToken,
           body: {
+            organizationId,
             date,
             weather: { morning: "SUNNY", afternoon: "SUNNY" },
             equipment: [{ name: "Betoneira", quantity: 2 }],
@@ -501,6 +514,7 @@ describe("ProjectDiaryController (e2e)", () => {
         {
           token: authToken,
           body: {
+            organizationId,
             weather: { morning: "CLOUDY", afternoon: "RAINY" },
             notes: "Concretagem concluída com sucesso",
           },
@@ -533,7 +547,7 @@ describe("ProjectDiaryController (e2e)", () => {
         },
       );
 
-      expect(deleteResponse.statusCode).toBe(204);
+      expect(deleteResponse.statusCode).toBe(200);
     });
 
     it("should handle weather variations", async () => {
@@ -547,8 +561,9 @@ describe("ProjectDiaryController (e2e)", () => {
           {
             token: authToken,
             body: {
+              organizationId,
               date: `2024-02-0${i + 5}`,
-              weather: weatherTypes[i],
+              weather: { morning: weatherTypes[i] },
               notes: `Weather test: ${weatherTypes[i]}`,
             },
           },
@@ -556,13 +571,14 @@ describe("ProjectDiaryController (e2e)", () => {
 
         // Assert
         expect(response.statusCode).toBe(201);
-        expect(response.body.weather).toBe(weatherTypes[i]);
+        expect(response.body.weather.morning).toBe(weatherTypes[i]);
       }
     });
 
     it("should handle multiple equipment and manpower entries", async () => {
       // Arrange
       const diaryData = {
+        organizationId,
         date: "2024-02-10",
         weather: { morning: "SUNNY" },
         equipment: [

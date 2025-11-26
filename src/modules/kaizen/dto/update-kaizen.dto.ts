@@ -104,6 +104,11 @@ export class UpdateKaizenDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
+  description?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   leaderId?: string;
 
   @ApiProperty({ required: false })

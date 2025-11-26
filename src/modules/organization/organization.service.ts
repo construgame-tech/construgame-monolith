@@ -7,7 +7,7 @@ import {
 } from "@domain/organization";
 import type { OrganizationEntity } from "@domain/organization/entities/organization.entity";
 import { OrganizationRepository } from "@infrastructure/repositories/organization.repository";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { CreateOrganizationDto } from "./dto/create-organization.dto";
 import type { UpdateOrganizationDto } from "./dto/update-organization.dto";
 
@@ -24,12 +24,19 @@ export class OrganizationService {
     return createOrganization(dto, this.organizationRepository);
   }
 
-  async findById(id: string): Promise<OrganizationEntity | null> {
-    const result = await getOrganization(
-      { organizationId: id },
-      this.organizationRepository,
-    );
-    return result.organization;
+  async findById(id: string): Promise<OrganizationEntity> {
+    try {
+      const result = await getOrganization(
+        { organizationId: id },
+        this.organizationRepository,
+      );
+      return result.organization;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`Organization not found: ${id}`);
+      }
+      throw error;
+    }
   }
 
   async findAll(): Promise<OrganizationEntity[]> {
@@ -41,17 +48,31 @@ export class OrganizationService {
     id: string,
     dto: UpdateOrganizationDto,
   ): Promise<OrganizationEntity> {
-    const result = await updateOrganization(
-      { organizationId: id, ...dto },
-      this.organizationRepository,
-    );
-    return result.organization;
+    try {
+      const result = await updateOrganization(
+        { organizationId: id, ...dto },
+        this.organizationRepository,
+      );
+      return result.organization;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`Organization not found: ${id}`);
+      }
+      throw error;
+    }
   }
 
   async remove(id: string): Promise<void> {
-    await deleteOrganization(
-      { organizationId: id },
-      this.organizationRepository,
-    );
+    try {
+      await deleteOrganization(
+        { organizationId: id },
+        this.organizationRepository,
+      );
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`Organization not found: ${id}`);
+      }
+      throw error;
+    }
   }
 }

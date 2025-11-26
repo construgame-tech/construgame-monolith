@@ -31,4 +31,14 @@ export class UpdateTeamDto {
   @IsOptional()
   @IsString()
   photo?: string;
+
+  @ApiProperty({ description: "Team color (hex)", required: false })
+  @IsOptional()
+  @IsString()
+  color?: string;
+
+  @ApiProperty({ description: "Team description", required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
 }

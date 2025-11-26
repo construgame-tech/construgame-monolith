@@ -8,7 +8,7 @@ export default defineConfig({
     globals: true,
     environment: "node",
     setupFiles: ["./test/setup.ts"],
-    include: ["test/**/*.{test,spec,e2e-spec}.ts"],
+    include: ["test/**/*.{test,spec,e2e-spec}.ts", "domain/**/*.spec.ts"],
     env: {
       NODE_ENV: "test",
       DATABASE_URL:

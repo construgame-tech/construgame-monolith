@@ -16,7 +16,7 @@ process.env.EMAIL_FROM = "noreply@test.construgame.com";
 process.env.APP_URL = "http://localhost:3000";
 process.env.SMS_SENDER_ID = "ConstrugameTest";
 
-import { INestApplication, ValidationPipe } from "@nestjs/common";
+import { ValidationPipe } from "@nestjs/common";
 import {
   FastifyAdapter,
   type NestFastifyApplication,
@@ -90,6 +90,9 @@ export async function setupTestApp(): Promise<NestFastifyApplication> {
       transform: true,
       forbidNonWhitelisted: true,
       skipMissingProperties: false,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
 

@@ -26,16 +26,18 @@ export class TeamService {
   }
 
   async getTeam(organizationId: string, teamId: string): Promise<TeamEntity> {
-    const result = await getTeam(
-      { organizationId, teamId },
-      this.teamRepository,
-    );
-
-    if (!result.team) {
-      throw new NotFoundException(`Team not found: ${teamId}`);
+    try {
+      const result = await getTeam(
+        { organizationId, teamId },
+        this.teamRepository,
+      );
+      return result.team;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`Team not found: ${teamId}`);
+      }
+      throw error;
     }
-
-    return result.team;
   }
 
   async updateTeam(input: UpdateTeamInput): Promise<TeamEntity> {

@@ -63,7 +63,7 @@ describe("KaizenController (e2e)", () => {
 
     // TODO: Fix validation test - ValidationPipe is not rejecting missing required fields in tests
     // This should be tested in unit tests for the controller instead
-    it.skip("should return 400 when required fields are missing", async () => {
+    it("should return 400 when required fields are missing", async () => {
       // Arrange - Faltam campos obrigatórios: name e gameId
       const invalidData = {
         description: "Sem título",
@@ -78,9 +78,6 @@ describe("KaizenController (e2e)", () => {
           body: invalidData,
         },
       );
-
-      console.log("Response status:", response.statusCode);
-      console.log("Response body:", JSON.stringify(response.body, null, 2));
 
       // Assert
       expect(response.statusCode).toBe(400);
@@ -196,7 +193,6 @@ describe("KaizenController (e2e)", () => {
             name: "Kaizen Original",
             authorId: userId,
             gameId,
-            status: "OPEN",
           },
         },
       );

@@ -29,16 +29,18 @@ export class ProjectService {
     organizationId: string,
     projectId: string,
   ): Promise<ProjectEntity> {
-    const result = await getProject(
-      { organizationId, projectId },
-      this.projectRepository,
-    );
-
-    if (!result.project) {
-      throw new NotFoundException(`Project not found: ${projectId}`);
+    try {
+      const result = await getProject(
+        { organizationId, projectId },
+        this.projectRepository,
+      );
+      return result.project;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`Project not found: ${projectId}`);
+      }
+      throw error;
     }
-
-    return result.project;
   }
 
   async updateProject(input: UpdateProjectInput): Promise<ProjectEntity> {

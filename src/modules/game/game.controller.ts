@@ -194,6 +194,9 @@ export class GameController {
       );
       return GameResponseDto.fromEntity(game);
     } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
       throw new BadRequestException(error.message);
     }
   }
@@ -235,6 +238,9 @@ export class GameController {
     try {
       await this.gameService.remove(organizationId, id);
     } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
       throw new BadRequestException(error.message);
     }
   }
@@ -277,6 +283,9 @@ export class GameController {
       const game = await this.gameService.archive(organizationId, id);
       return GameResponseDto.fromEntity(game);
     } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
       throw new BadRequestException(error.message);
     }
   }
@@ -319,6 +328,9 @@ export class GameController {
       const game = await this.gameService.unarchive(organizationId, id);
       return GameResponseDto.fromEntity(game);
     } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
       throw new BadRequestException(error.message);
     }
   }

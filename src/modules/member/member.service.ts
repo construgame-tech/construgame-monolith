@@ -42,18 +42,20 @@ export class MemberService {
     userId: string,
     organizationId: string,
   ): Promise<MemberEntity> {
-    const result = await getMember(
-      { userId, organizationId },
-      this.memberRepository,
-    );
-
-    if (!result.member) {
-      throw new NotFoundException(
-        `Member not found: ${userId} in organization ${organizationId}`,
+    try {
+      const result = await getMember(
+        { userId, organizationId },
+        this.memberRepository,
       );
+      return result.member;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(
+          `Member not found: ${userId} in organization ${organizationId}`,
+        );
+      }
+      throw error;
     }
-
-    return result.member;
   }
 
   async updateMember(input: UpdateMemberInput): Promise<MemberEntity> {

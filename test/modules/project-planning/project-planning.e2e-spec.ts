@@ -249,7 +249,7 @@ describe("ProjectPlanningController (e2e)", () => {
         );
 
         // Assert
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toBe(204);
 
         // Verify it was deleted
         const getResponse = await getRequest(
@@ -328,7 +328,7 @@ describe("ProjectPlanningController (e2e)", () => {
         );
 
         // Assert
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toBe(201);
       });
     });
   });
@@ -540,7 +540,7 @@ describe("ProjectPlanningController (e2e)", () => {
         );
 
         // Assert
-        expect(response.statusCode).toBe(200);
+        expect(response.statusCode).toBe(204);
 
         // Verify it was deleted
         const getResponse = await getRequest(

@@ -32,11 +32,8 @@ describe("ProjectController (e2e)", () => {
       // Arrange
       const projectData = {
         name: "Edifício Residencial Solar",
-        organizationId,
-        description: "Construção de edifício residencial",
         startDate: "2024-01-01",
         endDate: "2025-12-31",
-        address: "Rua das Flores, 123",
         city: "São Paulo",
         state: "SP",
       };
@@ -57,8 +54,6 @@ describe("ProjectController (e2e)", () => {
         id: expect.any(String),
         name: projectData.name,
         organizationId,
-        description: projectData.description,
-        address: projectData.address,
         city: projectData.city,
         state: projectData.state,
       });
@@ -89,7 +84,7 @@ describe("ProjectController (e2e)", () => {
     it("should return 400 when required fields are missing", async () => {
       // Arrange
       const invalidData = {
-        description: "Projeto sem nome",
+        city: "São Paulo",
       };
 
       // Act
@@ -127,7 +122,7 @@ describe("ProjectController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/projects/:projectId", () => {
+  describe("GET /api/v1/organizations/:organizationId/projects/:projectId", () => {
     it("should get a project by id", async () => {
       // Arrange - Create project first
       const createResponse = await postRequest(
@@ -145,7 +140,7 @@ describe("ProjectController (e2e)", () => {
       const projectId = createResponse.body.id;
 
       // Act
-      const response = await getRequest(app, `/api/v1/projects/${projectId}`, {
+      const response = await getRequest(app, `/api/v1/organizations/${organizationId}/projects/${projectId}`, {
         token: authToken,
       });
 
@@ -164,7 +159,7 @@ describe("ProjectController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/projects/${nonExistentId}`,
+        `/api/v1/organizations/${organizationId}/projects/${nonExistentId}`,
         {
           token: authToken,
         },
@@ -208,12 +203,12 @@ describe("ProjectController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(200);
-      expect(response.body.items).toBeInstanceOf(Array);
-      expect(response.body.items.length).toBeGreaterThanOrEqual(2);
+      expect(response.body).toBeInstanceOf(Array);
+      expect(response.body.length).toBeGreaterThanOrEqual(2);
     });
   });
 
-  describe("PUT /api/v1/projects/:projectId", () => {
+  describe("PUT /api/v1/organizations/:organizationId/projects/:projectId", () => {
     it("should update a project", async () => {
       // Arrange - Create project
       const createResponse = await postRequest(
@@ -223,8 +218,6 @@ describe("ProjectController (e2e)", () => {
           token: authToken,
           body: {
             name: "Projeto Original",
-            organizationId,
-            description: "Descrição original",
           },
         },
       );
@@ -232,11 +225,10 @@ describe("ProjectController (e2e)", () => {
       const projectId = createResponse.body.id;
 
       // Act
-      const response = await putRequest(app, `/api/v1/projects/${projectId}`, {
+      const response = await putRequest(app, `/api/v1/organizations/${organizationId}/projects/${projectId}`, {
         token: authToken,
         body: {
           name: "Projeto Atualizado",
-          description: "Descrição atualizada",
           city: "Rio de Janeiro",
           state: "RJ",
         },
@@ -245,7 +237,6 @@ describe("ProjectController (e2e)", () => {
       // Assert
       expect(response.statusCode).toBe(200);
       expect(response.body.name).toBe("Projeto Atualizado");
-      expect(response.body.description).toBe("Descrição atualizada");
       expect(response.body.city).toBe("Rio de Janeiro");
     });
 
@@ -256,7 +247,7 @@ describe("ProjectController (e2e)", () => {
       // Act
       const response = await putRequest(
         app,
-        `/api/v1/projects/${nonExistentId}`,
+        `/api/v1/organizations/${organizationId}/projects/${nonExistentId}`,
         {
           token: authToken,
           body: { name: "Test" },
@@ -268,7 +259,7 @@ describe("ProjectController (e2e)", () => {
     });
   });
 
-  describe("DELETE /api/v1/projects/:projectId", () => {
+  describe("DELETE /api/v1/organizations/:organizationId/projects/:projectId", () => {
     it("should delete a project", async () => {
       // Arrange - Create project
       const createResponse = await postRequest(
@@ -288,19 +279,19 @@ describe("ProjectController (e2e)", () => {
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/projects/${projectId}`,
+        `/api/v1/organizations/${organizationId}/projects/${projectId}`,
         {
           token: authToken,
         },
       );
 
       // Assert
-      expect(response.statusCode).toBe(200);
+      expect(response.statusCode).toBe(204);
 
       // Verify it was deleted
       const getResponse = await getRequest(
         app,
-        `/api/v1/projects/${projectId}`,
+        `/api/v1/organizations/${organizationId}/projects/${projectId}`,
         {
           token: authToken,
         },
@@ -316,7 +307,7 @@ describe("ProjectController (e2e)", () => {
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/projects/${nonExistentId}`,
+        `/api/v1/organizations/${organizationId}/projects/${nonExistentId}`,
         {
           token: authToken,
         },
@@ -337,9 +328,6 @@ describe("ProjectController (e2e)", () => {
           token: authToken,
           body: {
             name: "Lifecycle Project",
-            organizationId,
-            description: "Projeto completo",
-            address: "Rua Teste, 100",
             city: "Belo Horizonte",
             state: "MG",
             startDate: "2024-06-01",
@@ -354,7 +342,7 @@ describe("ProjectController (e2e)", () => {
       // Act - Get
       const getResponse = await getRequest(
         app,
-        `/api/v1/projects/${projectId}`,
+        `/api/v1/organizations/${organizationId}/projects/${projectId}`,
         {
           token: authToken,
         },
@@ -366,12 +354,11 @@ describe("ProjectController (e2e)", () => {
       // Act - Update
       const updateResponse = await putRequest(
         app,
-        `/api/v1/projects/${projectId}`,
+        `/api/v1/organizations/${organizationId}/projects/${projectId}`,
         {
           token: authToken,
           body: {
             name: "Updated Lifecycle Project",
-            description: "Projeto atualizado",
           },
         },
       );
@@ -382,7 +369,7 @@ describe("ProjectController (e2e)", () => {
       // Act - Delete
       const deleteResponse = await deleteRequest(
         app,
-        `/api/v1/projects/${projectId}`,
+        `/api/v1/organizations/${organizationId}/projects/${projectId}`,
         {
           token: authToken,
         },
@@ -395,12 +382,8 @@ describe("ProjectController (e2e)", () => {
       // Arrange
       const projectData = {
         name: "Projeto Endereço Completo",
-        organizationId,
-        address: "Av. Paulista, 1000",
         city: "São Paulo",
         state: "SP",
-        zipCode: "01310-100",
-        neighborhood: "Bela Vista",
       };
 
       // Act
@@ -415,11 +398,8 @@ describe("ProjectController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(201);
-      expect(response.body.address).toBe(projectData.address);
       expect(response.body.city).toBe(projectData.city);
       expect(response.body.state).toBe(projectData.state);
-      expect(response.body.zipCode).toBe(projectData.zipCode);
-      expect(response.body.neighborhood).toBe(projectData.neighborhood);
     });
   });
 });

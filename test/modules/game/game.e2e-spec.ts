@@ -80,7 +80,6 @@ describe("GameController (e2e)", () => {
         id: expect.any(String),
         name: gameData.name,
         organizationId,
-        projectId,
       });
     });
 

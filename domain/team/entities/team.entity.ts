@@ -49,6 +49,8 @@ export const updateTeamEntity = (
     fieldOfAction?: string;
     members?: string[];
     photo?: string;
+    color?: string;
+    description?: string;
   },
 ): TeamEntity => {
   return {
@@ -58,6 +60,8 @@ export const updateTeamEntity = (
     fieldOfAction: updates.fieldOfAction ?? currentTeam.fieldOfAction,
     members: updates.members ?? currentTeam.members,
     photo: updates.photo ?? currentTeam.photo,
+    color: updates.color ?? currentTeam.color,
+    description: updates.description ?? currentTeam.description,
     sequence: currentTeam.sequence + 1,
   };
 };
