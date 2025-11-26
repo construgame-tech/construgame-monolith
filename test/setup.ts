@@ -16,7 +16,7 @@ process.env.EMAIL_FROM = "noreply@test.construgame.com";
 process.env.APP_URL = "http://localhost:3000";
 process.env.SMS_SENDER_ID = "ConstrugameTest";
 
-import { ValidationPipe } from "@nestjs/common";
+import { INestApplication, ValidationPipe } from "@nestjs/common";
 import {
   FastifyAdapter,
   type NestFastifyApplication,

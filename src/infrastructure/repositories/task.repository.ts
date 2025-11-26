@@ -141,4 +141,22 @@ export class TaskRepository implements ITaskRepository {
       sequence: row.sequence,
     };
   }
+
+  /**
+   * Find a task by ID only (without gameId).
+   * Used for flat routes that only have taskId.
+   */
+  async findByTaskIdOnly(taskId: string): Promise<TaskEntity | null> {
+    const result = await this.db
+      .select()
+      .from(tasks)
+      .where(eq(tasks.id, taskId))
+      .limit(1);
+
+    if (!result.length) {
+      return null;
+    }
+
+    return this.mapToEntity(result[0]);
+  }
 }

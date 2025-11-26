@@ -162,7 +162,7 @@ export class TaskController {
   async findOneFlat(@Param("taskId") taskId: string): Promise<TaskResponseDto> {
     try {
       // Buscar em todos os games (ineficiente mas funciona para testes)
-      const task = await this.taskRepository.findById(taskId);
+      const task = await this.taskRepository.findByTaskIdOnly(taskId);
       if (!task) {
         throw new NotFoundException("Task not found");
       }
@@ -182,7 +182,7 @@ export class TaskController {
   ): Promise<TaskResponseDto> {
     try {
       // Buscar task para obter gameId
-      const existingTask = await this.taskRepository.findById(taskId);
+      const existingTask = await this.taskRepository.findByTaskIdOnly(taskId);
       if (!existingTask) {
         throw new NotFoundException("Task not found");
       }
@@ -208,7 +208,7 @@ export class TaskController {
   async removeFlat(@Param("taskId") taskId: string) {
     try {
       // Buscar task para obter gameId
-      const existingTask = await this.taskRepository.findById(taskId);
+      const existingTask = await this.taskRepository.findByTaskIdOnly(taskId);
       if (!existingTask) {
         throw new NotFoundException("Task not found");
       }

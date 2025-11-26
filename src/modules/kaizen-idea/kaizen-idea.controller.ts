@@ -28,7 +28,7 @@ import { KaizenIdeaService } from "./kaizen-idea.service";
 @Controller("organizations/:organizationId/kaizen-ideas")
 export class KaizenIdeaController {
   constructor(
-    @Inject(KaizenIdeaService) readonly _kaizenIdeaService: KaizenIdeaService,
+    @Inject(KaizenIdeaService) private readonly ideaService: KaizenIdeaService,
   ) {}
 
   @Post()
