@@ -63,7 +63,6 @@ describe("ProjectController (e2e)", () => {
       // Arrange
       const projectData = {
         name: "Projeto Mínimo",
-        organizationId,
       };
 
       // Act
@@ -85,6 +84,7 @@ describe("ProjectController (e2e)", () => {
       // Arrange
       const invalidData = {
         city: "São Paulo",
+        organizationId,
       };
 
       // Act
@@ -105,7 +105,6 @@ describe("ProjectController (e2e)", () => {
       // Arrange
       const projectData = {
         name: "Test Project",
-        organizationId,
       };
 
       // Act
@@ -132,7 +131,6 @@ describe("ProjectController (e2e)", () => {
           token: authToken,
           body: {
             name: "Projeto para Consulta",
-            organizationId,
           },
         },
       );
@@ -182,7 +180,7 @@ describe("ProjectController (e2e)", () => {
         `/api/v1/organizations/${organizationId}/projects`,
         {
           token: authToken,
-          body: { name: "Projeto List 1", organizationId },
+          body: { name: "Projeto List 1" },
         },
       );
 
@@ -191,7 +189,7 @@ describe("ProjectController (e2e)", () => {
         `/api/v1/organizations/${organizationId}/projects`,
         {
           token: authToken,
-          body: { name: "Projeto List 2", organizationId },
+          body: { name: "Projeto List 2" },
         },
       );
 
@@ -277,7 +275,6 @@ describe("ProjectController (e2e)", () => {
           token: authToken,
           body: {
             name: "Projeto para Deletar",
-            organizationId,
           },
         },
       );
