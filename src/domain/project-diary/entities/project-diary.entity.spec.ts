@@ -25,7 +25,7 @@ describe("ProjectDiaryEntity", () => {
     it("should set sequence to 0 by default", () => {
       const diary = createProjectDiaryEntity(validInput);
 
-      expect(diary.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("should create entity without optional fields by default", () => {
@@ -153,7 +153,7 @@ describe("ProjectDiaryEntity", () => {
       organizationId: "org-123",
       projectId: "proj-123",
       date: "2025-01-15",
-      sequence: 0,
+      
     };
 
     it("should update notes", () => {
@@ -204,7 +204,7 @@ describe("ProjectDiaryEntity", () => {
         notes: "New notes",
       });
 
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("should preserve immutable fields", () => {
@@ -240,7 +240,7 @@ describe("ProjectDiaryEntity", () => {
 
       expect(second.notes).toBe("First");
       expect(second.weather?.morning).toBe("SUNNY");
-      expect(second.sequence).toBe(2);
+      // sequence removed.toBe(2);
     });
   });
 });

@@ -9,7 +9,7 @@ import {
   completeKaizenEntity,
   createKaizenEntity,
   createKaizenReplicaEntity,
-  incrementKaizenSequence,
+  
   type KaizenBenefit,
   type KaizenEntity,
   type KaizenTask,
@@ -36,7 +36,7 @@ describe("Kaizen Entity", () => {
       expect(kaizen.gameId).toBe("game-123");
       expect(kaizen.name).toBe("Kaizen de Teste");
       expect(kaizen.status).toBe("ACTIVE");
-      expect(kaizen.sequence).toBe(0);
+      // sequence removed.toBe(0);
       expect(kaizen.createdDate).toBeDefined();
     });
 
@@ -109,7 +109,7 @@ describe("Kaizen Entity", () => {
       name: "Kaizen Original",
       status: "ACTIVE",
       createdDate: "2025-01-01T00:00:00.000Z",
-      sequence: 0,
+      
     };
 
     it("deve atualizar campos básicos", () => {
@@ -120,7 +120,7 @@ describe("Kaizen Entity", () => {
 
       expect(updated.name).toBe("Nome Atualizado");
       expect(updated.currentSituation).toBe("Nova situação");
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
       expect(updated.updatedDate).toBeDefined();
     });
 
@@ -168,13 +168,13 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "ACTIVE",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
       };
 
       const completed = completeKaizenEntity(kaizen);
 
       expect(completed.status).toBe("DONE");
-      expect(completed.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("deve lançar erro se kaizen não está ativo", () => {
@@ -186,7 +186,7 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "DONE",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
       };
 
       expect(() => completeKaizenEntity(kaizen)).toThrow(
@@ -205,13 +205,13 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "DONE",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
       };
 
       const approved = approveKaizenEntity(kaizen);
 
       expect(approved.status).toBe("APPROVED");
-      expect(approved.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("deve retornar sem alteração se já aprovado", () => {
@@ -223,13 +223,13 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "APPROVED",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 5,
+        
       };
 
       const result = approveKaizenEntity(kaizen);
 
       expect(result.status).toBe("APPROVED");
-      expect(result.sequence).toBe(5); // Não incrementou
+      // sequence removed.toBe(5); // Não incrementou
     });
 
     it("deve lançar erro se kaizen não está completo", () => {
@@ -241,7 +241,7 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "ACTIVE",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
       };
 
       expect(() => approveKaizenEntity(kaizen)).toThrow(
@@ -260,7 +260,7 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "DONE",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
       };
 
       const reopened = reopenKaizenEntity(kaizen);
@@ -277,7 +277,7 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "APPROVED",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
       };
 
       const reopened = reopenKaizenEntity(kaizen);
@@ -294,7 +294,7 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "ACTIVE",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
       };
 
       expect(() => reopenKaizenEntity(kaizen)).toThrow("Kaizen is not done");
@@ -311,7 +311,7 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "ACTIVE",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
       };
 
       const archived = archiveKaizenEntity(kaizen);
@@ -328,7 +328,7 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "DONE",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
       };
 
       expect(() => archiveKaizenEntity(kaizen)).toThrow("Kaizen is not active");
@@ -345,7 +345,7 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "ARCHIVED",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
       };
 
       const unarchived = unarchiveKaizenEntity(kaizen);
@@ -362,7 +362,7 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "ACTIVE",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
       };
 
       expect(() => unarchiveKaizenEntity(kaizen)).toThrow(
@@ -405,7 +405,7 @@ describe("Kaizen Entity", () => {
         name: "Kaizen",
         status: "ACTIVE",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
         replicas: ["replica-1"],
       };
 
@@ -427,7 +427,7 @@ describe("Kaizen Entity", () => {
         name: "Nome Antigo",
         status: "ACTIVE",
         createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 0,
+        
         originalKaizenId: "original-123",
         category: 1,
       };
@@ -439,26 +439,7 @@ describe("Kaizen Entity", () => {
 
       expect(updated.name).toBe("Nome Novo");
       expect(updated.category).toBe(2);
-      expect(updated.sequence).toBe(1);
-    });
-  });
-
-  describe("incrementKaizenSequence", () => {
-    it("deve incrementar a sequence", () => {
-      const kaizen: KaizenEntity = {
-        id: "kaizen-123",
-        organizationId: "org-123",
-        projectId: "proj-123",
-        gameId: "game-123",
-        name: "Kaizen",
-        status: "ACTIVE",
-        createdDate: "2025-01-01T00:00:00.000Z",
-        sequence: 5,
-      };
-
-      const incremented = incrementKaizenSequence(kaizen);
-
-      expect(incremented.sequence).toBe(6);
+      // sequence removed.toBe(1);
     });
   });
 });

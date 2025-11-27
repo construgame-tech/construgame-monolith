@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createLeagueEntity,
-  incrementLeagueSequence,
+  
   type LeagueEntity,
   type LeagueStatus,
   updateLeagueEntity,
@@ -34,7 +34,7 @@ describe("LeagueEntity", () => {
     it("should set sequence to 0 by default", () => {
       const league = createLeagueEntity(validInput);
 
-      expect(league.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("should set hidden to false by default", () => {
@@ -116,7 +116,7 @@ describe("LeagueEntity", () => {
       name: "Original Name",
       status: "ACTIVE",
       hidden: false,
-      sequence: 0,
+      
     };
 
     it("should update name", () => {
@@ -208,7 +208,7 @@ describe("LeagueEntity", () => {
         name: "Updated",
       });
 
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("should preserve immutable fields", () => {
@@ -228,44 +228,7 @@ describe("LeagueEntity", () => {
       expect(third.name).toBe("First");
       expect(third.status).toBe("PAUSED");
       expect(third.hidden).toBe(true);
-      expect(third.sequence).toBe(3);
-    });
-  });
-
-  describe("incrementLeagueSequence", () => {
-    const existingLeague: LeagueEntity = {
-      id: "league-123",
-      organizationId: "org-123",
-      responsibleId: "user-123",
-      name: "Test League",
-      status: "ACTIVE",
-      hidden: false,
-      sequence: 5,
-    };
-
-    it("should increment sequence by 1", () => {
-      const updated = incrementLeagueSequence(existingLeague);
-
-      expect(updated.sequence).toBe(6);
-    });
-
-    it("should preserve all other fields", () => {
-      const updated = incrementLeagueSequence(existingLeague);
-
-      expect(updated.id).toBe("league-123");
-      expect(updated.organizationId).toBe("org-123");
-      expect(updated.responsibleId).toBe("user-123");
-      expect(updated.name).toBe("Test League");
-      expect(updated.status).toBe("ACTIVE");
-      expect(updated.hidden).toBe(false);
-    });
-
-    it("should handle consecutive increments", () => {
-      const first = incrementLeagueSequence(existingLeague);
-      const second = incrementLeagueSequence(first);
-      const third = incrementLeagueSequence(second);
-
-      expect(third.sequence).toBe(8);
+      // sequence removed.toBe(3);
     });
   });
 });

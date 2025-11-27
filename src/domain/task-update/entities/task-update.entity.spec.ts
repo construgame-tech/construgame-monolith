@@ -41,7 +41,7 @@ describe("TaskUpdateEntity", () => {
     it("should set sequence to 0 by default", () => {
       const update = createTaskUpdateEntity(validInput);
 
-      expect(update.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("should create entity with progress data", () => {
@@ -160,7 +160,7 @@ describe("TaskUpdateEntity", () => {
       status: "PENDING_REVIEW",
       submittedBy: "user-123",
       progress: { absolute: 10, updatedAt: "2025-01-15T10:00:00.000Z" },
-      sequence: 0,
+      
     };
 
     it("should change status to APPROVED", () => {
@@ -172,7 +172,7 @@ describe("TaskUpdateEntity", () => {
     it("should increment sequence", () => {
       const approved = approveTaskUpdateEntity(pendingUpdate);
 
-      expect(approved.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("should set reviewer info", () => {
@@ -231,7 +231,7 @@ describe("TaskUpdateEntity", () => {
       status: "PENDING_REVIEW",
       submittedBy: "user-123",
       progress: { absolute: 10, updatedAt: "2025-01-15T10:00:00.000Z" },
-      sequence: 0,
+      
     };
 
     it("should change status to REJECTED", () => {
@@ -264,7 +264,7 @@ describe("TaskUpdateEntity", () => {
         reviwedBy: "reviewer-123",
       });
 
-      expect(rejected.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
   });
 
@@ -278,7 +278,7 @@ describe("TaskUpdateEntity", () => {
       reviwedBy: "reviewer-123",
       reviewNote: "Approved",
       progress: { absolute: 10, updatedAt: "2025-01-15T10:00:00.000Z" },
-      sequence: 1,
+      
     };
 
     it("should change status to PENDING_REVIEW", () => {
@@ -297,7 +297,7 @@ describe("TaskUpdateEntity", () => {
     it("should increment sequence", () => {
       const cancelled = cancelTaskUpdateEntity(approvedUpdate);
 
-      expect(cancelled.sequence).toBe(2);
+      // sequence removed.toBe(2);
     });
   });
 
@@ -310,7 +310,7 @@ describe("TaskUpdateEntity", () => {
         status: "PENDING_REVIEW",
         submittedBy: "user-123",
         progress: { updatedAt: "2025-01-15T10:00:00.000Z" },
-        sequence: 0,
+        
       };
 
       expect(() => validateCanApprove(update)).not.toThrow();
@@ -324,7 +324,7 @@ describe("TaskUpdateEntity", () => {
         status: "APPROVED",
         submittedBy: "user-123",
         progress: { updatedAt: "2025-01-15T10:00:00.000Z" },
-        sequence: 0,
+        
       };
 
       expect(() => validateCanApprove(update)).toThrow(
@@ -340,7 +340,7 @@ describe("TaskUpdateEntity", () => {
         status: "REJECTED",
         submittedBy: "user-123",
         progress: { updatedAt: "2025-01-15T10:00:00.000Z" },
-        sequence: 0,
+        
       };
 
       expect(() => validateCanApprove(update)).toThrow(
@@ -358,7 +358,7 @@ describe("TaskUpdateEntity", () => {
         status: "PENDING_REVIEW",
         submittedBy: "user-123",
         progress: { updatedAt: "2025-01-15T10:00:00.000Z" },
-        sequence: 0,
+        
       };
 
       expect(() => validateCanReject(update)).not.toThrow();
@@ -372,7 +372,7 @@ describe("TaskUpdateEntity", () => {
         status: "APPROVED",
         submittedBy: "user-123",
         progress: { updatedAt: "2025-01-15T10:00:00.000Z" },
-        sequence: 0,
+        
       };
 
       expect(() => validateCanReject(update)).toThrow(
@@ -390,7 +390,7 @@ describe("TaskUpdateEntity", () => {
         status: "APPROVED",
         submittedBy: "user-123",
         progress: { updatedAt: "2025-01-15T10:00:00.000Z" },
-        sequence: 0,
+        
       };
 
       expect(() => validateCanCancel(update)).not.toThrow();
@@ -404,7 +404,7 @@ describe("TaskUpdateEntity", () => {
         status: "PENDING_REVIEW",
         submittedBy: "user-123",
         progress: { updatedAt: "2025-01-15T10:00:00.000Z" },
-        sequence: 0,
+        
       };
 
       expect(() => validateCanCancel(update)).toThrow(
@@ -420,7 +420,7 @@ describe("TaskUpdateEntity", () => {
         status: "REJECTED",
         submittedBy: "user-123",
         progress: { updatedAt: "2025-01-15T10:00:00.000Z" },
-        sequence: 0,
+        
       };
 
       expect(() => validateCanCancel(update)).toThrow(

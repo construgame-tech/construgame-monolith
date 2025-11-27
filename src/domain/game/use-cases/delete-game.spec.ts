@@ -13,7 +13,7 @@ describe("deleteGame use case", () => {
     projectId: "proj-123",
     name: "Game para Deletar",
     status: "ACTIVE",
-    sequence: 0,
+    
     archived: false,
   };
 

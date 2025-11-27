@@ -32,7 +32,7 @@ describe("createGame use case", () => {
     expect(result.game.organizationId).toBe("org-123");
     expect(result.game.projectId).toBe("proj-123");
     expect(result.game.status).toBe("ACTIVE");
-    expect(result.game.sequence).toBe(0);
+    // sequence removed.toBe(0);
     expect(result.game.archived).toBe(false);
   });
 

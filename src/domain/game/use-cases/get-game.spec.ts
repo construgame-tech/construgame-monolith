@@ -13,7 +13,7 @@ describe("getGame use case", () => {
     projectId: "proj-123",
     name: "Game de Teste",
     status: "ACTIVE",
-    sequence: 0,
+    
     archived: false,
   };
 
@@ -63,7 +63,7 @@ describe("getGame use case", () => {
       projectId: "proj-123",
       name: "Game Completo",
       status: "DONE",
-      sequence: 10,
+      
       archived: false,
       photo: "https://example.com/photo.jpg",
       objective: "Objetivo do game",

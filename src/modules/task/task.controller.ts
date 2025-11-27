@@ -5,6 +5,7 @@ import {
   listGameTasks,
   updateTask,
 } from "@domain/task";
+import { GameRepository } from "@infrastructure/repositories/game.repository";
 import { TaskRepository } from "@infrastructure/repositories/task.repository";
 import {
   BadRequestException,
@@ -41,7 +42,10 @@ import { UpdateTaskDto } from "./dto/update-task.dto";
 @UseGuards(JwtAuthGuard)
 @Controller()
 export class TaskController {
-  constructor(private readonly taskRepository: TaskRepository) {}
+  constructor(
+    private readonly taskRepository: TaskRepository,
+    private readonly gameRepository: GameRepository,
+  ) {}
 
   @Post("games/:gameId/tasks")
   @ApiOperation({ summary: "Create a new task" })
@@ -394,5 +398,80 @@ export class TaskController {
     }
 
     return { message: "Batch processed" };
+  }
+
+  // Rota para listar tasks do usuário por organização
+  @Get("organization/:organizationId/user/:userId/task")
+  @ApiOperation({ summary: "List user tasks for an organization" })
+  @ApiParam({
+    name: "organizationId",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiParam({
+    name: "userId",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiQuery({
+    name: "startDateBefore",
+    required: false,
+    description: "Filter tasks with start date before (inclusive)",
+    example: "2023-12-31",
+  })
+  @ApiQuery({
+    name: "endDateAfter",
+    required: false,
+    description: "Filter tasks with end date after (inclusive)",
+    example: "2023-01-01",
+  })
+  @ApiQuery({
+    name: "gameStatus",
+    required: false,
+    enum: ["ACTIVE", "PAUSED", "DONE"],
+    description: "Filter by game status",
+  })
+  @ApiResponse({ status: 200, description: "List of user tasks" })
+  async listUserTasksForOrganization(
+    @Param("organizationId") organizationId: string,
+    @Param("userId") userId: string,
+    @Query("startDateBefore") startDateBefore?: string,
+    @Query("endDateAfter") endDateAfter?: string,
+    @Query("gameStatus") gameStatus?: string,
+  ): Promise<{ items: TaskResponseDto[] }> {
+    // Busca todos os games da organização
+    const orgGames =
+      await this.gameRepository.findByOrganizationId(organizationId);
+
+    // Filtra por status do game se especificado
+    let filteredGames = orgGames;
+    if (gameStatus) {
+      filteredGames = orgGames.filter((game) => game.status === gameStatus);
+    }
+
+    const gameIds = new Set(filteredGames.map((game) => game.id));
+
+    // Busca todas as tasks do usuário
+    const allUserTasks = await this.taskRepository.findByUserId(userId);
+
+    // Filtra as tasks que pertencem aos games da organização
+    let filteredTasks = allUserTasks.filter((task) => gameIds.has(task.gameId));
+
+    // Aplica filtros de data se fornecidos
+    if (startDateBefore) {
+      const beforeDate = new Date(startDateBefore);
+      filteredTasks = filteredTasks.filter((task) => {
+        if (!task.startDate) return true;
+        return new Date(task.startDate) <= beforeDate;
+      });
+    }
+
+    if (endDateAfter) {
+      const afterDate = new Date(endDateAfter);
+      filteredTasks = filteredTasks.filter((task) => {
+        if (!task.endDate) return true;
+        return new Date(task.endDate) >= afterDate;
+      });
+    }
+
+    return { items: filteredTasks.map(TaskResponseDto.fromEntity) };
   }
 }

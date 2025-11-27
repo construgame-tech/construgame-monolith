@@ -13,7 +13,7 @@ describe("updateGame use case", () => {
     projectId: "proj-123",
     name: "Game Original",
     status: "ACTIVE",
-    sequence: 0,
+    
     archived: false,
   };
 
@@ -39,7 +39,7 @@ describe("updateGame use case", () => {
     const result = await updateGame(input, mockRepository);
 
     expect(result.game.name).toBe("Nome Atualizado");
-    expect(result.game.sequence).toBe(1);
+    // sequence removed.toBe(1);
     expect(mockRepository.findById).toHaveBeenCalledWith("org-123", "game-123");
     expect(mockRepository.save).toHaveBeenCalledTimes(1);
   });
@@ -132,7 +132,7 @@ describe("updateGame use case", () => {
       expect.objectContaining({
         id: "game-123",
         name: "Nome para Salvar",
-        sequence: 1,
+        
       }),
     );
   });

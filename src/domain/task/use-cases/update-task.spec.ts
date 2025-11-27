@@ -13,7 +13,7 @@ describe("updateTask use case", () => {
     status: "active",
     name: "Task Base",
     rewardPoints: 100,
-    sequence: 0,
+    
     progress: {
       absolute: 50,
       percent: 50,
@@ -71,7 +71,7 @@ describe("updateTask use case", () => {
     const result = await updateTask(input, mockRepository);
 
     expect(result.task.name).toBe("Atualizada");
-    expect(result.task.sequence).toBe(1);
+    // sequence removed.toBe(1);
     // percent recalculado deve ser <= 100
     expect(result.task.progress?.percent).toBeDefined();
   });

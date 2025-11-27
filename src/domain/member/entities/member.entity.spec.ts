@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createMemberEntity,
-  incrementMemberSequence,
+  
   type MemberEntity,
   updateMemberEntity,
 } from "./member.entity";
@@ -21,7 +21,7 @@ describe("Member Entity", () => {
       expect(member.userId).toBe("user-123");
       expect(member.organizationId).toBe("org-123");
       expect(member.role).toBe("player");
-      expect(member.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("deve criar member com todos os campos opcionais", () => {
@@ -79,7 +79,7 @@ describe("Member Entity", () => {
       userId: "user-123",
       organizationId: "org-123",
       role: "player",
-      sequence: 0,
+      
     };
 
     it("deve atualizar o role do member", () => {
@@ -88,7 +88,7 @@ describe("Member Entity", () => {
       });
 
       expect(updated.role).toBe("manager");
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("deve atualizar múltiplos campos", () => {
@@ -136,23 +136,6 @@ describe("Member Entity", () => {
       expect(updated.jobRoleVariantId).toBe("new-variant");
       expect(updated.seniority).toBe("pleno");
       expect(updated.state).toBe("RJ");
-    });
-  });
-
-  describe("incrementMemberSequence", () => {
-    it("deve incrementar a sequence", () => {
-      const member: MemberEntity = {
-        userId: "user-123",
-        organizationId: "org-123",
-        role: "player",
-        sequence: 5,
-      };
-
-      const incremented = incrementMemberSequence(member);
-
-      expect(incremented.sequence).toBe(6);
-      expect(incremented.userId).toBe(member.userId);
-      expect(incremented.organizationId).toBe(member.organizationId);
     });
   });
 });

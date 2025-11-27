@@ -13,7 +13,7 @@ describe("listGameTasks use case", () => {
       status: "active",
       name: "T1",
       rewardPoints: 10,
-      sequence: 0,
+      
     } as TaskEntity,
     {
       id: "t2",
@@ -21,7 +21,7 @@ describe("listGameTasks use case", () => {
       status: "active",
       name: "T2",
       rewardPoints: 20,
-      sequence: 0,
+      
     } as TaskEntity,
   ];
 

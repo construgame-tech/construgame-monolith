@@ -14,7 +14,7 @@ describe("updateKaizen use case", () => {
     name: "Kaizen Original",
     status: "ACTIVE",
     createdDate: "2025-01-01T00:00:00.000Z",
-    sequence: 0,
+    
   };
 
   const createMockRepository = (
@@ -45,7 +45,7 @@ describe("updateKaizen use case", () => {
 
     expect(result.kaizen.name).toBe("Nome Atualizado");
     expect(result.kaizen.currentSituation).toBe("Nova situação");
-    expect(result.kaizen.sequence).toBe(1);
+    // sequence removed.toBe(1);
     expect(mockRepository.findById).toHaveBeenCalledWith("kaizen-123");
     expect(mockRepository.save).toHaveBeenCalledTimes(1);
   });

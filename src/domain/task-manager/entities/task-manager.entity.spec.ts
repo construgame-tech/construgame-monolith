@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createTaskManagerEntity,
-  incrementTaskManagerSequence,
+  
   type TaskManagerEntity,
   updateTaskManagerEntity,
 } from "./task-manager.entity";
@@ -41,7 +41,7 @@ describe("TaskManagerEntity", () => {
     it("should set default values", () => {
       const taskManager = createTaskManagerEntity(validInput);
 
-      expect(taskManager.sequence).toBe(0);
+      // sequence removed.toBe(0);
       expect(taskManager.progressAbsolute).toBe(0);
       expect(taskManager.tasks).toEqual([]);
     });
@@ -180,7 +180,7 @@ describe("TaskManagerEntity", () => {
       },
       progressAbsolute: 0,
       tasks: [],
-      sequence: 0,
+      
     };
 
     it("should update name", () => {
@@ -248,7 +248,7 @@ describe("TaskManagerEntity", () => {
         name: "Updated",
       });
 
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("should preserve immutable fields", () => {
@@ -270,46 +270,7 @@ describe("TaskManagerEntity", () => {
       expect(third.name).toBe("First");
       expect(third.rewardPoints).toBe(75);
       expect(third.progressAbsolute).toBe(25);
-      expect(third.sequence).toBe(3);
-    });
-  });
-
-  describe("incrementTaskManagerSequence", () => {
-    const existingTaskManager: TaskManagerEntity = {
-      id: "tm-123",
-      organizationId: "org-123",
-      projectId: "proj-123",
-      gameId: "game-123",
-      kpiId: "kpi-123",
-      name: "Test Task Manager",
-      rewardPoints: 50,
-      responsible: { type: "team", ids: ["team-1"] },
-      schedule: { startDate: "2025-01-01", endDate: "2025-12-31" },
-      progressAbsolute: 0,
-      tasks: [],
-      sequence: 5,
-    };
-
-    it("should increment sequence by 1", () => {
-      const updated = incrementTaskManagerSequence(existingTaskManager);
-
-      expect(updated.sequence).toBe(6);
-    });
-
-    it("should preserve all other fields", () => {
-      const updated = incrementTaskManagerSequence(existingTaskManager);
-
-      expect(updated.id).toBe("tm-123");
-      expect(updated.name).toBe("Test Task Manager");
-      expect(updated.rewardPoints).toBe(50);
-    });
-
-    it("should handle consecutive increments", () => {
-      const first = incrementTaskManagerSequence(existingTaskManager);
-      const second = incrementTaskManagerSequence(first);
-      const third = incrementTaskManagerSequence(second);
-
-      expect(third.sequence).toBe(8);
+      // sequence removed.toBe(3);
     });
   });
 });

@@ -13,7 +13,7 @@ describe("unarchiveGame use case", () => {
     projectId: "proj-123",
     name: "Game Arquivado",
     status: "DONE",
-    sequence: 5,
+    
     archived: true,
   };
 
@@ -38,7 +38,7 @@ describe("unarchiveGame use case", () => {
     const result = await unarchiveGame(input, mockRepository);
 
     expect(result.game.archived).toBe(false);
-    expect(result.game.sequence).toBe(6);
+    // sequence removed.toBe(6);
     expect(mockRepository.findById).toHaveBeenCalledWith("org-123", "game-123");
     expect(mockRepository.save).toHaveBeenCalledTimes(1);
   });
@@ -84,7 +84,7 @@ describe("unarchiveGame use case", () => {
     expect(mockRepository.save).toHaveBeenCalledWith(
       expect.objectContaining({
         archived: false,
-        sequence: 6,
+        
       }),
     );
   });

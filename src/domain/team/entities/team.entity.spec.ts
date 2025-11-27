@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createTeamEntity,
-  incrementTeamSequence,
+  
   type TeamEntity,
   updateTeamEntity,
 } from "./team.entity";
@@ -21,7 +21,7 @@ describe("Team Entity", () => {
       expect(team.id).toBe("team-123");
       expect(team.organizationId).toBe("org-123");
       expect(team.name).toBe("Equipe Alpha");
-      expect(team.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("deve criar equipe com todos os campos opcionais", () => {
@@ -52,7 +52,7 @@ describe("Team Entity", () => {
       id: "team-123",
       organizationId: "org-123",
       name: "Equipe Original",
-      sequence: 0,
+      
     };
 
     it("deve atualizar o nome da equipe", () => {
@@ -61,7 +61,7 @@ describe("Team Entity", () => {
       });
 
       expect(updated.name).toBe("Equipe Atualizada");
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("deve atualizar o gerente da equipe", () => {
@@ -115,27 +115,10 @@ describe("Team Entity", () => {
 
     it("deve incrementar sequence a cada atualização", () => {
       const first = updateTeamEntity(baseTeam, { name: "Update 1" });
-      expect(first.sequence).toBe(1);
+      // sequence removed.toBe(1);
 
       const second = updateTeamEntity(first, { name: "Update 2" });
-      expect(second.sequence).toBe(2);
-    });
-  });
-
-  describe("incrementTeamSequence", () => {
-    it("deve incrementar a sequence", () => {
-      const team: TeamEntity = {
-        id: "team-123",
-        organizationId: "org-123",
-        name: "Team",
-        sequence: 10,
-      };
-
-      const incremented = incrementTeamSequence(team);
-
-      expect(incremented.sequence).toBe(11);
-      expect(incremented.id).toBe(team.id);
-      expect(incremented.name).toBe(team.name);
+      // sequence removed.toBe(2);
     });
   });
 });

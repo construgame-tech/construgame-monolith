@@ -17,7 +17,7 @@ describe("listProjectGames use case", () => {
       projectId: "proj-123",
       name: "Game do Projeto 1",
       status: "ACTIVE",
-      sequence: 0,
+      
       archived: false,
     },
     {
@@ -26,7 +26,7 @@ describe("listProjectGames use case", () => {
       projectId: "proj-123",
       name: "Game do Projeto 2",
       status: "PAUSED",
-      sequence: 3,
+      
       archived: false,
     },
   ];

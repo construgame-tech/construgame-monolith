@@ -7,7 +7,7 @@ import {
   canReuseAuthCode,
   clearAuthCode,
   createUserEntity,
-  incrementUserSequence,
+  
   isAuthCodeValid,
   isPasswordRecoveryCodeValid,
   makeUserSuperuser,
@@ -29,7 +29,7 @@ describe("User Entity", () => {
       expect(user.id).toBe("user-123");
       expect(user.name).toBe("João Silva");
       expect(user.status).toBe("WAITING_CONFIRMATION");
-      expect(user.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("deve criar usuário com campos opcionais", () => {
@@ -60,7 +60,7 @@ describe("User Entity", () => {
       id: "user-123",
       name: "Nome Original",
       status: "ACTIVE",
-      sequence: 0,
+      
     };
 
     it("deve atualizar o nome do usuário", () => {
@@ -69,7 +69,7 @@ describe("User Entity", () => {
       });
 
       expect(updated.name).toBe("Nome Atualizado");
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("deve atualizar múltiplos campos", () => {
@@ -108,7 +108,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
         passwordRecoveryCode: "123456",
         passwordRecoveryCodeExpires: "2025-12-31T00:00:00.000Z",
       };
@@ -118,7 +118,7 @@ describe("User Entity", () => {
       expect(updated.password).toBe("hashedPassword123");
       expect(updated.passwordRecoveryCode).toBeUndefined();
       expect(updated.passwordRecoveryCodeExpires).toBeUndefined();
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
   });
 
@@ -128,13 +128,13 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "WAITING_CONFIRMATION",
-        sequence: 0,
+        
       };
 
       const activated = activateUserEntity(user);
 
       expect(activated.status).toBe("ACTIVE");
-      expect(activated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
   });
 
@@ -144,7 +144,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
       };
 
       const updated = setPasswordRecoveryCode(
@@ -157,7 +157,7 @@ describe("User Entity", () => {
       expect(updated.passwordRecoveryCodeExpires).toBe(
         "2025-12-31T00:00:00.000Z",
       );
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
   });
 
@@ -167,14 +167,14 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
       };
 
       const updated = setAuthCode(user, "123456", "2025-12-31T00:00:00.000Z");
 
       expect(updated.authCode).toBe("123456");
       expect(updated.authCodeExpiresAt).toBe("2025-12-31T00:00:00.000Z");
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
   });
 
@@ -184,7 +184,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
         authCode: "123456",
         authCodeExpiresAt: "2025-12-31T00:00:00.000Z",
       };
@@ -202,29 +202,14 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
         type: "user",
       };
 
       const superuser = makeUserSuperuser(user);
 
       expect(superuser.type).toBe("superuser");
-      expect(superuser.sequence).toBe(1);
-    });
-  });
-
-  describe("incrementUserSequence", () => {
-    it("deve incrementar a sequence", () => {
-      const user: UserEntity = {
-        id: "user-123",
-        name: "User",
-        status: "ACTIVE",
-        sequence: 5,
-      };
-
-      const incremented = incrementUserSequence(user);
-
-      expect(incremented.sequence).toBe(6);
+      // sequence removed.toBe(1);
     });
   });
 
@@ -234,7 +219,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
         passwordRecoveryCode: "ABC123",
       };
 
@@ -246,7 +231,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
         passwordRecoveryCode: "ABC123",
       };
 
@@ -258,7 +243,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
       };
 
       expect(isPasswordRecoveryCodeValid(user, "ABC123")).toBe(false);
@@ -272,7 +257,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
         authCode: "123456",
         authCodeExpiresAt: futureDate,
       };
@@ -286,7 +271,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
         authCode: "123456",
         authCodeExpiresAt: pastDate,
       };
@@ -300,7 +285,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
         authCode: "123456",
         authCodeExpiresAt: futureDate,
       };
@@ -313,7 +298,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
       };
 
       expect(isAuthCodeValid(user, "123456")).toBe(false);
@@ -327,7 +312,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
         authCode: "123456",
         authCodeExpiresAt: futureDate,
       };
@@ -341,7 +326,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
         authCode: "123456",
         authCodeExpiresAt: pastDate,
       };
@@ -354,7 +339,7 @@ describe("User Entity", () => {
         id: "user-123",
         name: "User",
         status: "ACTIVE",
-        sequence: 0,
+        
       };
 
       expect(canReuseAuthCode(user)).toBe(false);

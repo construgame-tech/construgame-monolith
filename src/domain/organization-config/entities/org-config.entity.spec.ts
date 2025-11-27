@@ -67,7 +67,7 @@ describe("OrgConfigEntity", () => {
         organizationId: "org-123",
       });
 
-      expect(config.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("should override default feature flags", () => {
@@ -137,7 +137,7 @@ describe("OrgConfigEntity", () => {
       missionConfig: { autoApproveUpdates: false },
       theme: { menu: { background: "#1976d2", color: "#ffffff" } },
       auth: { login: { email: true, microsoftSSO: false } },
-      sequence: 0,
+      
     };
 
     it("should update missionsEnabled", () => {
@@ -203,7 +203,7 @@ describe("OrgConfigEntity", () => {
         missionsEnabled: false,
       });
 
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("should preserve organizationId", () => {
@@ -233,7 +233,7 @@ describe("OrgConfigEntity", () => {
 
       expect(second.financialEnabled).toBe(true);
       expect(second.kaizensEnabled).toBe(true);
-      expect(second.sequence).toBe(2);
+      // sequence removed.toBe(2);
     });
   });
 });

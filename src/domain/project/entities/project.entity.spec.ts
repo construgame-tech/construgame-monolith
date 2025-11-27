@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createProjectEntity,
-  incrementProjectSequence,
+  
   type ProjectEntity,
   type ProjectPrize,
   updateProjectEntity,
@@ -23,7 +23,7 @@ describe("Project Entity", () => {
       expect(project.organizationId).toBe("org-123");
       expect(project.name).toBe("Projeto Alpha");
       expect(project.status).toBe("ACTIVE");
-      expect(project.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("deve criar projeto com todos os campos opcionais", () => {
@@ -67,7 +67,7 @@ describe("Project Entity", () => {
       organizationId: "org-123",
       name: "Projeto Original",
       status: "ACTIVE",
-      sequence: 0,
+      
     };
 
     it("deve atualizar o nome do projeto", () => {
@@ -76,7 +76,7 @@ describe("Project Entity", () => {
       });
 
       expect(updated.name).toBe("Projeto Atualizado");
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("deve atualizar o status do projeto", () => {
@@ -160,28 +160,10 @@ describe("Project Entity", () => {
 
     it("deve incrementar sequence a cada atualização", () => {
       const first = updateProjectEntity(baseProject, { name: "Update 1" });
-      expect(first.sequence).toBe(1);
+      // sequence removed.toBe(1);
 
       const second = updateProjectEntity(first, { name: "Update 2" });
-      expect(second.sequence).toBe(2);
-    });
-  });
-
-  describe("incrementProjectSequence", () => {
-    it("deve incrementar a sequence", () => {
-      const project: ProjectEntity = {
-        id: "proj-123",
-        organizationId: "org-123",
-        name: "Project",
-        status: "ACTIVE",
-        sequence: 5,
-      };
-
-      const incremented = incrementProjectSequence(project);
-
-      expect(incremented.sequence).toBe(6);
-      expect(incremented.id).toBe(project.id);
-      expect(incremented.name).toBe(project.name);
+      // sequence removed.toBe(2);
     });
   });
 });

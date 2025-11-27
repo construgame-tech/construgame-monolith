@@ -27,7 +27,7 @@ describe("OrgKaizenConfigEntity", () => {
         },
       });
 
-      expect(config.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("should create entity with all category points", () => {
@@ -83,7 +83,7 @@ describe("OrgKaizenConfigEntity", () => {
         "1": { points: 100, description: "Basic" },
         "2": { points: 200, description: "Intermediate" },
       },
-      sequence: 0,
+      
     };
 
     it("should update category points", () => {
@@ -115,7 +115,7 @@ describe("OrgKaizenConfigEntity", () => {
         },
       });
 
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("should preserve organizationId", () => {
@@ -150,7 +150,7 @@ describe("OrgKaizenConfigEntity", () => {
 
       expect(second.categoryPoints["1"].points).toBe(110);
       expect(second.categoryPoints["2"]?.points).toBe(220);
-      expect(second.sequence).toBe(2);
+      // sequence removed.toBe(2);
     });
 
     it("should add new categories", () => {

@@ -12,7 +12,7 @@ describe("deleteTask use case", () => {
     status: "active",
     name: "To Delete",
     rewardPoints: 10,
-    sequence: 0,
+    
   } as unknown as TaskEntity;
 
   const createMockRepository = (

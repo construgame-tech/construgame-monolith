@@ -43,7 +43,7 @@ describe("TaskPointsEntities", () => {
       it("should set sequence to 0 by default", () => {
         const points = createUserTaskPointsEntity(validInput);
 
-        expect(points.sequence).toBe(0);
+        // sequence removed.toBe(0);
       });
     });
 
@@ -54,7 +54,7 @@ describe("TaskPointsEntities", () => {
         projectId: "proj-123",
         gameId: "game-123",
         points: 100,
-        sequence: 1,
+        
       };
 
       it("should add points to current total", () => {
@@ -66,7 +66,7 @@ describe("TaskPointsEntities", () => {
       it("should increment sequence", () => {
         const updated = addPointsToUserTaskPoints(existingPoints, 50);
 
-        expect(updated.sequence).toBe(2);
+        // sequence removed.toBe(2);
       });
 
       it("should preserve other fields", () => {
@@ -82,7 +82,7 @@ describe("TaskPointsEntities", () => {
         const updated = addPointsToUserTaskPoints(existingPoints, 0);
 
         expect(updated.points).toBe(100);
-        expect(updated.sequence).toBe(2);
+        // sequence removed.toBe(2);
       });
 
       it("should handle negative points (deduction)", () => {
@@ -96,7 +96,7 @@ describe("TaskPointsEntities", () => {
         const second = addPointsToUserTaskPoints(first, 25);
 
         expect(second.points).toBe(150);
-        expect(second.sequence).toBe(3);
+        // sequence removed.toBe(3);
       });
     });
   });
@@ -128,7 +128,7 @@ describe("TaskPointsEntities", () => {
       it("should set sequence to 0 by default", () => {
         const points = createTeamTaskPointsEntity(validInput);
 
-        expect(points.sequence).toBe(0);
+        // sequence removed.toBe(0);
       });
     });
 
@@ -139,7 +139,7 @@ describe("TaskPointsEntities", () => {
         projectId: "proj-123",
         gameId: "game-123",
         points: 200,
-        sequence: 2,
+        
       };
 
       it("should add points to current total", () => {
@@ -151,7 +151,7 @@ describe("TaskPointsEntities", () => {
       it("should increment sequence", () => {
         const updated = addPointsToTeamTaskPoints(existingPoints, 100);
 
-        expect(updated.sequence).toBe(3);
+        // sequence removed.toBe(3);
       });
 
       it("should preserve other fields", () => {
@@ -188,7 +188,7 @@ describe("TaskPointsEntities", () => {
       it("should set sequence to 0 by default", () => {
         const points = createGameTaskPointsEntity(validInput);
 
-        expect(points.sequence).toBe(0);
+        // sequence removed.toBe(0);
       });
     });
 
@@ -198,7 +198,7 @@ describe("TaskPointsEntities", () => {
         organizationId: "org-123",
         projectId: "proj-123",
         points: 500,
-        sequence: 5,
+        
       };
 
       it("should add points to current total", () => {
@@ -210,7 +210,7 @@ describe("TaskPointsEntities", () => {
       it("should increment sequence", () => {
         const updated = addPointsToGameTaskPoints(existingPoints, 150);
 
-        expect(updated.sequence).toBe(6);
+        // sequence removed.toBe(6);
       });
 
       it("should preserve other fields", () => {

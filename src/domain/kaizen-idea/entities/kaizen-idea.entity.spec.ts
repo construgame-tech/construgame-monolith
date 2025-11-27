@@ -41,7 +41,7 @@ describe("KaizenIdeaEntity", () => {
     it("should set sequence to 0 by default", () => {
       const idea = createKaizenIdeaEntity(validInput);
 
-      expect(idea.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("should create entity with optional projectId and gameId", () => {
@@ -201,7 +201,7 @@ describe("KaizenIdeaEntity", () => {
       name: "Original Name",
       status: "DRAFT",
       createdDate: "2025-01-01T10:00:00.000Z",
-      sequence: 0,
+      
     };
 
     beforeEach(() => {
@@ -238,7 +238,7 @@ describe("KaizenIdeaEntity", () => {
         name: "Updated",
       });
 
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("should preserve immutable fields", () => {
@@ -305,7 +305,7 @@ describe("KaizenIdeaEntity", () => {
       expect(third.name).toBe("First");
       expect(third.status).toBe("APPROVED");
       expect(third.isRecommended).toBe(true);
-      expect(third.sequence).toBe(3);
+      // sequence removed.toBe(3);
     });
 
     it("should update status to ARCHIVED", () => {

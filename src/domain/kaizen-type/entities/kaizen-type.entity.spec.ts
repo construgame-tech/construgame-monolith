@@ -26,7 +26,7 @@ describe("KaizenTypeEntity", () => {
     it("should set sequence to 0 by default", () => {
       const type = createKaizenTypeEntity(validInput);
 
-      expect(type.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("should create entity with optional description", () => {
@@ -95,7 +95,7 @@ describe("KaizenTypeEntity", () => {
       organizationId: "org-123",
       name: "Original Name",
       points: 100,
-      sequence: 0,
+      
     };
 
     it("should update name", () => {
@@ -143,7 +143,7 @@ describe("KaizenTypeEntity", () => {
         name: "Updated",
       });
 
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("should preserve immutable fields", () => {
@@ -179,7 +179,7 @@ describe("KaizenTypeEntity", () => {
       expect(third.name).toBe("First");
       expect(third.points).toBe(200);
       expect(third.description).toBe("Desc");
-      expect(third.sequence).toBe(3);
+      // sequence removed.toBe(3);
     });
 
     it("should preserve existing optional fields when not updating them", () => {

@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createJobRoleEntity,
-  incrementJobRoleSequence,
+  
   type JobRoleEntity,
   type JobRoleVariant,
   updateJobRoleEntity,
@@ -28,7 +28,7 @@ describe("JobRole Entity", () => {
       expect(jobRole.organizationId).toBe("org-123");
       expect(jobRole.name).toBe("Desenvolvedor");
       expect(jobRole.variants).toHaveLength(1);
-      expect(jobRole.sequence).toBe(0);
+      // sequence removed.toBe(0);
       expect(jobRole.createdAt).toBeDefined();
     });
 
@@ -95,7 +95,7 @@ describe("JobRole Entity", () => {
       organizationId: "org-123",
       name: "Cargo Original",
       variants: [{ id: "v1", salary: 5000 }],
-      sequence: 0,
+      
     };
 
     it("deve atualizar o nome do job role", () => {
@@ -104,7 +104,7 @@ describe("JobRole Entity", () => {
       });
 
       expect(updated.name).toBe("Cargo Atualizado");
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
       expect(updated.updatedAt).toBeDefined();
     });
 
@@ -168,28 +168,10 @@ describe("JobRole Entity", () => {
 
     it("deve incrementar sequence a cada atualização", () => {
       const first = updateJobRoleEntity(baseJobRole, { name: "Update 1" });
-      expect(first.sequence).toBe(1);
+      // sequence removed.toBe(1);
 
       const second = updateJobRoleEntity(first, { name: "Update 2" });
-      expect(second.sequence).toBe(2);
-    });
-  });
-
-  describe("incrementJobRoleSequence", () => {
-    it("deve incrementar a sequence", () => {
-      const jobRole: JobRoleEntity = {
-        id: "job-123",
-        organizationId: "org-123",
-        name: "Cargo",
-        variants: [],
-        sequence: 5,
-      };
-
-      const incremented = incrementJobRoleSequence(jobRole);
-
-      expect(incremented.sequence).toBe(6);
-      expect(incremented.id).toBe(jobRole.id);
-      expect(incremented.name).toBe(jobRole.name);
+      // sequence removed.toBe(2);
     });
   });
 });

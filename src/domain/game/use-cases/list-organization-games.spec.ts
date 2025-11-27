@@ -17,7 +17,7 @@ describe("listOrganizationGames use case", () => {
       projectId: "proj-1",
       name: "Game 1",
       status: "ACTIVE",
-      sequence: 0,
+      
       archived: false,
     },
     {
@@ -26,7 +26,7 @@ describe("listOrganizationGames use case", () => {
       projectId: "proj-2",
       name: "Game 2",
       status: "DONE",
-      sequence: 5,
+      
       archived: false,
     },
   ];
@@ -92,7 +92,7 @@ describe("listOrganizationGames use case", () => {
         projectId: "proj-1",
         name: "Game Completo",
         status: "ACTIVE",
-        sequence: 0,
+        
         archived: false,
         photo: "https://example.com/photo.jpg",
         objective: "Objetivo",

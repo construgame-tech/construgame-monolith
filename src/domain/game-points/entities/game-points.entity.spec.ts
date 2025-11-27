@@ -37,7 +37,7 @@ describe("GamePointsEntity", () => {
     it("should set sequence to 0 by default", () => {
       const points = createUserGamePointsEntity(validInput);
 
-      expect(points.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
   });
 
@@ -69,7 +69,7 @@ describe("GamePointsEntity", () => {
     it("should set sequence to 0 by default", () => {
       const points = createTeamGamePointsEntity(validInput);
 
-      expect(points.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
   });
 
@@ -82,7 +82,7 @@ describe("GamePointsEntity", () => {
       taskPoints: 0,
       kaizenPoints: 0,
       totalPoints: 0,
-      sequence: 0,
+      
     };
 
     it("should update task and kaizen points", () => {
@@ -101,7 +101,7 @@ describe("GamePointsEntity", () => {
     it("should increment sequence", () => {
       const updated = updateUserGamePoints(existingPoints, 100, 50);
 
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("should preserve other fields", () => {
@@ -119,7 +119,7 @@ describe("GamePointsEntity", () => {
         taskPoints: 100,
         kaizenPoints: 50,
         totalPoints: 150,
-        sequence: 1,
+        
       };
 
       const updated = updateUserGamePoints(pointsWithValues, 0, 0);
@@ -127,7 +127,7 @@ describe("GamePointsEntity", () => {
       expect(updated.taskPoints).toBe(0);
       expect(updated.kaizenPoints).toBe(0);
       expect(updated.totalPoints).toBe(0);
-      expect(updated.sequence).toBe(2);
+      // sequence removed.toBe(2);
     });
 
     it("should handle large points values", () => {
@@ -148,7 +148,7 @@ describe("GamePointsEntity", () => {
       taskPoints: 0,
       kaizenPoints: 0,
       totalPoints: 0,
-      sequence: 0,
+      
     };
 
     it("should update task and kaizen points", () => {
@@ -167,7 +167,7 @@ describe("GamePointsEntity", () => {
     it("should increment sequence", () => {
       const updated = updateTeamGamePoints(existingPoints, 200, 100);
 
-      expect(updated.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("should preserve other fields", () => {
@@ -186,7 +186,7 @@ describe("GamePointsEntity", () => {
       expect(second.taskPoints).toBe(200);
       expect(second.kaizenPoints).toBe(100);
       expect(second.totalPoints).toBe(300);
-      expect(second.sequence).toBe(2);
+      // sequence removed.toBe(2);
     });
   });
 });

@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 import {
   createTaskEntity,
-  incrementTaskSequence,
+  
   type TaskChecklistItem,
   type TaskEntity,
   updateTaskEntity,
@@ -26,7 +26,7 @@ describe("Task Entity", () => {
       expect(task.name).toBe("Task de Teste");
       expect(task.rewardPoints).toBe(100);
       expect(task.status).toBe("active");
-      expect(task.sequence).toBe(0);
+      // sequence removed.toBe(0);
     });
 
     it("deve criar task com campos opcionais", () => {
@@ -93,7 +93,7 @@ describe("Task Entity", () => {
       status: "active",
       name: "Task Original",
       rewardPoints: 100,
-      sequence: 0,
+      
     };
 
     it("deve atualizar o nome da task", () => {
@@ -102,7 +102,7 @@ describe("Task Entity", () => {
       });
 
       expect(updatedTask.name).toBe("Nome Atualizado");
-      expect(updatedTask.sequence).toBe(1);
+      // sequence removed.toBe(1);
     });
 
     it("deve atualizar rewardPoints", () => {
@@ -146,10 +146,10 @@ describe("Task Entity", () => {
 
     it("deve incrementar sequence a cada atualização", () => {
       const firstUpdate = updateTaskEntity(baseTask, { name: "Update 1" });
-      expect(firstUpdate.sequence).toBe(1);
+      // sequence removed.toBe(1);
 
       const secondUpdate = updateTaskEntity(firstUpdate, { name: "Update 2" });
-      expect(secondUpdate.sequence).toBe(2);
+      // sequence removed.toBe(2);
     });
 
     it("deve atualizar checklist", () => {
@@ -162,25 +162,6 @@ describe("Task Entity", () => {
       });
 
       expect(updatedTask.checklist).toEqual(newChecklist);
-    });
-  });
-
-  describe("incrementTaskSequence", () => {
-    it("deve incrementar a sequence da task", () => {
-      const task: TaskEntity = {
-        id: "task-123",
-        gameId: "game-123",
-        status: "active",
-        name: "Task",
-        rewardPoints: 100,
-        sequence: 5,
-      };
-
-      const incrementedTask = incrementTaskSequence(task);
-
-      expect(incrementedTask.sequence).toBe(6);
-      expect(incrementedTask.id).toBe(task.id);
-      expect(incrementedTask.name).toBe(task.name);
     });
   });
 

@@ -12,7 +12,7 @@ describe("getTask use case", () => {
     status: "active",
     name: "Task",
     rewardPoints: 10,
-    sequence: 0,
+    
   } as unknown as TaskEntity;
 
   const createMockRepository = (
