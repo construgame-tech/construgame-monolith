@@ -432,4 +432,207 @@ export class TaskManagerController {
       })),
     };
   }
+
+  // ==========================================
+  // Rotas com prefixo /game singular (OpenAPI spec)
+  // ==========================================
+
+  @Get("game/:gameId/task-manager")
+  async listTaskManagersSingular(@Param("gameId") gameId: string) {
+    const taskManagers = await this.repository.listByGameId(gameId);
+
+    return {
+      items: taskManagers.map((tm) => ({
+        id: tm.id,
+        organizationId: tm.organizationId,
+        projectId: tm.projectId,
+        gameId: tm.gameId,
+        name: tm.name,
+        kpiId: tm.kpiId,
+        macrostep: tm.macrostep,
+        description: tm.description,
+        measurementUnit: tm.measurementUnit,
+        totalMeasurementExpected: tm.totalMeasurementExpected,
+        rewardPoints: tm.rewardPoints,
+        location: tm.location,
+        responsible: tm.responsible,
+        schedule: tm.schedule,
+        checklist: tm.checklist,
+        embedVideoUrl: tm.embedVideoUrl,
+        videoUrl: tm.videoUrl,
+      })),
+    };
+  }
+
+  @Post("game/:gameId/task-manager")
+  async createTaskManagerSingular(
+    @Param("gameId") gameId: string,
+    @Query("organizationId") organizationId: string,
+    @Query("projectId") projectId: string,
+    @Body() body: CreateTaskManagerDto,
+  ) {
+    if (!organizationId || !projectId) {
+      throw new BadRequestException(
+        "organizationId and projectId are required as query parameters",
+      );
+    }
+
+    const checklist = body.checklist?.map((item) => ({
+      id: item.id || randomUUID(),
+      label: item.label,
+      checked: false,
+    }));
+
+    const taskManager = await this.repository.create({
+      id: randomUUID(),
+      gameId,
+      organizationId,
+      projectId,
+      name: body.name,
+      kpiId: body.kpiId,
+      macrostep: body.macrostep,
+      description: body.description,
+      measurementUnit: body.measurementUnit,
+      totalMeasurementExpected: body.totalMeasurementExpected,
+      videoUrl: body.videoUrl,
+      embedVideoUrl: body.embedVideoUrl,
+      rewardPoints: body.rewardPoints,
+      location: body.location,
+      responsible: body.responsible,
+      schedule: body.schedule,
+      checklist,
+      progressAbsolute: 0,
+      tasks: [],
+      sequence: 0,
+    });
+
+    return {
+      id: taskManager.id,
+      organizationId: taskManager.organizationId,
+      projectId: taskManager.projectId,
+      gameId: taskManager.gameId,
+      name: taskManager.name,
+      kpiId: taskManager.kpiId,
+      macrostep: taskManager.macrostep,
+      description: taskManager.description,
+      measurementUnit: taskManager.measurementUnit,
+      totalMeasurementExpected: taskManager.totalMeasurementExpected,
+      videoUrl: taskManager.videoUrl,
+      embedVideoUrl: taskManager.embedVideoUrl,
+      rewardPoints: taskManager.rewardPoints,
+      location: taskManager.location,
+      responsible: taskManager.responsible,
+      schedule: taskManager.schedule,
+      checklist: taskManager.checklist,
+    };
+  }
+
+  @Get("game/:gameId/task-manager/:taskManagerId")
+  async getTaskManagerById(
+    @Param("gameId") _gameId: string,
+    @Param("taskManagerId") taskManagerId: string,
+  ) {
+    const taskManager = await this.repository.getById(taskManagerId);
+    if (!taskManager) {
+      throw new NotFoundException("Task manager not found");
+    }
+
+    return {
+      id: taskManager.id,
+      organizationId: taskManager.organizationId,
+      projectId: taskManager.projectId,
+      gameId: taskManager.gameId,
+      name: taskManager.name,
+      kpiId: taskManager.kpiId,
+      macrostep: taskManager.macrostep,
+      description: taskManager.description,
+      measurementUnit: taskManager.measurementUnit,
+      totalMeasurementExpected: taskManager.totalMeasurementExpected,
+      videoUrl: taskManager.videoUrl,
+      embedVideoUrl: taskManager.embedVideoUrl,
+      rewardPoints: taskManager.rewardPoints,
+      location: taskManager.location,
+      responsible: taskManager.responsible,
+      schedule: taskManager.schedule,
+      checklist: taskManager.checklist,
+    };
+  }
+
+  @Put("game/:gameId/task-manager/:taskManagerId")
+  async updateTaskManagerSingular(
+    @Param("gameId") _gameId: string,
+    @Param("taskManagerId") taskManagerId: string,
+    @Body() body: UpdateTaskManagerDto,
+  ) {
+    const existing = await this.repository.getById(taskManagerId);
+    if (!existing) {
+      throw new NotFoundException("Task manager not found");
+    }
+
+    const oldChecklistMap = new Map(
+      existing.checklist?.map((item) => [item.id, item.checked]) || [],
+    );
+
+    const checklist = body.checklist?.map((item) => {
+      const id = item.id || randomUUID();
+      return {
+        id,
+        label: item.label,
+        checked: oldChecklistMap.get(id) || false,
+      };
+    });
+
+    const updated = await this.repository.update(taskManagerId, {
+      name: body.name,
+      kpiId: body.kpiId,
+      macrostep: body.macrostep,
+      description: body.description,
+      measurementUnit: body.measurementUnit,
+      totalMeasurementExpected: body.totalMeasurementExpected,
+      rewardPoints: body.rewardPoints,
+      location: body.location,
+      responsible: body.responsible,
+      schedule: body.schedule,
+      checklist,
+      videoUrl: body.videoUrl,
+      embedVideoUrl: body.embedVideoUrl,
+      sequence: existing.sequence + 1,
+    });
+
+    return {
+      id: updated.id,
+      organizationId: updated.organizationId,
+      projectId: updated.projectId,
+      gameId: updated.gameId,
+      name: updated.name,
+      kpiId: updated.kpiId,
+      macrostep: updated.macrostep,
+      description: updated.description,
+      measurementUnit: updated.measurementUnit,
+      totalMeasurementExpected: updated.totalMeasurementExpected,
+      videoUrl: updated.videoUrl,
+      embedVideoUrl: updated.embedVideoUrl,
+      rewardPoints: updated.rewardPoints,
+      location: updated.location,
+      responsible: updated.responsible,
+      schedule: updated.schedule,
+      checklist: updated.checklist,
+    };
+  }
+
+  @Delete("game/:gameId/task-manager/:taskManagerId")
+  @HttpCode(200)
+  async deleteTaskManagerSingular(
+    @Param("gameId") _gameId: string,
+    @Param("taskManagerId") taskManagerId: string,
+  ) {
+    const existing = await this.repository.getById(taskManagerId);
+    if (!existing) {
+      throw new NotFoundException("Task manager not found");
+    }
+
+    await this.repository.delete(taskManagerId);
+
+    return {};
+  }
 }

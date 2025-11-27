@@ -3,9 +3,9 @@ import type {
   TaskUpdateStatus,
 } from "@domain/task-update/entities/task-update.entity";
 import type { DrizzleDB } from "@infrastructure/database/database.module";
-import { taskUpdates } from "@infrastructure/database/schemas";
+import { games, taskUpdates } from "@infrastructure/database/schemas";
 import { Inject, Injectable } from "@nestjs/common";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 @Injectable()
 export class TaskUpdateRepository {
@@ -93,8 +93,76 @@ export class TaskUpdateRepository {
     return results.map((r) => this.mapToEntity(r));
   }
 
+  async findBySubmitterId(submitterId: string): Promise<TaskUpdateEntity[]> {
+    const results = await this.db
+      .select()
+      .from(taskUpdates)
+      .where(eq(taskUpdates.submittedBy, submitterId));
+
+    return results.map((r) => this.mapToEntity(r));
+  }
+
   async delete(id: string): Promise<void> {
     await this.db.delete(taskUpdates).where(eq(taskUpdates.id, id));
+  }
+
+  async findByOrganizationId(
+    organizationId: string,
+    filters?: {
+      status?: TaskUpdateStatus;
+      submittedBy?: string;
+      taskId?: string;
+      teamId?: string;
+      gameId?: string;
+      kpiId?: string;
+      page?: number;
+      limit?: number;
+    },
+  ): Promise<{ items: TaskUpdateEntity[]; total: number }> {
+    // Build conditions
+    const conditions = [eq(games.organizationId, organizationId)];
+
+    if (filters?.status) {
+      conditions.push(eq(taskUpdates.status, filters.status));
+    }
+    if (filters?.submittedBy) {
+      conditions.push(eq(taskUpdates.submittedBy, filters.submittedBy));
+    }
+    if (filters?.taskId) {
+      conditions.push(eq(taskUpdates.taskId, filters.taskId));
+    }
+    if (filters?.gameId) {
+      conditions.push(eq(taskUpdates.gameId, filters.gameId));
+    }
+
+    const page = filters?.page || 1;
+    const limit = filters?.limit || 50;
+    const offset = (page - 1) * limit;
+
+    // Get results with join to games
+    const results = await this.db
+      .select({
+        taskUpdate: taskUpdates,
+      })
+      .from(taskUpdates)
+      .innerJoin(games, eq(taskUpdates.gameId, games.id))
+      .where(and(...conditions))
+      .limit(limit)
+      .offset(offset);
+
+    // Count total
+    const countResult = await this.db
+      .select({ count: sql<number>`count(*)` })
+      .from(taskUpdates)
+      .innerJoin(games, eq(taskUpdates.gameId, games.id))
+      .where(and(...conditions));
+
+    const total = Number(countResult[0]?.count || 0);
+
+    return {
+      items: results.map((r) => this.mapToEntity(r.taskUpdate)),
+      total,
+    };
   }
 
   private mapToEntity(row: typeof taskUpdates.$inferSelect): TaskUpdateEntity {

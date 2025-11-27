@@ -3,9 +3,11 @@
 
 // Entities
 export * from "./entities/kaizen.entity";
+export * from "./entities/kaizen-comment.entity";
 
 // Repository Interface
 export * from "./repositories/kaizen.repository.interface";
+export * from "./repositories/kaizen-comment.repository.interface";
 
 // Use Cases
 export * from "./use-cases/archive-kaizen";

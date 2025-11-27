@@ -8,11 +8,13 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
@@ -25,13 +27,92 @@ import { KaizenIdeaService } from "./kaizen-idea.service";
 @ApiTags("kaizen-ideas")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/kaizen-ideas")
+@Controller()
 export class KaizenIdeaController {
   constructor(
     @Inject(KaizenIdeaService) private readonly ideaService: KaizenIdeaService,
   ) {}
 
-  @Post()
+  // ========== New Routes (/organization/:organizationId/kaizen/idea) ==========
+
+  @Post("organizations/:organizationId/kaizen/idea")
+  @ApiOperation({ summary: "Create a new kaizen idea" })
+  @ApiResponse({ status: 201, type: KaizenIdeaResponseDto })
+  async createIdeaNew(
+    @Param("organizationId") organizationId: string,
+    @Body() dto: CreateKaizenIdeaDto,
+  ): Promise<KaizenIdeaResponseDto> {
+    const idea = await this.ideaService.createIdea({
+      ...dto,
+      organizationId,
+    });
+    return KaizenIdeaResponseDto.fromEntity(idea);
+  }
+
+  @Get("organizations/:organizationId/kaizen/idea/search")
+  @ApiOperation({ summary: "Search kaizen ideas" })
+  @ApiQuery({ name: "search", required: false, type: String })
+  @ApiQuery({
+    name: "status",
+    required: false,
+    enum: ["DRAFT", "APPROVED", "ARCHIVED"],
+  })
+  @ApiQuery({ name: "isRecommended", required: false, type: Boolean })
+  @ApiQuery({ name: "isPlayer", required: false, type: Boolean })
+  @ApiQuery({ name: "kaizenTypeId", required: false, type: String })
+  @ApiQuery({ name: "gameIds", required: false, type: [String] })
+  @ApiQuery({ name: "limit", required: false, type: Number })
+  @ApiQuery({ name: "page", required: false, type: Number })
+  @ApiResponse({ status: 200, type: [KaizenIdeaResponseDto] })
+  async searchIdeas(
+    @Param("organizationId") organizationId: string,
+    @Query("search") _search?: string,
+    @Query("status") _status?: string,
+    @Query("isRecommended") _isRecommended?: boolean,
+    @Query("isPlayer") _isPlayer?: boolean,
+    @Query("kaizenTypeId") _kaizenTypeId?: string,
+    @Query("gameIds") _gameIds?: string[],
+    @Query("limit") _limit?: number,
+    @Query("page") _page?: number,
+  ) {
+    // Busca simplificada - retorna todas as ideias da organização
+    // TODO: implementar filtros avançados
+    const ideas = await this.ideaService.listByOrganization(organizationId);
+    return {
+      items: ideas.map(KaizenIdeaResponseDto.fromEntity),
+    };
+  }
+
+  @Put("organizations/:organizationId/kaizen/idea/:kaizenIdeaId")
+  @ApiOperation({ summary: "Update kaizen idea" })
+  @ApiResponse({ status: 200, type: KaizenIdeaResponseDto })
+  async updateIdeaNew(
+    @Param("organizationId") organizationId: string,
+    @Param("kaizenIdeaId") ideaId: string,
+    @Body() dto: UpdateKaizenIdeaDto,
+  ): Promise<KaizenIdeaResponseDto> {
+    const idea = await this.ideaService.updateIdea({
+      organizationId,
+      ideaId,
+      ...dto,
+    });
+    return KaizenIdeaResponseDto.fromEntity(idea);
+  }
+
+  @Delete("organizations/:organizationId/kaizen/idea/:kaizenIdeaId")
+  @HttpCode(204)
+  @ApiOperation({ summary: "Delete kaizen idea" })
+  @ApiResponse({ status: 204 })
+  async deleteIdeaNew(
+    @Param("organizationId") organizationId: string,
+    @Param("kaizenIdeaId") ideaId: string,
+  ): Promise<void> {
+    await this.ideaService.deleteIdea(organizationId, ideaId);
+  }
+
+  // ========== Legacy Routes (keep for backwards compatibility) ==========
+
+  @Post("organizations/:organizationId/kaizen-ideas")
   @ApiOperation({ summary: "Create a new kaizen idea" })
   @ApiResponse({ status: 201, type: KaizenIdeaResponseDto })
   async createIdea(
@@ -45,7 +126,7 @@ export class KaizenIdeaController {
     return KaizenIdeaResponseDto.fromEntity(idea);
   }
 
-  @Get(":ideaId")
+  @Get("organizations/:organizationId/kaizen-ideas/:ideaId")
   @ApiOperation({ summary: "Get kaizen idea by ID" })
   @ApiResponse({ status: 200, type: KaizenIdeaResponseDto })
   async getIdea(
@@ -56,7 +137,7 @@ export class KaizenIdeaController {
     return KaizenIdeaResponseDto.fromEntity(idea);
   }
 
-  @Get()
+  @Get("organizations/:organizationId/kaizen-ideas")
   @ApiOperation({ summary: "List all kaizen ideas of an organization" })
   @ApiResponse({ status: 200, type: [KaizenIdeaResponseDto] })
   async listIdeas(
@@ -66,7 +147,7 @@ export class KaizenIdeaController {
     return ideas.map(KaizenIdeaResponseDto.fromEntity);
   }
 
-  @Put(":ideaId")
+  @Put("organizations/:organizationId/kaizen-ideas/:ideaId")
   @ApiOperation({ summary: "Update kaizen idea" })
   @ApiResponse({ status: 200, type: KaizenIdeaResponseDto })
   async updateIdea(
@@ -82,7 +163,7 @@ export class KaizenIdeaController {
     return KaizenIdeaResponseDto.fromEntity(idea);
   }
 
-  @Delete(":ideaId")
+  @Delete("organizations/:organizationId/kaizen-ideas/:ideaId")
   @HttpCode(204)
   @ApiOperation({ summary: "Delete kaizen idea" })
   @ApiResponse({ status: 204 })

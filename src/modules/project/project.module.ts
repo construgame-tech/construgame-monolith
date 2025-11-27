@@ -3,10 +3,18 @@ import { ProjectRepository } from "@infrastructure/repositories/project.reposito
 import { Module } from "@nestjs/common";
 import { ProjectController } from "./project.controller";
 import { ProjectService } from "./project.service";
+import {
+  ProjectRankingController,
+  ProjectReportController,
+} from "./project-ranking.controller";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [ProjectController],
+  controllers: [
+    ProjectController,
+    ProjectRankingController,
+    ProjectReportController,
+  ],
   providers: [
     ProjectService,
     {

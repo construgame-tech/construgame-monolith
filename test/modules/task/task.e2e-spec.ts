@@ -404,4 +404,294 @@ describe("TaskController (e2e)", () => {
       }
     });
   });
+
+  // ===========================================
+  // Singular Route Tests (/game/:gameId/task)
+  // ===========================================
+  describe("GET /api/v1/game/:gameId/task", () => {
+    it("should list tasks using singular route", async () => {
+      // Arrange - Create a task first
+      await postRequest(app, `/api/v1/games/${gameId}/tasks`, {
+        token: authToken,
+        body: {
+          name: "Singular Route Test Task",
+          gameId,
+          rewardPoints: 15,
+        },
+      });
+
+      // Act
+      const response = await getRequest(app, `/api/v1/game/${gameId}/task`, {
+        token: authToken,
+      });
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty("items");
+      expect(Array.isArray(response.body.items)).toBe(true);
+    });
+  });
+
+  describe("POST /api/v1/game/:gameId/task", () => {
+    it("should create task using singular route", async () => {
+      // Arrange
+      const taskData = {
+        name: "Singular POST Task",
+        rewardPoints: 20,
+        description: "Task created via singular route",
+      };
+
+      // Act
+      const response = await postRequest(app, `/api/v1/game/${gameId}/task`, {
+        token: authToken,
+        body: taskData,
+      });
+
+      // Assert
+      expect(response.statusCode).toBe(201);
+      expect(response.body.name).toBe("Singular POST Task");
+      expect(response.body.gameId).toBe(gameId);
+    });
+  });
+
+  describe("PATCH /api/v1/game/:gameId/task/:taskId", () => {
+    it("should update task using singular PATCH route", async () => {
+      // Arrange - Create task first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/games/${gameId}/tasks`,
+        {
+          token: authToken,
+          body: {
+            name: "Task for PATCH",
+            gameId,
+            rewardPoints: 30,
+          },
+        },
+      );
+      const taskId = createResponse.body.id;
+
+      // Act
+      const response = await patchRequest(
+        app,
+        `/api/v1/game/${gameId}/task/${taskId}`,
+        {
+          token: authToken,
+          body: { name: "Updated via PATCH" },
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body.name).toBe("Updated via PATCH");
+    });
+  });
+
+  describe("DELETE /api/v1/game/:gameId/task/:taskId", () => {
+    it("should delete task using singular route", async () => {
+      // Arrange - Create task first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/games/${gameId}/tasks`,
+        {
+          token: authToken,
+          body: {
+            name: "Task for DELETE",
+            gameId,
+            rewardPoints: 40,
+          },
+        },
+      );
+      const taskId = createResponse.body.id;
+
+      // Act
+      const response = await deleteRequest(
+        app,
+        `/api/v1/game/${gameId}/task/${taskId}`,
+        {
+          token: authToken,
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+    });
+  });
+
+  // ===========================================
+  // Batch Endpoint Tests
+  // ===========================================
+  describe("POST /api/v1/task/batch", () => {
+    it("should process batch create commands", async () => {
+      // Arrange
+      const batchData = {
+        commands: [
+          {
+            action: "create",
+            gameId,
+            name: "Batch Task 1",
+            rewardPoints: 10,
+          },
+          {
+            action: "create",
+            gameId,
+            name: "Batch Task 2",
+            rewardPoints: 20,
+          },
+        ],
+      };
+
+      // Act
+      const response = await postRequest(app, "/api/v1/task/batch", {
+        token: authToken,
+        body: batchData,
+      });
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body.message).toBe("Batch processed");
+    });
+
+    it("should process batch update commands", async () => {
+      // Arrange - Create a task first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/games/${gameId}/tasks`,
+        {
+          token: authToken,
+          body: {
+            name: "Task for Batch Update",
+            gameId,
+            rewardPoints: 50,
+          },
+        },
+      );
+      const taskId = createResponse.body.id;
+
+      const batchData = {
+        commands: [
+          {
+            action: "update",
+            gameId,
+            taskId,
+            name: "Batch Updated Task",
+          },
+        ],
+      };
+
+      // Act
+      const response = await postRequest(app, "/api/v1/task/batch", {
+        token: authToken,
+        body: batchData,
+      });
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body.message).toBe("Batch processed");
+    });
+
+    it("should process batch delete commands", async () => {
+      // Arrange - Create a task first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/games/${gameId}/tasks`,
+        {
+          token: authToken,
+          body: {
+            name: "Task for Batch Delete",
+            gameId,
+            rewardPoints: 60,
+          },
+        },
+      );
+      const taskId = createResponse.body.id;
+
+      const batchData = {
+        commands: [
+          {
+            action: "delete",
+            gameId,
+            taskId,
+          },
+        ],
+      };
+
+      // Act
+      const response = await postRequest(app, "/api/v1/task/batch", {
+        token: authToken,
+        body: batchData,
+      });
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body.message).toBe("Batch processed");
+    });
+
+    it("should process mixed batch commands", async () => {
+      // Arrange - Create a task first for update/delete
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/games/${gameId}/tasks`,
+        {
+          token: authToken,
+          body: {
+            name: "Task for Mixed Batch",
+            gameId,
+            rewardPoints: 70,
+          },
+        },
+      );
+      const taskId = createResponse.body.id;
+
+      const batchData = {
+        commands: [
+          {
+            action: "create",
+            gameId,
+            name: "New Batch Task",
+            rewardPoints: 10,
+          },
+          {
+            action: "update",
+            gameId,
+            taskId,
+            name: "Updated in Batch",
+          },
+        ],
+      };
+
+      // Act
+      const response = await postRequest(app, "/api/v1/task/batch", {
+        token: authToken,
+        body: batchData,
+      });
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body.message).toBe("Batch processed");
+    });
+
+    it("should silently handle failed commands", async () => {
+      // Arrange - Commands with invalid data
+      const batchData = {
+        commands: [
+          {
+            action: "delete",
+            gameId,
+            taskId: "nonexistent-task-id",
+          },
+        ],
+      };
+
+      // Act
+      const response = await postRequest(app, "/api/v1/task/batch", {
+        token: authToken,
+        body: batchData,
+      });
+
+      // Assert - Should not fail even with invalid data
+      expect(response.statusCode).toBe(200);
+      expect(response.body.message).toBe("Batch processed");
+    });
+  });
 });

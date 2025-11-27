@@ -1,11 +1,12 @@
 import { DatabaseModule } from "@infrastructure/database/database.module";
 import { MemberRepository } from "@infrastructure/repositories/member.repository";
 import { Module } from "@nestjs/common";
+import { UserModule } from "../user/user.module";
 import { MemberController } from "./member.controller";
 import { MemberService } from "./member.service";
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, UserModule],
   controllers: [MemberController],
   providers: [
     MemberService,

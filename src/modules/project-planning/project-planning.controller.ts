@@ -258,6 +258,101 @@ class MoveMacrostepOrderDto {
   newIndex: number;
 }
 
+// DTO para import de macrosteps em massa
+class ImportActivityDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  startDate?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  endDate?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  totalMeasurementExpected?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  measurementUnit?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  duration?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  location?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  expectedCost?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  trackingValue?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  trackingUnit?: string;
+
+  @ApiProperty({ type: [Object], required: false })
+  @IsOptional()
+  @IsArray()
+  laborCompositionList?: any[];
+
+  @ApiProperty({ type: [Object], required: false })
+  @IsOptional()
+  @IsArray()
+  prizesPerRange?: any[];
+
+  @ApiProperty({ type: [Object], required: false })
+  @IsOptional()
+  @IsArray()
+  prizesPerProductivity?: any[];
+}
+
+class ImportMacrostepDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({ type: [ImportActivityDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ImportActivityDto)
+  activities?: ImportActivityDto[];
+}
+
+class ImportMacrostepsBodyDto {
+  @ApiProperty({ type: [ImportMacrostepDto] })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ImportMacrostepDto)
+  macrosteps: ImportMacrostepDto[];
+}
+
 @ApiTags("project-planning")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -508,6 +603,119 @@ export class ProjectPlanningController {
     });
 
     return {};
+  }
+
+  @Post("organizations/:organizationId/projects/:projectId/macrosteps/import")
+  async importMacrosteps(
+    @Param("organizationId") organizationId: string,
+    @Param("projectId") projectId: string,
+    @Body() body: ImportMacrostepsBodyDto,
+  ) {
+    const success: Array<{
+      id: string;
+      name: string;
+      activitiesCount: number;
+    }> = [];
+    const duplicates: Array<{ name: string; reason: string }> = [];
+
+    // Carregar macrosteps existentes para verificar duplicatas
+    const existingMacrosteps =
+      await this.repository.listMacrostepsByProject(projectId);
+    const existingNames = new Set(
+      existingMacrosteps.map((m) => m.name.toLowerCase()),
+    );
+
+    // Get or create macrostep order
+    let order = await this.repository.getMacrostepOrder(projectId);
+    if (!order) {
+      order = await this.repository.upsertMacrostepOrder({
+        projectId,
+        organizationId,
+        macrostepIds: [],
+        sequence: 0,
+      });
+    }
+
+    for (const macrostepData of body.macrosteps) {
+      // Verificar duplicata por nome (case-insensitive)
+      if (existingNames.has(macrostepData.name.toLowerCase())) {
+        duplicates.push({
+          name: macrostepData.name,
+          reason: "Macrostep with this name already exists",
+        });
+        continue;
+      }
+
+      // Criar macrostep
+      const macrostepId = randomUUID();
+      const macrostep = await this.repository.createMacrostep({
+        id: macrostepId,
+        organizationId,
+        projectId,
+        name: macrostepData.name,
+        progressPercent: 0,
+        sequence: 0,
+      });
+
+      // Adicionar ao order
+      order.macrostepIds.push(macrostepId);
+
+      // Criar activities se existirem
+      let activitiesCount = 0;
+      if (macrostepData.activities && macrostepData.activities.length > 0) {
+        for (const activityData of macrostepData.activities) {
+          await this.repository.createActivity({
+            id: randomUUID(),
+            organizationId,
+            projectId,
+            macrostepId,
+            name: activityData.name,
+            description: activityData.description,
+            totalMeasurementExpected:
+              activityData.totalMeasurementExpected?.toString(),
+            measurementUnit: activityData.measurementUnit,
+            startDate: activityData.startDate,
+            endDate: activityData.endDate,
+            duration: activityData.duration,
+            location: activityData.location,
+            expectedCost: activityData.expectedCost,
+            progressPercent: 0,
+            trackingValue: activityData.trackingValue,
+            trackingUnit: activityData.trackingUnit,
+            laborCompositionList: activityData.laborCompositionList,
+            prizesPerRange: activityData.prizesPerRange,
+            prizesPerProductivity: activityData.prizesPerProductivity,
+            sequence: 0,
+          });
+          activitiesCount++;
+        }
+      }
+
+      success.push({
+        id: macrostep.id,
+        name: macrostep.name,
+        activitiesCount,
+      });
+
+      // Marcar como existente para evitar duplicatas no mesmo batch
+      existingNames.add(macrostepData.name.toLowerCase());
+    }
+
+    // Atualizar order
+    await this.repository.upsertMacrostepOrder({
+      ...order,
+      sequence: order.sequence + 1,
+    });
+
+    return {
+      success,
+      duplicates,
+      summary: {
+        total: body.macrosteps.length,
+        imported: success.length,
+        duplicated: duplicates.length,
+      },
+    };
   }
 
   // ========== Activity Routes ==========

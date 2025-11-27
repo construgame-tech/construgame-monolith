@@ -298,6 +298,136 @@ export class AuthService {
     };
   }
 
+  // Refresh token Web
+  async refreshWebToken(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken);
+
+      if (payload.type !== "refreshToken" || payload.aud !== "web") {
+        throw new UnauthorizedException("Invalid refresh token");
+      }
+
+      const user = await this.userRepository.findById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException("User not found");
+      }
+
+      // Buscar roles do usuário
+      const members = await this.memberRepository.findByUserId(user.id);
+      const roles: UserRole[] = members.map((member) => ({
+        organizationId: member.organizationId,
+        role: member.role,
+      }));
+
+      // Gerar novos tokens
+      const accessTokenPayload = {
+        type: "accessToken",
+        roles,
+        userType: user.type,
+        aud: "web",
+        sub: user.id,
+      };
+
+      const refreshTokenPayload = {
+        type: "refreshToken",
+        aud: "web",
+        sub: user.id,
+        jti: randomUUID(),
+      };
+
+      const newAccessToken = this.jwtService.sign(accessTokenPayload, {
+        expiresIn: "30m",
+      });
+
+      const newRefreshToken = this.jwtService.sign(refreshTokenPayload, {
+        expiresIn: "30d",
+      });
+
+      return {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        userId: user.id,
+        roles,
+      };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new UnauthorizedException("Invalid or expired refresh token");
+    }
+  }
+
+  // Refresh token App
+  async refreshAppToken(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken);
+
+      if (payload.type !== "refreshToken" || payload.aud !== "app") {
+        throw new UnauthorizedException("Invalid refresh token");
+      }
+
+      const user = await this.userRepository.findById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException("User not found");
+      }
+
+      // Buscar roles do usuário
+      const members = await this.memberRepository.findByUserId(user.id);
+      const roles: UserRole[] = members.map((member) => ({
+        organizationId: member.organizationId,
+        role: member.role,
+      }));
+
+      // Gerar novos tokens
+      const accessTokenPayload = {
+        type: "accessToken",
+        roles,
+        userType: user.type,
+        aud: "app",
+        sub: user.id,
+      };
+
+      const refreshTokenPayload = {
+        type: "refreshToken",
+        aud: "app",
+        sub: user.id,
+        jti: randomUUID(),
+      };
+
+      const newAccessToken = this.jwtService.sign(accessTokenPayload, {
+        expiresIn: "30m",
+      });
+
+      const newRefreshToken = this.jwtService.sign(refreshTokenPayload, {
+        expiresIn: "30d",
+      });
+
+      return {
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+        userId: user.id,
+        roles,
+      };
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
+      throw new UnauthorizedException("Invalid or expired refresh token");
+    }
+  }
+
+  // SSO Microsoft (stub - implementação futura)
+  async ssoMicrosoft(code: string) {
+    // TODO: Implementar integração real com Microsoft SSO
+    // Por enquanto, retorna erro indicando que não está implementado
+    this.logger.warn(
+      `SSO Microsoft login attempted with code: ${code.substring(0, 10)}...`,
+    );
+    throw new BadRequestException(
+      "Microsoft SSO is not yet implemented. Please use email/password login.",
+    );
+  }
+
   // Gera código aleatório numérico
   private generateRandomCode(length: number): string {
     const digits = "0123456789";

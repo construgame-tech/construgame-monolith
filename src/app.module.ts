@@ -6,6 +6,7 @@ import { StorageModule } from "@infrastructure/services/storage/storage.module";
 import { AuthModule } from "@modules/auth/auth.module";
 import { FinancialPrizeModule } from "@modules/financial-prize/financial-prize.module";
 import { GameModule } from "@modules/game/game.module";
+import { GameManagerModule } from "@modules/game-manager/game-manager.module";
 import { ImageModule } from "@modules/image/image.module";
 import { JobRoleModule } from "@modules/job-role/job-role.module";
 import { KaizenModule } from "@modules/kaizen/kaizen.module";
@@ -21,6 +22,7 @@ import { PointsModule } from "@modules/points/points.module";
 import { ProjectModule } from "@modules/project/project.module";
 import { ProjectDiaryModule } from "@modules/project-diary/project-diary.module";
 import { ProjectPlanningModule } from "@modules/project-planning/project-planning.module";
+import { SearchModule } from "@modules/search/search.module";
 import { TaskModule } from "@modules/task/task.module";
 import { TaskManagerModule } from "@modules/task-manager/task-manager.module";
 import { TaskTemplateModule } from "@modules/task-template/task-template.module";
@@ -69,6 +71,7 @@ import { AppController } from "./app.controller";
 
     // Feature modules
     GameModule,
+    GameManagerModule,
     UserModule,
     OrganizationModule,
     OrganizationConfigModule,
@@ -91,6 +94,7 @@ import { AppController } from "./app.controller";
     TaskTemplateModule,
     TaskUpdateModule,
     ProjectPlanningModule,
+    SearchModule,
     AuthModule,
     // Infrastructure services
     StorageModule,

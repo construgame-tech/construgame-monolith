@@ -127,6 +127,37 @@ export async function putRequest<T = any>(
 }
 
 /**
+ * Make a PATCH request
+ */
+export async function patchRequest<T = any>(
+  app: NestFastifyApplication,
+  url: string,
+  options: TestRequest = {},
+): Promise<TestResponse<T>> {
+  let req = request(app.getHttpServer()).patch(url);
+
+  if (options.query) {
+    req = req.query(options.query);
+  }
+
+  if (options.token) {
+    req = req.set("Authorization", `Bearer ${options.token}`);
+  }
+
+  if (options.body) {
+    req = req.send(options.body);
+  }
+
+  const response = await req;
+
+  return {
+    statusCode: response.status,
+    body: response.body.data || response.body,
+    headers: response.headers as Record<string, string>,
+  };
+}
+
+/**
  * Make a DELETE request
  */
 export async function deleteRequest<T = any>(

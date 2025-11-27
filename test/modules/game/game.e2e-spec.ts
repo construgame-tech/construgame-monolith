@@ -5,6 +5,7 @@ import {
   deleteRequest,
   faker,
   getRequest,
+  patchRequest,
   postRequest,
   putRequest,
   testData,
@@ -331,6 +332,341 @@ describe("GameController (e2e)", () => {
       expect(response.body).toHaveProperty("games");
       expect(Array.isArray(response.body.games)).toBe(true);
       expect(response.body.games.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  // ===========================================
+  // OrganizationGameController E2E Tests
+  // ===========================================
+  describe("GET /api/v1/organization/:organizationId/game", () => {
+    it("should list games for organization using org prefix route", async () => {
+      // Act
+      const response = await getRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game`,
+        {
+          token: authToken,
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty("games");
+    });
+  });
+
+  describe("POST /api/v1/organization/:organizationId/game", () => {
+    it("should create game using org prefix route", async () => {
+      // Arrange
+      const gameData = {
+        projectId,
+        name: "Org Prefix Game",
+        gameManagerId: faker.uuid(),
+        startDate: "2024-01-01",
+        endDate: "2024-12-31",
+        managerId: userId,
+        responsibles: [userId],
+      };
+
+      // Act
+      const response = await postRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game`,
+        {
+          token: authToken,
+          body: gameData,
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(201);
+      expect(response.body.name).toBe("Org Prefix Game");
+      expect(response.body.organizationId).toBe(organizationId);
+    });
+  });
+
+  describe("PATCH /api/v1/organization/:organizationId/game/:gameId", () => {
+    it("should update game using org prefix PATCH route", async () => {
+      // Arrange - Create a game first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game`,
+        {
+          token: authToken,
+          body: {
+            projectId,
+            name: "Game for PATCH",
+            gameManagerId: faker.uuid(),
+            startDate: "2024-01-01",
+            endDate: "2024-12-31",
+            managerId: userId,
+            responsibles: [userId],
+          },
+        },
+      );
+      const gameId = createResponse.body.id;
+
+      // Act
+      const response = await patchRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game/${gameId}`,
+        {
+          token: authToken,
+          body: { name: "Updated via PATCH" },
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body.name).toBe("Updated via PATCH");
+    });
+  });
+
+  describe("DELETE /api/v1/organization/:organizationId/game/:gameId", () => {
+    it("should delete game using org prefix route", async () => {
+      // Arrange - Create a game first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game`,
+        {
+          token: authToken,
+          body: {
+            projectId,
+            name: "Game for DELETE",
+            gameManagerId: faker.uuid(),
+            startDate: "2024-01-01",
+            endDate: "2024-12-31",
+            managerId: userId,
+            responsibles: [userId],
+          },
+        },
+      );
+      const gameId = createResponse.body.id;
+
+      // Act
+      const response = await deleteRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game/${gameId}`,
+        {
+          token: authToken,
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+    });
+  });
+
+  describe("PUT /api/v1/organization/:organizationId/game/:gameId/archive", () => {
+    it("should archive game using org prefix route", async () => {
+      // Arrange - Create a game first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game`,
+        {
+          token: authToken,
+          body: {
+            projectId,
+            name: "Game for Archive",
+            gameManagerId: faker.uuid(),
+            startDate: "2024-01-01",
+            endDate: "2024-12-31",
+            managerId: userId,
+            responsibles: [userId],
+          },
+        },
+      );
+      const gameId = createResponse.body.id;
+
+      // Act
+      const response = await putRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game/${gameId}/archive`,
+        {
+          token: authToken,
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body.archived).toBe(true);
+    });
+  });
+
+  describe("PUT /api/v1/organization/:organizationId/game/:gameId/unarchive", () => {
+    it("should unarchive game using org prefix route", async () => {
+      // Arrange - Create and archive a game first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game`,
+        {
+          token: authToken,
+          body: {
+            projectId,
+            name: "Game for Unarchive",
+            gameManagerId: faker.uuid(),
+            startDate: "2024-01-01",
+            endDate: "2024-12-31",
+            managerId: userId,
+            responsibles: [userId],
+          },
+        },
+      );
+      const gameId = createResponse.body.id;
+
+      // Archive first
+      await putRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game/${gameId}/archive`,
+        {
+          token: authToken,
+        },
+      );
+
+      // Act
+      const response = await putRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game/${gameId}/unarchive`,
+        {
+          token: authToken,
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body.archived).toBe(false);
+    });
+  });
+
+  // ===========================================
+  // GameRankingController E2E Tests
+  // ===========================================
+  describe("GET /api/v1/organization/:organizationId/game/:gameId/ranking", () => {
+    it("should get game ranking with org prefix route", async () => {
+      // Arrange - Create a game first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game`,
+        {
+          token: authToken,
+          body: {
+            projectId,
+            name: "Game for Ranking",
+            gameManagerId: faker.uuid(),
+            startDate: "2024-01-01",
+            endDate: "2024-12-31",
+            managerId: userId,
+            responsibles: [userId],
+          },
+        },
+      );
+      const gameId = createResponse.body.id;
+
+      // Act
+      const response = await getRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game/${gameId}/ranking`,
+        {
+          token: authToken,
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty("ranking");
+      expect(Array.isArray(response.body.ranking)).toBe(true);
+    });
+
+    it("should get game ranking grouped by team", async () => {
+      // Arrange - Create a game first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game`,
+        {
+          token: authToken,
+          body: {
+            projectId,
+            name: "Game for Team Ranking",
+            gameManagerId: faker.uuid(),
+            startDate: "2024-01-01",
+            endDate: "2024-12-31",
+            managerId: userId,
+            responsibles: [userId],
+          },
+        },
+      );
+      const gameId = createResponse.body.id;
+
+      // Act
+      const response = await getRequest(
+        app,
+        `/api/v1/organization/${organizationId}/game/${gameId}/ranking`,
+        {
+          token: authToken,
+          query: { groupBy: "team" },
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty("ranking");
+    });
+  });
+
+  describe("GET /api/v1/game/:gameId/ranking", () => {
+    it("should get game ranking with simple /game route", async () => {
+      // Arrange - Create a game first
+      const createResponse = await postRequest(app, "/api/v1/games", {
+        token: authToken,
+        body: {
+          organizationId,
+          projectId,
+          name: "Game for Simple Ranking",
+          gameManagerId: faker.uuid(),
+          startDate: "2024-01-01",
+          endDate: "2024-12-31",
+          managerId: userId,
+          responsibles: [userId],
+        },
+      });
+      const gameId = createResponse.body.id;
+
+      // Act
+      const response = await getRequest(app, `/api/v1/game/${gameId}/ranking`, {
+        token: authToken,
+      });
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty("ranking");
+    });
+
+    it("should support sectorId filter", async () => {
+      // Arrange - Create a game first
+      const createResponse = await postRequest(app, "/api/v1/games", {
+        token: authToken,
+        body: {
+          organizationId,
+          projectId,
+          name: "Game for Sector Ranking",
+          gameManagerId: faker.uuid(),
+          startDate: "2024-01-01",
+          endDate: "2024-12-31",
+          managerId: userId,
+          responsibles: [userId],
+        },
+      });
+      const gameId = createResponse.body.id;
+
+      // Act
+      const response = await getRequest(app, `/api/v1/game/${gameId}/ranking`, {
+        token: authToken,
+        query: { groupBy: "user", sectorId: faker.uuid() },
+      });
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty("ranking");
     });
   });
 });

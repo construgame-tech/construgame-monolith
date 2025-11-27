@@ -3,7 +3,9 @@ import { OrgConfigRepository } from "@infrastructure/repositories/org-config.rep
 import { OrgKaizenConfigRepository } from "@infrastructure/repositories/org-kaizen-config.repository";
 import { PrizeRepository } from "@infrastructure/repositories/prize.repository";
 import { SectorRepository } from "@infrastructure/repositories/sector.repository";
-import { Module } from "@nestjs/common";
+import { KpiModule } from "@modules/kpi/kpi.module";
+import { forwardRef, Module } from "@nestjs/common";
+import { ConfigKpiController } from "./config-kpi.controller";
 import { OrgConfigController } from "./org-config.controller";
 import { OrgConfigService } from "./org-config.service";
 import { OrgKaizenConfigController } from "./org-kaizen-config.controller";
@@ -14,12 +16,13 @@ import { SectorController } from "./sector.controller";
 import { SectorService } from "./sector.service";
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [DatabaseModule, forwardRef(() => KpiModule)],
   controllers: [
     OrgConfigController,
     SectorController,
     PrizeController,
     OrgKaizenConfigController,
+    ConfigKpiController,
   ],
   providers: [
     OrgConfigService,

@@ -15,6 +15,8 @@ import { ChangePasswordDto } from "./dto/change-password.dto";
 import { GenerateAuthCodeDto } from "./dto/generate-auth-code.dto";
 import { LoginWebDto } from "./dto/login-web.dto";
 import { RecoverPasswordDto } from "./dto/recover-password.dto";
+import { RefreshTokenDto } from "./dto/refresh-token.dto";
+import { SsoMicrosoftDto } from "./dto/sso-microsoft.dto";
 import { ValidateAuthCodeDto } from "./dto/validate-auth-code.dto";
 import { ValidateRecoveryCodeDto } from "./dto/validate-recovery-code.dto";
 import { JwtAuthGuard } from "./jwt-auth.guard";
@@ -131,5 +133,54 @@ export class AuthController {
       changeDto.code,
       changeDto.password,
     );
+  }
+
+  @Post("web/refresh")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Refresh web tokens" })
+  @ApiResponse({
+    status: 200,
+    description: "New tokens generated successfully",
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Invalid or expired refresh token",
+  })
+  async refreshWebToken(@Body() refreshDto: RefreshTokenDto) {
+    return this.authService.refreshWebToken(refreshDto.refreshToken);
+  }
+
+  @Post("app/refresh")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Refresh app tokens" })
+  @ApiResponse({
+    status: 200,
+    description: "New tokens generated successfully",
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Invalid or expired refresh token",
+  })
+  async refreshAppToken(@Body() refreshDto: RefreshTokenDto) {
+    return this.authService.refreshAppToken(refreshDto.refreshToken);
+  }
+
+  @Post("sso/microsoft")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Login SSO Microsoft",
+    description:
+      "Authenticate using Microsoft SSO. See: https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Login succeeded",
+  })
+  @ApiResponse({
+    status: 400,
+    description: "SSO not implemented or invalid code",
+  })
+  async ssoMicrosoft(@Body() ssoDto: SsoMicrosoftDto) {
+    return this.authService.ssoMicrosoft(ssoDto.code);
   }
 }

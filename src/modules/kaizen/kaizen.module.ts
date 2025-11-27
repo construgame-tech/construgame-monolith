@@ -1,5 +1,6 @@
 import { DatabaseModule } from "@infrastructure/database/database.module";
 import { KaizenRepository } from "@infrastructure/repositories/kaizen.repository";
+import { KaizenCommentRepository } from "@infrastructure/repositories/kaizen-comment.repository";
 import { Module } from "@nestjs/common";
 import { KaizenController } from "./kaizen.controller";
 import { KaizenService } from "./kaizen.service";
@@ -12,6 +13,10 @@ import { KaizenService } from "./kaizen.service";
     {
       provide: "IKaizenRepository",
       useClass: KaizenRepository,
+    },
+    {
+      provide: "IKaizenCommentRepository",
+      useClass: KaizenCommentRepository,
     },
   ],
   exports: [KaizenService],

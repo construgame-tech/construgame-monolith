@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import {
   approveTaskUpdateEntity,
+  cancelTaskUpdateEntity,
   createTaskUpdateEntity,
   rejectTaskUpdateEntity,
   TaskUpdateStatus,
@@ -82,5 +83,30 @@ export class TaskUpdateService {
   async delete(id: string) {
     await this.findById(id);
     return this.taskUpdateRepository.delete(id);
+  }
+
+  async cancel(id: string) {
+    const current = await this.findById(id);
+    const updated = cancelTaskUpdateEntity(current);
+    return this.taskUpdateRepository.save(updated);
+  }
+
+  async findByOrganizationId(
+    organizationId: string,
+    filters?: {
+      status?: TaskUpdateStatus;
+      submittedBy?: string;
+      taskId?: string;
+      teamId?: string;
+      gameId?: string;
+      kpiId?: string;
+      page?: number;
+      limit?: number;
+    },
+  ) {
+    return this.taskUpdateRepository.findByOrganizationId(
+      organizationId,
+      filters,
+    );
   }
 }

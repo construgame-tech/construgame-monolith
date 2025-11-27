@@ -12,13 +12,19 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
-import { ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from "@nestjs/swagger";
 import { ApproveTaskUpdateDto } from "./dto/approve-task-update.dto";
 import { CreateTaskUpdateDto } from "./dto/create-task-update.dto";
 import { RejectTaskUpdateDto } from "./dto/reject-task-update.dto";
 import { TaskUpdateService } from "./task-update.service";
 
 @ApiTags("task-updates")
+@ApiBearerAuth("JWT-auth")
 @UseGuards(JwtAuthGuard)
 @Controller()
 export class TaskUpdateController {
@@ -85,5 +91,97 @@ export class TaskUpdateController {
   async delete(@Param("updateId") updateId: string) {
     await this.taskUpdateService.delete(updateId);
     return { message: "Task update deleted successfully" };
+  }
+
+  // ==========================================
+  // Rotas com prefixo /game/:gameId/task/:taskId/update (OpenAPI spec)
+  // ==========================================
+
+  @Post("game/:gameId/task/:taskId/update")
+  @ApiOperation({ summary: "Add task update (singular route)" })
+  async createSingular(
+    @Param("gameId") gameId: string,
+    @Param("taskId") taskId: string,
+    @Body() dto: CreateTaskUpdateDto,
+  ) {
+    return this.taskUpdateService.create({ ...dto, gameId, taskId });
+  }
+
+  @Put("game/:gameId/task/:taskId/update/:taskUpdateId/approve")
+  @ApiOperation({ summary: "Approve task update (singular route)" })
+  async approveSingular(
+    @Param("gameId") _gameId: string,
+    @Param("taskId") _taskId: string,
+    @Param("taskUpdateId") taskUpdateId: string,
+    @Body() dto: ApproveTaskUpdateDto,
+  ) {
+    return this.taskUpdateService.approve(taskUpdateId, dto);
+  }
+
+  @Put("game/:gameId/task/:taskId/update/:taskUpdateId/reject")
+  @ApiOperation({ summary: "Reject task update (singular route)" })
+  async rejectSingular(
+    @Param("gameId") _gameId: string,
+    @Param("taskId") _taskId: string,
+    @Param("taskUpdateId") taskUpdateId: string,
+    @Body() dto: RejectTaskUpdateDto,
+  ) {
+    return this.taskUpdateService.reject(taskUpdateId, dto);
+  }
+
+  @Put("game/:gameId/task/:taskId/update/:taskUpdateId/cancel")
+  @ApiOperation({ summary: "Cancel task update" })
+  async cancel(
+    @Param("gameId") _gameId: string,
+    @Param("taskId") _taskId: string,
+    @Param("taskUpdateId") taskUpdateId: string,
+  ) {
+    return this.taskUpdateService.cancel(taskUpdateId);
+  }
+
+  // ==========================================
+  // GET /organization/:organizationId/task/update - List updates for organization
+  // ==========================================
+
+  @Get("organization/:organizationId/task/update")
+  @ApiOperation({ summary: "List task updates for organization" })
+  @ApiQuery({ name: "status", required: false })
+  @ApiQuery({ name: "submittedBy", required: false })
+  @ApiQuery({ name: "taskId", required: false })
+  @ApiQuery({ name: "teamId", required: false })
+  @ApiQuery({ name: "gameId", required: false })
+  @ApiQuery({ name: "kpiId", required: false })
+  @ApiQuery({ name: "page", required: false })
+  @ApiQuery({ name: "limit", required: false })
+  async listByOrganization(
+    @Param("organizationId") organizationId: string,
+    @Query("status") status?: string,
+    @Query("submittedBy") submittedBy?: string,
+    @Query("taskId") taskId?: string,
+    @Query("teamId") teamId?: string,
+    @Query("gameId") gameId?: string,
+    @Query("kpiId") kpiId?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
+  ) {
+    const result = await this.taskUpdateService.findByOrganizationId(
+      organizationId,
+      {
+        status: status as any,
+        submittedBy,
+        taskId,
+        teamId,
+        gameId,
+        kpiId,
+        page: page ? Number(page) : undefined,
+        limit: limit ? Number(limit) : undefined,
+      },
+    );
+    return {
+      items: result.items,
+      total: result.total,
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 50,
+    };
   }
 }

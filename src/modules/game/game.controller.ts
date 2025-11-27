@@ -13,6 +13,7 @@ import {
   Inject,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -333,5 +334,301 @@ export class GameController {
       }
       throw new BadRequestException(error.message);
     }
+  }
+}
+
+// Novo controller para rotas com prefixo /organization/:organizationId/game
+@ApiTags("games")
+@ApiBearerAuth("JWT-auth")
+@UseGuards(JwtAuthGuard)
+@Controller("organization/:organizationId/game")
+export class OrganizationGameController {
+  constructor(
+    @Inject(GameService)
+    private readonly gameService: GameService,
+  ) {}
+
+  @Get()
+  @ApiOperation({
+    summary: "List organization games",
+    description: "Lists all games for a specific organization",
+  })
+  @ApiParam({
+    name: "organizationId",
+    description: "Organization ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Games list retrieved successfully",
+    type: GameListResponseDto,
+  })
+  async findByOrganization(
+    @Param("organizationId") organizationId: string,
+  ): Promise<GameListResponseDto> {
+    const games = await this.gameService.listByOrganization(organizationId);
+    return GameListResponseDto.fromEntities(games);
+  }
+
+  @Post()
+  @ApiOperation({
+    summary: "Create game in organization",
+    description: "Creates a new game for a specific organization",
+  })
+  @ApiParam({
+    name: "organizationId",
+    description: "Organization ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiResponse({
+    status: 201,
+    description: "Game created successfully",
+    type: GameResponseDto,
+  })
+  async create(
+    @Param("organizationId") organizationId: string,
+    @Body() createGameDto: CreateGameDto,
+  ): Promise<GameResponseDto> {
+    try {
+      const game = await this.gameService.create({
+        ...createGameDto,
+        organizationId,
+      });
+      return GameResponseDto.fromEntity(game);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Patch(":gameId")
+  @ApiOperation({
+    summary: "Update game",
+    description: "Updates an existing game in an organization",
+  })
+  @ApiParam({
+    name: "organizationId",
+    description: "Organization ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiParam({
+    name: "gameId",
+    description: "Game ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Game updated successfully",
+    type: GameResponseDto,
+  })
+  async update(
+    @Param("organizationId") organizationId: string,
+    @Param("gameId") gameId: string,
+    @Body() updateGameDto: UpdateGameDto,
+  ): Promise<GameResponseDto> {
+    try {
+      const game = await this.gameService.update(
+        organizationId,
+        gameId,
+        updateGameDto,
+      );
+      return GameResponseDto.fromEntity(game);
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Delete(":gameId")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Delete game",
+    description: "Permanently deletes a game from an organization",
+  })
+  @ApiParam({
+    name: "organizationId",
+    description: "Organization ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiParam({
+    name: "gameId",
+    description: "Game ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Game deleted successfully",
+  })
+  async remove(
+    @Param("organizationId") organizationId: string,
+    @Param("gameId") gameId: string,
+  ): Promise<void> {
+    try {
+      await this.gameService.remove(organizationId, gameId);
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Put(":gameId/archive")
+  @ApiOperation({
+    summary: "Archive game",
+    description: "Archives a game (soft delete)",
+  })
+  @ApiParam({
+    name: "organizationId",
+    description: "Organization ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiParam({
+    name: "gameId",
+    description: "Game ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Game archived successfully",
+    type: GameResponseDto,
+  })
+  async archive(
+    @Param("organizationId") organizationId: string,
+    @Param("gameId") gameId: string,
+  ): Promise<GameResponseDto> {
+    try {
+      const game = await this.gameService.archive(organizationId, gameId);
+      return GameResponseDto.fromEntity(game);
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Put(":gameId/unarchive")
+  @ApiOperation({
+    summary: "Unarchive game",
+    description: "Restores an archived game",
+  })
+  @ApiParam({
+    name: "organizationId",
+    description: "Organization ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiParam({
+    name: "gameId",
+    description: "Game ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Game unarchived successfully",
+    type: GameResponseDto,
+  })
+  async unarchive(
+    @Param("organizationId") organizationId: string,
+    @Param("gameId") gameId: string,
+  ): Promise<GameResponseDto> {
+    try {
+      const game = await this.gameService.unarchive(organizationId, gameId);
+      return GameResponseDto.fromEntity(game);
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get(":gameId/ranking")
+  @ApiOperation({
+    summary: "Get game ranking",
+    description:
+      "Gets the ranking for a game, grouped by user or team based on the groupBy parameter",
+  })
+  @ApiParam({
+    name: "organizationId",
+    description: "Organization ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiParam({
+    name: "gameId",
+    description: "Game ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiQuery({
+    name: "groupBy",
+    description: "Group ranking by user or team",
+    required: false,
+    enum: ["user", "team"],
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Game ranking retrieved successfully",
+  })
+  async getRanking(
+    @Param("organizationId") _organizationId: string,
+    @Param("gameId") gameId: string,
+    @Query("groupBy") groupBy?: "user" | "team",
+  ) {
+    const effectiveGroupBy = groupBy || "user";
+    const ranking = await this.gameService.getRanking(gameId, effectiveGroupBy);
+    return { ranking };
+  }
+}
+
+// Controller para rota alternativa /game/:gameId/ranking
+@ApiTags("games")
+@ApiBearerAuth("JWT-auth")
+@UseGuards(JwtAuthGuard)
+@Controller("game")
+export class GameRankingController {
+  constructor(
+    @Inject(GameService)
+    private readonly gameService: GameService,
+  ) {}
+
+  @Get(":gameId/ranking")
+  @ApiOperation({
+    summary: "Get game ranking",
+    description:
+      "Gets the ranking for a game, grouped by user or team based on the groupBy parameter",
+  })
+  @ApiParam({
+    name: "gameId",
+    description: "Game ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiQuery({
+    name: "groupBy",
+    description: "Group ranking by user or team",
+    required: false,
+    enum: ["user", "team"],
+  })
+  @ApiQuery({
+    name: "sectorId",
+    description: "Filter by sector ID",
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Game ranking retrieved successfully",
+  })
+  async getRanking(
+    @Param("gameId") gameId: string,
+    @Query("groupBy") groupBy?: "user" | "team",
+    @Query("sectorId") sectorId?: string,
+  ) {
+    const effectiveGroupBy = groupBy || "user";
+    const ranking = await this.gameService.getRanking(
+      gameId,
+      effectiveGroupBy,
+      sectorId,
+    );
+    return { ranking };
   }
 }

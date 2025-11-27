@@ -3,10 +3,11 @@ import { WebNotificationRepository } from "@infrastructure/repositories/web-noti
 import { Module } from "@nestjs/common";
 import { NotificationController } from "./notification.controller";
 import { NotificationService } from "./notification.service";
+import { NotificationOrgController } from "./notification-org.controller";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [NotificationController],
+  controllers: [NotificationController, NotificationOrgController],
   providers: [
     NotificationService,
     {

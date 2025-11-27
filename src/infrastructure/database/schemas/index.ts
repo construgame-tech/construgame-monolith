@@ -5,6 +5,7 @@ export * from "./financial-prize.schema";
 export * from "./game.schema";
 export * from "./job-role.schema";
 export * from "./kaizen.schema";
+export * from "./kaizen-comment.schema";
 export * from "./kaizen-idea.schema";
 export * from "./kaizen-type.schema";
 export * from "./kpi.schema";

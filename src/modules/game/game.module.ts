@@ -5,12 +5,20 @@
 import { DatabaseModule } from "@infrastructure/database/database.module";
 import { GameRepository } from "@infrastructure/repositories/game.repository";
 import { Module } from "@nestjs/common";
-import { GameController } from "./game.controller";
+import {
+  GameController,
+  GameRankingController,
+  OrganizationGameController,
+} from "./game.controller";
 import { GameService } from "./game.service";
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [GameController],
+  controllers: [
+    GameController,
+    OrganizationGameController,
+    GameRankingController,
+  ],
   providers: [GameService, GameRepository],
   exports: [GameService, GameRepository],
 })

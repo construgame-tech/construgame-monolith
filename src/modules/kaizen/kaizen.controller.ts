@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  Request,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -21,6 +22,8 @@ import {
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CreateKaizenDto } from "./dto/create-kaizen.dto";
+import { CreateKaizenCommentDto } from "./dto/create-kaizen-comment.dto";
+import { KaizenCommentResponseDto } from "./dto/kaizen-comment-response.dto";
 import { KaizenResponseDto } from "./dto/kaizen-response.dto";
 import { ReplicateKaizenDto } from "./dto/replicate-kaizen.dto";
 import { UpdateKaizenDto } from "./dto/update-kaizen.dto";
@@ -307,5 +310,57 @@ export class KaizenController {
   ): Promise<KaizenResponseDto> {
     const kaizen = await this.kaizenService.unarchive(kaizenId);
     return KaizenResponseDto.fromEntity(kaizen);
+  }
+
+  // ========== Kaizen Comment Routes ==========
+
+  @Get("games/:gameId/kaizens/:kaizenId/comments")
+  @ApiOperation({ summary: "List kaizen comments" })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiResponse({ status: 200, type: [KaizenCommentResponseDto] })
+  async listComments(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") kaizenId: string,
+  ) {
+    const comments = await this.kaizenService.listComments(kaizenId);
+    return {
+      items: comments.map(KaizenCommentResponseDto.fromEntity),
+    };
+  }
+
+  @Post("games/:gameId/kaizens/:kaizenId/comments")
+  @ApiOperation({ summary: "Create kaizen comment" })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiResponse({ status: 201, type: KaizenCommentResponseDto })
+  async createComment(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") kaizenId: string,
+    @Body() dto: CreateKaizenCommentDto,
+    @Request() req: any,
+  ): Promise<KaizenCommentResponseDto> {
+    const userId = req.user?.sub || req.user?.userId || "unknown";
+    const comment = await this.kaizenService.createComment(
+      kaizenId,
+      userId,
+      dto.text,
+    );
+    return KaizenCommentResponseDto.fromEntity(comment);
+  }
+
+  @Delete("games/:gameId/kaizens/:kaizenId/comments/:commentId")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Delete kaizen comment" })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiParam({ name: "commentId", type: String })
+  @ApiResponse({ status: 204 })
+  async deleteComment(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") _kaizenId: string,
+    @Param("commentId") commentId: string,
+  ): Promise<void> {
+    await this.kaizenService.deleteComment(commentId);
   }
 }

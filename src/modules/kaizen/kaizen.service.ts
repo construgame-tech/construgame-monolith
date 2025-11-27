@@ -1,5 +1,11 @@
+import { randomUUID } from "node:crypto";
 import { KaizenEntity } from "@domain/kaizen/entities/kaizen.entity";
+import {
+  createKaizenCommentEntity,
+  KaizenCommentEntity,
+} from "@domain/kaizen/entities/kaizen-comment.entity";
 import type { IKaizenRepository } from "@domain/kaizen/repositories/kaizen.repository.interface";
+import type { IKaizenCommentRepository } from "@domain/kaizen/repositories/kaizen-comment.repository.interface";
 import { archiveKaizen } from "@domain/kaizen/use-cases/archive-kaizen";
 import { completeKaizen } from "@domain/kaizen/use-cases/complete-kaizen";
 import {
@@ -28,6 +34,8 @@ export class KaizenService {
   constructor(
     @Inject("IKaizenRepository")
     private readonly kaizenRepository: IKaizenRepository,
+    @Inject("IKaizenCommentRepository")
+    private readonly commentRepository: IKaizenCommentRepository,
   ) {}
 
   async createKaizen(input: CreateKaizenInput): Promise<KaizenEntity> {
@@ -144,5 +152,35 @@ export class KaizenService {
       }
       throw new BadRequestException(error.message);
     }
+  }
+
+  // ========== Comment Methods ==========
+
+  async listComments(kaizenId: string): Promise<KaizenCommentEntity[]> {
+    return this.commentRepository.findByKaizenId(kaizenId);
+  }
+
+  async createComment(
+    kaizenId: string,
+    userId: string,
+    text: string,
+  ): Promise<KaizenCommentEntity> {
+    const comment = createKaizenCommentEntity({
+      id: randomUUID(),
+      kaizenId,
+      userId,
+      text,
+      createdAt: new Date().toISOString(),
+    });
+    await this.commentRepository.save(comment);
+    return comment;
+  }
+
+  async deleteComment(commentId: string): Promise<void> {
+    const comment = await this.commentRepository.findById(commentId);
+    if (!comment) {
+      throw new NotFoundException(`Comment not found: ${commentId}`);
+    }
+    await this.commentRepository.delete(commentId);
   }
 }

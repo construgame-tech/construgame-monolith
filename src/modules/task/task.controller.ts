@@ -16,6 +16,7 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -30,6 +31,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { BatchAction, BatchTaskDto } from "./dto/batch-task.dto";
 import { CreateTaskDto } from "./dto/create-task.dto";
 import { TaskResponseDto } from "./dto/task-response.dto";
 import { UpdateTaskDto } from "./dto/update-task.dto";
@@ -223,5 +225,174 @@ export class TaskController {
       }
       throw new BadRequestException(error.message);
     }
+  }
+
+  // ==========================================
+  // Rotas com prefixo /game singular (OpenAPI spec)
+  // ==========================================
+
+  @Get("game/:gameId/task")
+  @ApiOperation({ summary: "List game tasks (singular route)" })
+  @ApiParam({ name: "gameId", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiResponse({ status: 200 })
+  async listGameTasksSingular(@Param("gameId") gameId: string) {
+    try {
+      const result = await listGameTasks({ gameId }, this.taskRepository);
+      return {
+        items: result.tasks.map((task) => TaskResponseDto.fromEntity(task)),
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Post("game/:gameId/task")
+  @ApiOperation({ summary: "Create a new task (singular route)" })
+  @ApiParam({ name: "gameId", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiResponse({ status: 201, type: TaskResponseDto })
+  async createSingular(
+    @Param("gameId") gameId: string,
+    @Body() createTaskDto: CreateTaskDto,
+  ): Promise<TaskResponseDto> {
+    try {
+      const result = await createTask(
+        { ...createTaskDto, gameId },
+        this.taskRepository,
+      );
+      return TaskResponseDto.fromEntity(result.task);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Patch("game/:gameId/task/:taskId")
+  @ApiOperation({ summary: "Update task (singular route with PATCH)" })
+  @ApiParam({ name: "gameId", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiParam({ name: "taskId", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiResponse({ status: 200, type: TaskResponseDto })
+  async patchSingular(
+    @Param("gameId") gameId: string,
+    @Param("taskId") taskId: string,
+    @Body() updateTaskDto: UpdateTaskDto,
+  ): Promise<TaskResponseDto> {
+    try {
+      const result = await updateTask(
+        { gameId, taskId, ...updateTaskDto },
+        this.taskRepository,
+      );
+      return TaskResponseDto.fromEntity(result.task);
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Delete("game/:gameId/task/:taskId")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Delete task (singular route)" })
+  @ApiParam({ name: "gameId", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiParam({ name: "taskId", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiResponse({ status: 200, description: "Task deleted" })
+  async removeSingular(
+    @Param("gameId") gameId: string,
+    @Param("taskId") taskId: string,
+  ): Promise<void> {
+    try {
+      await deleteTask({ gameId, taskId }, this.taskRepository);
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  // ==========================================
+  // POST /task/batch - Batch commands
+  // ==========================================
+
+  @Post("task/batch")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Batch send command",
+    description:
+      "Async endpoint that processes multiple task commands. Does not return errors for failed commands.",
+  })
+  @ApiResponse({ status: 200, description: "Batch processed" })
+  async batchCommands(@Body() batchDto: BatchTaskDto) {
+    // Processamento assíncrono - não retorna erros
+    for (const command of batchDto.commands) {
+      try {
+        if (
+          command.action === BatchAction.CREATE &&
+          command.gameId &&
+          command.name
+        ) {
+          await createTask(
+            {
+              gameId: command.gameId,
+              name: command.name,
+              rewardPoints: command.rewardPoints
+                ? Number(command.rewardPoints)
+                : 0,
+              teamId: command.teamId,
+              managerId: command.managerId,
+              kpiId: command.kpiId,
+              description: command.description,
+              videoUrl: command.videoUrl,
+              embedVideoUrl: command.embedVideoUrl,
+              measurementUnit: command.measurementUnit,
+              totalMeasurementExpected: command.totalMeasurementExpected,
+              startDate: command.startDate,
+              endDate: command.endDate,
+              checklist: command.checklist,
+            },
+            this.taskRepository,
+          );
+        } else if (
+          command.action === BatchAction.UPDATE &&
+          command.taskId &&
+          command.gameId
+        ) {
+          await updateTask(
+            {
+              gameId: command.gameId,
+              taskId: command.taskId,
+              name: command.name,
+              teamId: command.teamId,
+              managerId: command.managerId,
+              kpiId: command.kpiId,
+              description: command.description,
+              videoUrl: command.videoUrl,
+              embedVideoUrl: command.embedVideoUrl,
+              measurementUnit: command.measurementUnit,
+              totalMeasurementExpected: command.totalMeasurementExpected,
+              rewardPoints: command.rewardPoints
+                ? Number(command.rewardPoints)
+                : undefined,
+              startDate: command.startDate,
+              endDate: command.endDate,
+              checklist: command.checklist,
+            },
+            this.taskRepository,
+          );
+        } else if (
+          command.action === BatchAction.DELETE &&
+          command.taskId &&
+          command.gameId
+        ) {
+          await deleteTask(
+            { gameId: command.gameId, taskId: command.taskId },
+            this.taskRepository,
+          );
+        }
+      } catch (_error) {
+        // Ignora erros conforme especificação - endpoint assíncrono
+      }
+    }
+
+    return { message: "Batch processed" };
   }
 }
