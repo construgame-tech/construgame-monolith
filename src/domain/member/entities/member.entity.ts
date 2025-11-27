@@ -10,7 +10,6 @@ export interface MemberEntity {
   sectorId?: string;
   sector?: string;
   position?: string;
-  sequence: number;
 
   // Job role data - stored directly on member
   jobRoleId?: string;
@@ -49,7 +48,6 @@ export const createMemberEntity = (props: {
     seniority: props.seniority,
     state: props.state,
     hoursPerDay: props.hoursPerDay,
-    sequence: 0,
   };
 };
 
@@ -82,14 +80,5 @@ export const updateMemberEntity = (
     seniority: updates.seniority ?? currentMember.seniority,
     state: updates.state ?? currentMember.state,
     hoursPerDay: updates.hoursPerDay ?? currentMember.hoursPerDay,
-    sequence: currentMember.sequence + 1,
-  };
-};
-
-// Incrementa a sequence para deleção
-export const incrementMemberSequence = (member: MemberEntity): MemberEntity => {
-  return {
-    ...member,
-    sequence: member.sequence + 1,
   };
 };

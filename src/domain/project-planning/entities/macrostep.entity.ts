@@ -9,7 +9,6 @@ export interface MacrostepEntity {
   description?: string;
   startDate?: string;
   endDate?: string;
-  sequence: number;
 }
 
 export interface ActivityEntity {
@@ -23,30 +22,28 @@ export interface ActivityEntity {
   unityQuantity?: number;
   startDate?: string;
   endDate?: string;
-  sequence: number;
 }
 
 export interface MacrostepOrderEntity {
   projectId: string;
   organizationId: string;
   macrostepIds: string[]; // Ordem dos macrosteps
-  sequence: number;
 }
 
 export const createMacrostepEntity = (
-  props: Omit<MacrostepEntity, "sequence">,
+  props: MacrostepEntity,
 ): MacrostepEntity => {
-  return { ...props, sequence: 0 };
+  return { ...props };
 };
 
 export const createActivityEntity = (
-  props: Omit<ActivityEntity, "sequence">,
+  props: ActivityEntity,
 ): ActivityEntity => {
-  return { ...props, sequence: 0 };
+  return { ...props };
 };
 
 export const createMacrostepOrderEntity = (
-  props: Omit<MacrostepOrderEntity, "sequence">,
+  props: MacrostepOrderEntity,
 ): MacrostepOrderEntity => {
-  return { ...props, sequence: 0 };
+  return { ...props };
 };

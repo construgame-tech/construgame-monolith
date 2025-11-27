@@ -9,27 +9,24 @@ export interface KaizenTypeEntity {
   points: number;
   ideaPoints?: number;
   ideaExecutionPoints?: number;
-  sequence: number;
 }
 
 export const createKaizenTypeEntity = (
-  props: Omit<KaizenTypeEntity, "sequence">,
+  props: KaizenTypeEntity,
 ): KaizenTypeEntity => {
   return {
     ...props,
-    sequence: 0,
   };
 };
 
 export const updateKaizenTypeEntity = (
   current: KaizenTypeEntity,
   updates: Partial<
-    Omit<KaizenTypeEntity, "id" | "organizationId" | "sequence">
+    Omit<KaizenTypeEntity, "id" | "organizationId">
   >,
 ): KaizenTypeEntity => {
   return {
     ...current,
     ...updates,
-    sequence: current.sequence + 1,
   };
 };

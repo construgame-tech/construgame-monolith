@@ -60,18 +60,16 @@ export interface TaskManagerEntity {
   checklist?: TaskManagerChecklist[];
   progressAbsolute?: number;
   tasks?: TaskManagerTask[];
-  sequence: number;
 }
 
 // Factory function para criar um novo task manager
 export const createTaskManagerEntity = (
-  props: Omit<TaskManagerEntity, "sequence" | "progressAbsolute" | "tasks">,
+  props: Omit<TaskManagerEntity, "progressAbsolute" | "tasks">,
 ): TaskManagerEntity => {
   return {
     ...props,
     progressAbsolute: 0,
     tasks: [],
-    sequence: 0,
   };
 };
 
@@ -79,22 +77,11 @@ export const createTaskManagerEntity = (
 export const updateTaskManagerEntity = (
   current: TaskManagerEntity,
   updates: Partial<
-    Omit<TaskManagerEntity, "id" | "organizationId" | "sequence">
+    Omit<TaskManagerEntity, "id" | "organizationId">
   >,
 ): TaskManagerEntity => {
   return {
     ...current,
     ...updates,
-    sequence: current.sequence + 1,
-  };
-};
-
-// Incrementa sequence para deleção
-export const incrementTaskManagerSequence = (
-  taskManager: TaskManagerEntity,
-): TaskManagerEntity => {
-  return {
-    ...taskManager,
-    sequence: taskManager.sequence + 1,
   };
 };

@@ -47,7 +47,7 @@ describe("ConfigKpiController", () => {
       const result = await controller.findAll(organizationId);
 
       // Assert
-      expect(result).toHaveLength(2);
+      expect(result.items).toHaveLength(2);
       expect(kpiService.listAll).toHaveBeenCalled();
     });
 
@@ -60,7 +60,7 @@ describe("ConfigKpiController", () => {
       const result = await controller.findAll(organizationId);
 
       // Assert
-      expect(result).toHaveLength(0);
+      expect(result.items).toHaveLength(0);
     });
   });
 

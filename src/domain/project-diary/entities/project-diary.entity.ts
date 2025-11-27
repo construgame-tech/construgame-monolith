@@ -28,7 +28,6 @@ export interface ProjectDiaryEntity {
   equipment?: ProjectDiaryEquipment[];
   manpower?: ProjectDiaryManpower[];
   indirectManpower?: ProjectDiaryManpower[];
-  sequence: number;
 }
 
 // Factory function para criar um novo project diary
@@ -51,7 +50,6 @@ export const createProjectDiaryEntity = (props: {
     equipment: props.equipment,
     manpower: props.manpower,
     indirectManpower: props.indirectManpower,
-    sequence: 0,
   };
 };
 
@@ -73,6 +71,5 @@ export const updateProjectDiaryEntity = (
     equipment: updates.equipment ?? currentDiary.equipment,
     manpower: updates.manpower ?? currentDiary.manpower,
     indirectManpower: updates.indirectManpower ?? currentDiary.indirectManpower,
-    sequence: currentDiary.sequence + 1,
   };
 };

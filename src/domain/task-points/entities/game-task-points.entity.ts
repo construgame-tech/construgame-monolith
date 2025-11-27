@@ -6,16 +6,14 @@ export interface GameTaskPointsEntity {
   organizationId: string;
   projectId: string;
   points: number;
-  sequence: number;
 }
 
 export const createGameTaskPointsEntity = (
-  props: Omit<GameTaskPointsEntity, "sequence" | "points">,
+  props: Omit<GameTaskPointsEntity, "points">,
 ): GameTaskPointsEntity => {
   return {
     ...props,
     points: 0,
-    sequence: 0,
   };
 };
 
@@ -26,6 +24,5 @@ export const addPointsToGameTaskPoints = (
   return {
     ...current,
     points: current.points + pointsToAdd,
-    sequence: current.sequence + 1,
   };
 };

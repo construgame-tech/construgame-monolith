@@ -8,7 +8,6 @@ export interface TeamEntity {
   managerId?: string;
   fieldOfAction?: string;
   members?: string[];
-  sequence: number;
   photo?: string;
   color?: string;
   description?: string;
@@ -36,7 +35,6 @@ export const createTeamEntity = (props: {
     photo: props.photo,
     color: props.color,
     description: props.description,
-    sequence: 0,
   };
 };
 
@@ -62,14 +60,5 @@ export const updateTeamEntity = (
     photo: updates.photo ?? currentTeam.photo,
     color: updates.color ?? currentTeam.color,
     description: updates.description ?? currentTeam.description,
-    sequence: currentTeam.sequence + 1,
-  };
-};
-
-// Incrementa a sequence para deleção
-export const incrementTeamSequence = (team: TeamEntity): TeamEntity => {
-  return {
-    ...team,
-    sequence: team.sequence + 1,
   };
 };

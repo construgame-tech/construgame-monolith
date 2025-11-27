@@ -9,7 +9,6 @@ export interface UserGamePointsEntity {
   taskPoints: number;
   kaizenPoints: number;
   totalPoints: number;
-  sequence: number;
 }
 
 export interface TeamGamePointsEntity {
@@ -20,36 +19,27 @@ export interface TeamGamePointsEntity {
   taskPoints: number;
   kaizenPoints: number;
   totalPoints: number;
-  sequence: number;
 }
 
 export const createUserGamePointsEntity = (
-  props: Omit<
-    UserGamePointsEntity,
-    "sequence" | "taskPoints" | "kaizenPoints" | "totalPoints"
-  >,
+  props: Omit<UserGamePointsEntity, "taskPoints" | "kaizenPoints" | "totalPoints">,
 ): UserGamePointsEntity => {
   return {
     ...props,
     taskPoints: 0,
     kaizenPoints: 0,
     totalPoints: 0,
-    sequence: 0,
   };
 };
 
 export const createTeamGamePointsEntity = (
-  props: Omit<
-    TeamGamePointsEntity,
-    "sequence" | "taskPoints" | "kaizenPoints" | "totalPoints"
-  >,
+  props: Omit<TeamGamePointsEntity, "taskPoints" | "kaizenPoints" | "totalPoints">,
 ): TeamGamePointsEntity => {
   return {
     ...props,
     taskPoints: 0,
     kaizenPoints: 0,
     totalPoints: 0,
-    sequence: 0,
   };
 };
 
@@ -63,7 +53,6 @@ export const updateUserGamePoints = (
     taskPoints,
     kaizenPoints,
     totalPoints: taskPoints + kaizenPoints,
-    sequence: current.sequence + 1,
   };
 };
 
@@ -77,6 +66,5 @@ export const updateTeamGamePoints = (
     taskPoints,
     kaizenPoints,
     totalPoints: taskPoints + kaizenPoints,
-    sequence: current.sequence + 1,
   };
 };

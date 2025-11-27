@@ -16,15 +16,13 @@ export interface FinancialPrizeEntity {
     taskPoints?: number;
     kaizenPoints?: number;
   };
-  sequence: number;
 }
 
 export const createFinancialPrizeEntity = (
-  props: Omit<FinancialPrizeEntity, "sequence" | "calculatedAt">,
+  props: Omit<FinancialPrizeEntity, "calculatedAt">,
 ): FinancialPrizeEntity => {
   return {
     ...props,
     calculatedAt: new Date().toISOString(),
-    sequence: 0,
   };
 };

@@ -29,13 +29,6 @@ export const replicateKaizen = async (
     throw new Error(`Original kaizen not found: ${input.originalKaizenId}`);
   }
 
-  // Obter próxima sequência para o game
-  const existingKaizens = await repository.findByGameId(input.gameId);
-  const nextSequence =
-    existingKaizens.length > 0
-      ? Math.max(...existingKaizens.map((k) => k.sequence)) + 1
-      : 1;
-
   const now = new Date().toISOString();
 
   const replica: KaizenEntity = {
@@ -47,7 +40,6 @@ export const replicateKaizen = async (
     name: original.name,
     description: original.description,
     createdDate: now,
-    sequence: nextSequence,
     originalKaizenId: input.originalKaizenId,
     authorId: input.authorId,
     leaderId: input.leaderId,

@@ -205,8 +205,9 @@ describe("ProjectController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(200);
-      expect(response.body).toBeInstanceOf(Array);
-      expect(response.body.length).toBeGreaterThanOrEqual(2);
+      expect(response.body).toHaveProperty("items");
+      expect(Array.isArray(response.body.items)).toBe(true);
+      expect(response.body.items.length).toBeGreaterThanOrEqual(2);
     });
   });
 

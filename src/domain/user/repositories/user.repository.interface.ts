@@ -20,7 +20,7 @@ export interface IUserRepository {
   // Busca um usuário por telefone
   findByPhone(phone: string): Promise<UserEntity | null>;
 
-  // Atualiza apenas authCode e expiração (sem incrementar sequence ou disparar eventos)
+  // Atualiza apenas authCode e expiração
   // Usado durante o processo de login via telefone
   updateAuthCodeOnly(
     userId: string,

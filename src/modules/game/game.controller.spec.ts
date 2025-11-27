@@ -116,14 +116,14 @@ describe("GameController", () => {
     it("should list games for organization", async () => {
       const result = await controller.findByOrganization("org-123");
 
-      expect(result.games).toHaveLength(1);
+      expect(result.items).toHaveLength(1);
       expect(service.listByOrganization).toHaveBeenCalledWith("org-123");
     });
 
     it("should list games by project when projectId provided", async () => {
       const result = await controller.findByOrganization("org-123", "proj-123");
 
-      expect(result.games).toBeDefined();
+      expect(result.items).toBeDefined();
       expect(service.listByProject).toHaveBeenCalledWith("org-123", "proj-123");
     });
 
@@ -202,7 +202,7 @@ describe("OrganizationGameController", () => {
     it("should list games for organization", async () => {
       const result = await controller.findByOrganization("org-123");
 
-      expect(result.games).toHaveLength(1);
+      expect(result.items).toHaveLength(1);
       expect(service.listByOrganization).toHaveBeenCalledWith("org-123");
     });
   });

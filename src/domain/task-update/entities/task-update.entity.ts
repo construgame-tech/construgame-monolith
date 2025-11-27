@@ -42,7 +42,6 @@ export interface TaskUpdateEntity {
   photos?: string[];
   progress: TaskUpdateProgress;
   checklist?: TaskUpdateChecklistItem[];
-  sequence: number;
   files?: TaskUpdateFile[];
 }
 
@@ -78,7 +77,6 @@ export const createTaskUpdateEntity = (props: {
     endDate: props.endDate,
     progress: props.progress,
     checklist: props.checklist,
-    sequence: 0,
     files: props.files,
   };
 };
@@ -109,7 +107,6 @@ export const approveTaskUpdateEntity = (
     checklist: props?.checklist ?? currentTaskUpdate.checklist,
     startDate: props?.startDate ?? currentTaskUpdate.startDate,
     endDate: props?.endDate ?? currentTaskUpdate.endDate,
-    sequence: currentTaskUpdate.sequence + 1,
   };
 };
 
@@ -126,7 +123,6 @@ export const rejectTaskUpdateEntity = (
     status: "REJECTED",
     reviwedBy: props.reviwedBy,
     reviewNote: props.reviewNote,
-    sequence: currentTaskUpdate.sequence + 1,
   };
 };
 
@@ -139,7 +135,6 @@ export const cancelTaskUpdateEntity = (
     status: "PENDING_REVIEW",
     reviwedBy: undefined,
     reviewNote: undefined,
-    sequence: currentTaskUpdate.sequence + 1,
   };
 };
 

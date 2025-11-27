@@ -18,7 +18,6 @@ export interface JobRoleEntity {
   updatedAt?: string;
   createdAt?: string;
   createdBy?: string;
-  sequence: number;
 }
 
 // Factory function para criar um novo job role com valores padrão
@@ -37,7 +36,6 @@ export const createJobRoleEntity = (props: {
     variants: props.variants,
     createdBy: props.createdBy,
     createdAt: props.createdAt || new Date().toISOString(),
-    sequence: 0,
   };
 };
 
@@ -56,16 +54,5 @@ export const updateJobRoleEntity = (
     variants: updates.variants ?? currentJobRole.variants,
     updatedBy: updates.updatedBy,
     updatedAt: new Date().toISOString(),
-    sequence: currentJobRole.sequence + 1,
-  };
-};
-
-// Incrementa a sequence para deleção
-export const incrementJobRoleSequence = (
-  jobRole: JobRoleEntity,
-): JobRoleEntity => {
-  return {
-    ...jobRole,
-    sequence: jobRole.sequence + 1,
   };
 };

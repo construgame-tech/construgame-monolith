@@ -21,7 +21,6 @@ export interface LeagueEntity {
   projects?: string[];
   games?: string[];
   hidden?: boolean;
-  sequence: number;
 }
 
 // Factory function para criar uma nova league
@@ -53,7 +52,6 @@ export const createLeagueEntity = (props: {
     projects: props.projects,
     games: props.games,
     hidden: props.hidden ?? false,
-    sequence: 0,
   };
 };
 
@@ -87,14 +85,5 @@ export const updateLeagueEntity = (
     games: updates.games ?? currentLeague.games,
     hidden: updates.hidden ?? currentLeague.hidden,
     responsibleId: updates.responsibleId ?? currentLeague.responsibleId,
-    sequence: currentLeague.sequence + 1,
-  };
-};
-
-// Factory function para incrementar sequence na deleção
-export const incrementLeagueSequence = (league: LeagueEntity): LeagueEntity => {
-  return {
-    ...league,
-    sequence: league.sequence + 1,
   };
 };

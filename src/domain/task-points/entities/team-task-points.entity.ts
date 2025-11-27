@@ -7,16 +7,14 @@ export interface TeamTaskPointsEntity {
   projectId: string;
   gameId: string;
   points: number;
-  sequence: number;
 }
 
 export const createTeamTaskPointsEntity = (
-  props: Omit<TeamTaskPointsEntity, "sequence" | "points">,
+  props: Omit<TeamTaskPointsEntity, "points">,
 ): TeamTaskPointsEntity => {
   return {
     ...props,
     points: 0,
-    sequence: 0,
   };
 };
 
@@ -27,6 +25,5 @@ export const addPointsToTeamTaskPoints = (
   return {
     ...current,
     points: current.points + pointsToAdd,
-    sequence: current.sequence + 1,
   };
 };

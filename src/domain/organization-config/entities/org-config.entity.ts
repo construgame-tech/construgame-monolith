@@ -22,7 +22,6 @@ export interface OrgConfigEntity {
       microsoftSSO: boolean;
     };
   };
-  sequence: number;
 }
 
 // Factory function para criar uma config inicial
@@ -69,7 +68,6 @@ export const createOrgConfigEntity = (props: {
         microsoftSSO: false,
       },
     },
-    sequence: 0,
   };
 };
 
@@ -108,6 +106,5 @@ export const updateOrgConfigEntity = (
     missionConfig: updates.missionConfig ?? current.missionConfig,
     theme: updates.theme ?? current.theme,
     auth: updates.auth ?? current.auth,
-    sequence: current.sequence + 1,
   };
 };

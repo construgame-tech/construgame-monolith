@@ -38,7 +38,8 @@ describe("ConfigKpiController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
+      expect(response.body).toHaveProperty("items");
+      expect(Array.isArray(response.body.items)).toBe(true);
     });
 
     it("should return 401 without authentication", async () => {

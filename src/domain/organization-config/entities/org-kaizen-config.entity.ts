@@ -15,7 +15,6 @@ export interface OrgKaizenConfigEntity {
     "4"?: CategoryPoints;
     "5"?: CategoryPoints;
   };
-  sequence: number;
 }
 
 // Factory function para criar uma config inicial de kaizen
@@ -32,7 +31,6 @@ export const createOrgKaizenConfigEntity = (props: {
   return {
     organizationId: props.organizationId,
     categoryPoints: props.categoryPoints,
-    sequence: 0,
   };
 };
 
@@ -55,6 +53,5 @@ export const updateOrgKaizenConfigEntity = (
       ...current.categoryPoints,
       ...updates.categoryPoints,
     },
-    sequence: current.sequence + 1,
   };
 };

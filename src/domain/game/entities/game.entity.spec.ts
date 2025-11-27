@@ -8,7 +8,6 @@ import {
   type GameEntity,
   type GameKpi,
   type GamePrize,
-  incrementGameSequence,
   unarchiveGameEntity,
   updateGameEntity,
 } from "./game.entity";
@@ -28,7 +27,6 @@ describe("Game Entity", () => {
       expect(game.projectId).toBe("proj-123");
       expect(game.name).toBe("Game de Teste");
       expect(game.status).toBe("ACTIVE");
-      expect(game.sequence).toBe(0);
       expect(game.archived).toBe(false);
     });
 
@@ -99,7 +97,6 @@ describe("Game Entity", () => {
       projectId: "proj-123",
       name: "Game Original",
       status: "ACTIVE",
-      sequence: 0,
       archived: false,
     };
 
@@ -109,7 +106,6 @@ describe("Game Entity", () => {
       });
 
       expect(updatedGame.name).toBe("Nome Atualizado");
-      expect(updatedGame.sequence).toBe(1);
     });
 
     it("deve atualizar o status do game", () => {
@@ -118,7 +114,6 @@ describe("Game Entity", () => {
       });
 
       expect(updatedGame.status).toBe("PAUSED");
-      expect(updatedGame.sequence).toBe(1);
     });
 
     it("deve manter valores não alterados", () => {
@@ -146,14 +141,6 @@ describe("Game Entity", () => {
       expect(updatedGame.objective).toBe("Novo objetivo");
       expect(updatedGame.startDate).toBe("2025-06-01");
       expect(updatedGame.endDate).toBe("2025-12-31");
-    });
-
-    it("deve incrementar sequence a cada atualização", () => {
-      const firstUpdate = updateGameEntity(baseGame, { name: "Update 1" });
-      expect(firstUpdate.sequence).toBe(1);
-
-      const secondUpdate = updateGameEntity(firstUpdate, { name: "Update 2" });
-      expect(secondUpdate.sequence).toBe(2);
     });
 
     it("deve atualizar prizes e kpis", () => {
@@ -185,14 +172,12 @@ describe("Game Entity", () => {
         projectId: "proj-123",
         name: "Game",
         status: "ACTIVE",
-        sequence: 0,
         archived: false,
       };
 
       const archivedGame = archiveGameEntity(game);
 
       expect(archivedGame.archived).toBe(true);
-      expect(archivedGame.sequence).toBe(1);
     });
 
     it("deve manter outros valores ao arquivar", () => {
@@ -202,7 +187,6 @@ describe("Game Entity", () => {
         projectId: "proj-123",
         name: "Game",
         status: "DONE",
-        sequence: 5,
         archived: false,
       };
 
@@ -222,34 +206,12 @@ describe("Game Entity", () => {
         projectId: "proj-123",
         name: "Game",
         status: "ACTIVE",
-        sequence: 1,
         archived: true,
       };
 
       const unarchivedGame = unarchiveGameEntity(game);
 
       expect(unarchivedGame.archived).toBe(false);
-      expect(unarchivedGame.sequence).toBe(2);
-    });
-  });
-
-  describe("incrementGameSequence", () => {
-    it("deve incrementar a sequence do game", () => {
-      const game: GameEntity = {
-        id: "game-123",
-        organizationId: "org-123",
-        projectId: "proj-123",
-        name: "Game",
-        status: "ACTIVE",
-        sequence: 10,
-        archived: false,
-      };
-
-      const incrementedGame = incrementGameSequence(game);
-
-      expect(incrementedGame.sequence).toBe(11);
-      expect(incrementedGame.id).toBe(game.id);
-      expect(incrementedGame.name).toBe(game.name);
     });
   });
 });

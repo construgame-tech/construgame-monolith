@@ -329,9 +329,9 @@ describe("GameController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(200);
-      expect(response.body).toHaveProperty("games");
-      expect(Array.isArray(response.body.games)).toBe(true);
-      expect(response.body.games.length).toBeGreaterThanOrEqual(2);
+      expect(response.body).toHaveProperty("items");
+      expect(Array.isArray(response.body.items)).toBe(true);
+      expect(response.body.items.length).toBeGreaterThanOrEqual(2);
     });
   });
 
@@ -351,7 +351,7 @@ describe("GameController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(200);
-      expect(response.body).toHaveProperty("games");
+      expect(response.body).toHaveProperty("items");
     });
   });
 

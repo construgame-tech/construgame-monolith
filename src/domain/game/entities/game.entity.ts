@@ -36,7 +36,6 @@ export interface GameEntity {
   kpis?: GameKpi[];
   archived?: boolean;
   gameManagerId?: string;
-  sequence: number;
 }
 
 // Factory function para criar um novo game com valores padrão
@@ -72,7 +71,6 @@ export const createGameEntity = (props: {
     startDate: props.startDate,
     updateFrequency: props.updateFrequency,
     kpis: props.kpis?.map((kpi) => ({ id: kpi.id, points: kpi.points })),
-    sequence: 0,
     archived: false,
   };
 };
@@ -107,7 +105,6 @@ export const updateGameEntity = (
     prizes: updates.prizes ?? currentGame.prizes,
     updateFrequency: updates.updateFrequency ?? currentGame.updateFrequency,
     kpis: updates.kpis ?? currentGame.kpis,
-    sequence: currentGame.sequence + 1,
   };
 };
 
@@ -116,7 +113,6 @@ export const archiveGameEntity = (game: GameEntity): GameEntity => {
   return {
     ...game,
     archived: true,
-    sequence: game.sequence + 1,
   };
 };
 
@@ -125,14 +121,5 @@ export const unarchiveGameEntity = (game: GameEntity): GameEntity => {
   return {
     ...game,
     archived: false,
-    sequence: game.sequence + 1,
-  };
-};
-
-// Incrementa a sequence para deleção
-export const incrementGameSequence = (game: GameEntity): GameEntity => {
-  return {
-    ...game,
-    sequence: game.sequence + 1,
   };
 };

@@ -5,6 +5,8 @@ import {
   pgTable,
   text,
   timestamp,
+  uuid,
+  varchar,
 } from "drizzle-orm/pg-core";
 
 export interface JobRoleVariant {
@@ -18,10 +20,10 @@ export interface JobRoleVariant {
 export const jobRoles = pgTable(
   "job_roles",
   {
-    id: text("id").primaryKey(),
-    organizationId: text("organization_id").notNull(),
-    name: text("name").notNull(),
-    variants: jsonb("variants").notNull().$type<JobRoleVariant[]>(),
+    id: uuid("id").primaryKey(),
+    organizationId: uuid("organization_id").notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
+    variants: jsonb("variants").$type<JobRoleVariant[]>(),
     updatedBy: text("updated_by"),
     updatedAt: timestamp("updated_at", { mode: "string" }),
     createdAt: timestamp("created_at", { mode: "string" }),

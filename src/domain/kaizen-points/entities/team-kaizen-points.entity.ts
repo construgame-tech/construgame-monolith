@@ -7,16 +7,14 @@ export interface TeamKaizenPointsEntity {
   projectId: string;
   gameId: string;
   points: number;
-  sequence: number;
 }
 
 export const createTeamKaizenPointsEntity = (
-  props: Omit<TeamKaizenPointsEntity, "sequence" | "points">,
+  props: Omit<TeamKaizenPointsEntity, "points">,
 ): TeamKaizenPointsEntity => {
   return {
     ...props,
     points: 0,
-    sequence: 0,
   };
 };
 
@@ -27,6 +25,5 @@ export const addPointsToTeamKaizenPoints = (
   return {
     ...current,
     points: current.points + pointsToAdd,
-    sequence: current.sequence + 1,
   };
 };

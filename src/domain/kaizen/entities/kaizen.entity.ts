@@ -38,7 +38,6 @@ export interface KaizenEntity {
   name: string;
   createdDate: string;
   updatedDate?: string;
-  sequence: number;
 
   // Campos opcionais
   authorId?: string; // ID do autor/criador do kaizen
@@ -107,7 +106,6 @@ export const createKaizenEntity = (props: {
     status: "ACTIVE",
     name: props.name,
     createdDate: now,
-    sequence: 0,
     authorId: props.authorId,
     description: props.description,
     leaderId: props.leaderId,
@@ -194,7 +192,6 @@ export const updateKaizenEntity = (
     kaizenIdeaId: updates.kaizenIdeaId ?? currentKaizen.kaizenIdeaId,
     kaizenTypeId: updates.kaizenTypeId ?? currentKaizen.kaizenTypeId,
     updatedDate: new Date().toISOString(),
-    sequence: currentKaizen.sequence + 1,
   };
 };
 
@@ -208,7 +205,6 @@ export const completeKaizenEntity = (kaizen: KaizenEntity): KaizenEntity => {
     ...kaizen,
     status: "DONE",
     updatedDate: new Date().toISOString(),
-    sequence: kaizen.sequence + 1,
   };
 };
 
@@ -226,7 +222,6 @@ export const approveKaizenEntity = (kaizen: KaizenEntity): KaizenEntity => {
     ...kaizen,
     status: "APPROVED",
     updatedDate: new Date().toISOString(),
-    sequence: kaizen.sequence + 1,
   };
 };
 
@@ -240,7 +235,6 @@ export const reopenKaizenEntity = (kaizen: KaizenEntity): KaizenEntity => {
     ...kaizen,
     status: "ACTIVE",
     updatedDate: new Date().toISOString(),
-    sequence: kaizen.sequence + 1,
   };
 };
 
@@ -254,7 +248,6 @@ export const archiveKaizenEntity = (kaizen: KaizenEntity): KaizenEntity => {
     ...kaizen,
     status: "ARCHIVED",
     updatedDate: new Date().toISOString(),
-    sequence: kaizen.sequence + 1,
   };
 };
 
@@ -268,7 +261,6 @@ export const unarchiveKaizenEntity = (kaizen: KaizenEntity): KaizenEntity => {
     ...kaizen,
     status: "ACTIVE",
     updatedDate: new Date().toISOString(),
-    sequence: kaizen.sequence + 1,
   };
 };
 
@@ -298,7 +290,6 @@ export const createKaizenReplicaEntity = (props: {
     name: props.name,
     category: props.category,
     createdDate: now,
-    sequence: 0,
     leaderId: props.leaderId,
     responsibles: {},
     // Tarefas da réplica resetam o status de conclusão e apontam para o novo líder
@@ -322,7 +313,6 @@ export const addReplicaToKaizenEntity = (
     ...kaizen,
     replicas: [...(kaizen.replicas || []), replicaId],
     updatedDate: new Date().toISOString(),
-    sequence: kaizen.sequence + 1,
   };
 };
 
@@ -339,14 +329,5 @@ export const updateReplicaFromOriginal = (
     name: updates.name,
     category: updates.category,
     updatedDate: new Date().toISOString(),
-    sequence: replica.sequence + 1,
-  };
-};
-
-// Incrementa a sequence para deleção
-export const incrementKaizenSequence = (kaizen: KaizenEntity): KaizenEntity => {
-  return {
-    ...kaizen,
-    sequence: kaizen.sequence + 1,
   };
 };

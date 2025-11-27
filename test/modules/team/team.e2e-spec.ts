@@ -201,8 +201,9 @@ describe("TeamController (e2e)", () => {
 
       // Assert
       expect(response.statusCode).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body.length).toBeGreaterThanOrEqual(2);
+      expect(response.body.items).toBeDefined();
+      expect(Array.isArray(response.body.items)).toBe(true);
+      expect(response.body.items.length).toBeGreaterThanOrEqual(2);
     });
   });
 

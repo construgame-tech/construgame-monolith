@@ -1,6 +1,5 @@
 // Use Case: Deletar um usuário
 
-import { incrementUserSequence } from "../entities/user.entity";
 import { IUserRepository } from "../repositories/user.repository.interface";
 
 export interface DeleteUserInput {
@@ -23,11 +22,8 @@ export const deleteUser = async (
     return { deleted: false };
   }
 
-  // Incrementa a sequence antes de deletar
-  const userToDelete = incrementUserSequence(user);
-
   // Remove o usuário
-  await userRepository.delete(userToDelete);
+  await userRepository.delete(user);
 
   return { deleted: true };
 };

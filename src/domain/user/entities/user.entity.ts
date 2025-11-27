@@ -21,7 +21,6 @@ export interface UserEntity {
   passwordRecoveryCodeExpires?: string;
   type?: UserType;
   customId?: string;
-  sequence: number;
 }
 
 // Factory function para criar um novo usuário
@@ -48,7 +47,6 @@ export const createUserEntity = (props: {
     signedTermsOfUse: props.signedTermsOfUse,
     passwordRecoveryCode: props.passwordRecoveryCode,
     status: props.status ?? "WAITING_CONFIRMATION",
-    sequence: 0,
   };
 };
 
@@ -74,7 +72,6 @@ export const updateUserEntity = (
     photo: updates.photo ?? currentUser.photo,
     customId: updates.customId ?? currentUser.customId,
     signedTermsOfUse: updates.signedTermsOfUse ?? currentUser.signedTermsOfUse,
-    sequence: currentUser.sequence + 1,
   };
 };
 
@@ -88,7 +85,6 @@ export const updateUserPassword = (
     password: hashedPassword,
     passwordRecoveryCode: undefined,
     passwordRecoveryCodeExpires: undefined,
-    sequence: user.sequence + 1,
   };
 };
 
@@ -97,7 +93,6 @@ export const activateUserEntity = (user: UserEntity): UserEntity => {
   return {
     ...user,
     status: "ACTIVE",
-    sequence: user.sequence + 1,
   };
 };
 
@@ -111,7 +106,6 @@ export const setPasswordRecoveryCode = (
     ...user,
     passwordRecoveryCode: code,
     passwordRecoveryCodeExpires: expiresAt,
-    sequence: user.sequence + 1,
   };
 };
 
@@ -125,7 +119,6 @@ export const setAuthCode = (
     ...user,
     authCode,
     authCodeExpiresAt: expiresAt,
-    sequence: user.sequence + 1,
   };
 };
 
@@ -143,15 +136,6 @@ export const makeUserSuperuser = (user: UserEntity): UserEntity => {
   return {
     ...user,
     type: "superuser",
-    sequence: user.sequence + 1,
-  };
-};
-
-// Incrementa a sequence para deleção
-export const incrementUserSequence = (user: UserEntity): UserEntity => {
-  return {
-    ...user,
-    sequence: user.sequence + 1,
   };
 };
 

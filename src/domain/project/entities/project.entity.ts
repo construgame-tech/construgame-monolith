@@ -22,7 +22,6 @@ export interface ProjectEntity {
   endDate?: string;
   prizes?: ProjectPrize[];
   teams?: string[];
-  sequence: number;
 }
 
 // Factory function para criar um novo project com valores padrão
@@ -56,7 +55,6 @@ export const createProjectEntity = (props: {
     endDate: props.endDate,
     prizes: props.prizes,
     teams: props.teams,
-    sequence: 0,
   };
 };
 
@@ -92,16 +90,5 @@ export const updateProjectEntity = (
     endDate: updates.endDate ?? currentProject.endDate,
     prizes: updates.prizes ?? currentProject.prizes,
     teams: updates.teams ?? currentProject.teams,
-    sequence: currentProject.sequence + 1,
-  };
-};
-
-// Incrementa a sequence para deleção
-export const incrementProjectSequence = (
-  project: ProjectEntity,
-): ProjectEntity => {
-  return {
-    ...project,
-    sequence: project.sequence + 1,
   };
 };

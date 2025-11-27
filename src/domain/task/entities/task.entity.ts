@@ -73,7 +73,6 @@ export interface TaskEntity {
     count: number;
     progress: number;
   };
-  sequence: number;
 }
 
 // Factory function para criar uma nova task
@@ -119,7 +118,6 @@ export const createTaskEntity = (props: {
     checklist: props.checklist,
     startDate: props.startDate,
     endDate: props.endDate,
-    sequence: 0,
   };
 };
 
@@ -164,15 +162,6 @@ export const updateTaskEntity = (
     checklist: updates.checklist ?? currentTask.checklist,
     startDate: updates.startDate ?? currentTask.startDate,
     endDate: updates.endDate ?? currentTask.endDate,
-    sequence: currentTask.sequence + 1,
-  };
-};
-
-// Factory function para incrementar sequence na deleção
-export const incrementTaskSequence = (task: TaskEntity): TaskEntity => {
-  return {
-    ...task,
-    sequence: task.sequence + 1,
   };
 };
 

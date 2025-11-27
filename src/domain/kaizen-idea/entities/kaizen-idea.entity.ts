@@ -58,32 +58,29 @@ export interface KaizenIdeaEntity {
   attachments?: KaizenIdeaAttachment[];
   createdDate: string;
   updatedDate?: string;
-  sequence: number;
   executableKaizenProjectIds?: string[];
   nonExecutableProjects?: KaizenIdeaNonExecutableProject[];
 }
 
 export const createKaizenIdeaEntity = (
-  props: Omit<KaizenIdeaEntity, "sequence" | "createdDate" | "status">,
+  props: Omit<KaizenIdeaEntity, "createdDate" | "status">,
 ): KaizenIdeaEntity => {
   return {
     ...props,
     status: "DRAFT",
     createdDate: new Date().toISOString(),
-    sequence: 0,
   };
 };
 
 export const updateKaizenIdeaEntity = (
   current: KaizenIdeaEntity,
   updates: Partial<
-    Omit<KaizenIdeaEntity, "id" | "organizationId" | "sequence" | "createdDate">
+    Omit<KaizenIdeaEntity, "id" | "organizationId" | "createdDate">
   >,
 ): KaizenIdeaEntity => {
   return {
     ...current,
     ...updates,
     updatedDate: new Date().toISOString(),
-    sequence: current.sequence + 1,
   };
 };
