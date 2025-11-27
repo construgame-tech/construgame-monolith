@@ -173,20 +173,46 @@ describe("MemberController (e2e)", () => {
   });
 
   describe("GET /api/v1/organization/:organizationId/member", () => {
-    it("should list all members of an organization", async () => {
-      // Arrange - Create at least 2 members
+    it("should list all members of an organization with user data", async () => {
+      // Arrange - Create users first, then create members
+      // O endpoint de listagem faz INNER JOIN com users, então precisamos criar os usuários primeiro
+
+      // Create user 1
+      const user1Response = await postRequest(app, "/api/v1/user", {
+        token: authToken,
+        body: {
+          email: `player-${faker.uuid()}@test.com`,
+          name: "Player Test",
+          password: "senha123",
+        },
+      });
+      const user1Id = user1Response.body.id;
+
+      // Create user 2
+      const user2Response = await postRequest(app, "/api/v1/user", {
+        token: authToken,
+        body: {
+          email: `manager-${faker.uuid()}@test.com`,
+          name: "Manager Test",
+          password: "senha123",
+        },
+      });
+      const user2Id = user2Response.body.id;
+
+      // Create member 1
       await postRequest(app, `/api/v1/organization/${organizationId}/member`, {
         token: authToken,
         body: {
-          userId: faker.uuid(),
+          userId: user1Id,
           role: "player",
         },
       });
 
+      // Create member 2
       await postRequest(app, `/api/v1/organization/${organizationId}/member`, {
         token: authToken,
         body: {
-          userId: faker.uuid(),
+          userId: user2Id,
           role: "manager",
         },
       });
@@ -205,6 +231,11 @@ describe("MemberController (e2e)", () => {
       expect(response.body).toHaveProperty("items");
       expect(Array.isArray(response.body.items)).toBe(true);
       expect(response.body.items.length).toBeGreaterThanOrEqual(2);
+
+      // Verify that user data is included in member response
+      const member = response.body.items[0];
+      expect(member).toHaveProperty("name");
+      expect(member).toHaveProperty("email");
     });
   });
 

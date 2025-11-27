@@ -3,6 +3,34 @@
 
 export type MemberRole = "owner" | "admin" | "manager" | "player" | "financial";
 
+export type UserStatus = "WAITING_CONFIRMATION" | "ACTIVE";
+
+// Member com dados do usuário (para listagens)
+export interface MemberWithUser {
+  // Member fields
+  userId: string;
+  organizationId: string;
+  role: MemberRole;
+  sectorId?: string;
+  sector?: string;
+  position?: string;
+  jobRoleId?: string;
+  jobRoleVariantId?: string;
+  salary?: number;
+  seniority?: string;
+  state?: string;
+  hoursPerDay?: number;
+
+  // User fields
+  name?: string;
+  nickname?: string;
+  phone?: string;
+  email?: string;
+  photo?: string;
+  status?: UserStatus;
+  customId?: string;
+}
+
 export interface MemberEntity {
   userId: string;
   organizationId: string;

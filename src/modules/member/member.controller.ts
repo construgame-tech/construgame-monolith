@@ -259,8 +259,10 @@ export class MemberController {
     @Param("organizationId") organizationId: string,
   ): Promise<{ items: MemberResponseDto[] }> {
     const members =
-      await this.memberService.listOrganizationMembers(organizationId);
-    return { items: members.map(MemberResponseDto.fromEntity) };
+      await this.memberService.listOrganizationMembersWithUserData(
+        organizationId,
+      );
+    return { items: members.map(MemberResponseDto.fromMemberWithUser) };
   }
 
   @Patch(":userId")

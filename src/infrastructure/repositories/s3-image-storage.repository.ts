@@ -40,7 +40,7 @@ export class S3ImageStorageRepository implements IImageStorageRepository {
           : undefined,
     });
     this.bucket =
-      this.configService?.get<string>("AWS_S3_BUCKET") || "construgame-bucket";
+      this.configService?.get<string>("AWS_S3_IMAGES_BUCKET") || "construgame-bucket";
     this.logger.log(
       `S3 Image Storage configured - Bucket: ${this.bucket}, Region: ${this.region}`,
     );

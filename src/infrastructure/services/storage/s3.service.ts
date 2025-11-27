@@ -37,7 +37,7 @@ export class S3Service {
           : undefined,
     });
     this.bucket =
-      this.configService?.get<string>("AWS_S3_BUCKET") || "construgame-bucket";
+      this.configService?.get<string>("AWS_S3_IMAGES_BUCKET") || "construgame-bucket";
     this.logger.log(
       `S3 Service configured - Bucket: ${this.bucket}, Region: ${this.region}`,
     );

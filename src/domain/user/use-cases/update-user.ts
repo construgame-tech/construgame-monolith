@@ -1,17 +1,19 @@
 // Use Case: Atualizar um usuário existente
+// Nota: Campos com valor null serão removidos (setados como undefined)
+// Campos não enviados (undefined) mantêm o valor atual
 
 import { UserEntity, updateUserEntity } from "../entities/user.entity";
 import { IUserRepository } from "../repositories/user.repository.interface";
 
 export interface UpdateUserInput {
   userId: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  nickname?: string;
-  photo?: string;
-  customId?: string;
-  signedTermsOfUse?: boolean;
+  name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  nickname?: string | null;
+  photo?: string | null;
+  customId?: string | null;
+  signedTermsOfUse?: boolean | null;
 }
 
 export interface UpdateUserOutput {

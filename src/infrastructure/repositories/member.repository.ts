@@ -1,10 +1,14 @@
-import { MemberEntity } from "@domain/member/entities/member.entity";
+import {
+  MemberEntity,
+  MemberWithUser,
+} from "@domain/member/entities/member.entity";
 import { IMemberRepository } from "@domain/member/repositories/member.repository.interface";
 import { Inject, Injectable } from "@nestjs/common";
 import { and, eq } from "drizzle-orm";
 import type { DrizzleDB } from "../database/drizzle.provider";
 import { DRIZZLE_CONNECTION } from "../database/drizzle.provider";
 import { members } from "../database/schemas/member.schema";
+import { users } from "../database/schemas/user.schema";
 
 @Injectable()
 export class MemberRepository implements IMemberRepository {
@@ -88,6 +92,60 @@ export class MemberRepository implements IMemberRepository {
       .where(eq(members.userId, userId));
 
     return result.map(this.mapToEntity);
+  }
+
+  async findByOrganizationIdWithUserData(
+    organizationId: string,
+  ): Promise<MemberWithUser[]> {
+    const result = await this.db
+      .select({
+        // Member fields
+        userId: members.userId,
+        organizationId: members.organizationId,
+        role: members.role,
+        sectorId: members.sectorId,
+        sector: members.sector,
+        position: members.position,
+        jobRoleId: members.jobRoleId,
+        jobRoleVariantId: members.jobRoleVariantId,
+        salary: members.salary,
+        seniority: members.seniority,
+        state: members.state,
+        hoursPerDay: members.hoursPerDay,
+        // User fields
+        name: users.name,
+        nickname: users.nickname,
+        phone: users.phone,
+        email: users.email,
+        photo: users.photo,
+        status: users.status,
+        customId: users.customId,
+      })
+      .from(members)
+      .innerJoin(users, eq(members.userId, users.id))
+      .where(eq(members.organizationId, organizationId));
+
+    return result.map((row) => ({
+      userId: row.userId,
+      organizationId: row.organizationId,
+      role: row.role,
+      sectorId: row.sectorId || undefined,
+      sector: row.sector || undefined,
+      position: row.position || undefined,
+      jobRoleId: row.jobRoleId || undefined,
+      jobRoleVariantId: row.jobRoleVariantId || undefined,
+      salary: row.salary || undefined,
+      seniority: row.seniority || undefined,
+      state: row.state || undefined,
+      hoursPerDay: row.hoursPerDay || undefined,
+      name: row.name || undefined,
+      nickname: row.nickname || undefined,
+      phone: row.phone || undefined,
+      email: row.email || undefined,
+      photo: row.photo || undefined,
+      status: row.status || undefined,
+      customId: row.customId || undefined,
+    }));
   }
 
   private mapToEntity(row: typeof members.$inferSelect): MemberEntity {

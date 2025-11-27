@@ -1,5 +1,5 @@
 import { UserEntity } from "@domain/user/entities/user.entity";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class UserResponseDto {
   @ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
@@ -8,27 +8,29 @@ export class UserResponseDto {
   @ApiProperty({ example: "John Doe" })
   name!: string;
 
-  @ApiProperty({ example: "john@example.com", required: false })
+  @ApiPropertyOptional({ example: "john@example.com" })
   email?: string;
 
-  @ApiProperty({ example: "+5511999999999", required: false })
+  @ApiPropertyOptional({ example: "+5511999999999" })
   phone?: string;
 
-  @ApiProperty({ example: "johndoe", required: false })
+  @ApiPropertyOptional({ example: "johndoe" })
   nickname?: string;
 
-  @ApiProperty({ example: "https://example.com/photo.jpg", required: false })
+  @ApiPropertyOptional({ example: "https://example.com/photo.jpg" })
   photo?: string;
 
   @ApiProperty({ example: "ACTIVE", enum: ["WAITING_CONFIRMATION", "ACTIVE"] })
   status!: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: "user",
     enum: ["user", "superuser"],
-    required: false,
   })
   type?: string;
+
+  @ApiPropertyOptional({ example: "EMP-12345", description: "Custom ID do usuário" })
+  customId?: string;
 
   @ApiProperty({ example: true })
   signedTermsOfUse!: boolean;
@@ -52,6 +54,7 @@ export class UserResponseDto {
     dto.photo = entity.photo;
     dto.status = entity.status;
     dto.type = entity.type;
+    dto.customId = entity.customId;
     dto.signedTermsOfUse = entity.signedTermsOfUse || false;
     dto.active = entity.status === "ACTIVE";
     dto.superuser = entity.type === "superuser";

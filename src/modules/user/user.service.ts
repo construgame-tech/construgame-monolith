@@ -10,9 +10,11 @@ import {
   updateUser,
 } from "@domain/user";
 import { UserEntity } from "@domain/user/entities/user.entity";
+import { MemberRepository } from "@infrastructure/repositories/member.repository";
 import { UserRepository } from "@infrastructure/repositories/user.repository";
 import { EmailService } from "@infrastructure/services/email/email.service";
 import { Injectable, Logger } from "@nestjs/common";
+import type { CreateUserDto } from "./dto/create-user.dto";
 
 @Injectable()
 export class UserService {
@@ -20,6 +22,7 @@ export class UserService {
 
   constructor(
     private readonly userRepository: UserRepository,
+    private readonly memberRepository: MemberRepository,
     private readonly emailService: EmailService,
   ) {}
 
@@ -37,8 +40,9 @@ export class UserService {
 
   /**
    * Cria um novo usuário e envia email de boas-vindas
+   * Se organization for informado, também cria o membro na organização
    */
-  async create(input: CreateUserInput): Promise<{ user: UserEntity }> {
+  async create(input: CreateUserDto): Promise<{ user: UserEntity }> {
     // Gera código de recuperação para o novo usuário criar sua senha
     const recoveryCode = this.generateRandomCode(6);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
@@ -74,6 +78,26 @@ export class UserService {
           error,
         );
         // Não falha a criação do usuário se o email não for enviado
+      }
+    }
+
+    // Se organization foi informado, cria o membro na organização
+    if (input.organization) {
+      try {
+        await this.memberRepository.save({
+          userId: result.user.id,
+          organizationId: input.organization.organizationId,
+          role: input.organization.role,
+        });
+        this.logger.log(
+          `Member created for user ${result.user.id} in organization ${input.organization.organizationId}`,
+        );
+      } catch (error) {
+        this.logger.error(
+          `Failed to create member for user ${result.user.id}:`,
+          error,
+        );
+        // Não falha a criação do usuário se o membro não for criado
       }
     }
 

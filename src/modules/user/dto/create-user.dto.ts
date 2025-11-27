@@ -1,5 +1,43 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsEmail, IsOptional, IsString } from "class-validator";
+import type { MemberRole } from "@domain/member/entities/member.entity";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import {
+  IsBoolean,
+  IsEmail,
+  IsIn,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from "class-validator";
+
+const VALID_MEMBER_ROLES = [
+  "owner",
+  "admin",
+  "manager",
+  "player",
+  "financial",
+] as const;
+
+/**
+ * DTO para associar o usuário a uma organização durante a criação
+ */
+export class UserOrganizationDto {
+  @ApiProperty({
+    example: "123e4567-e89b-12d3-a456-426614174000",
+    description: "ID da organização",
+  })
+  @IsUUID()
+  organizationId: string;
+
+  @ApiProperty({
+    example: "player",
+    description: "Papel do usuário na organização",
+    enum: VALID_MEMBER_ROLES,
+  })
+  @IsIn(VALID_MEMBER_ROLES)
+  role: MemberRole;
+}
 
 export class CreateUserDto {
   @ApiProperty({
@@ -45,4 +83,13 @@ export class CreateUserDto {
   @IsBoolean()
   @IsOptional()
   signedTermsOfUse?: boolean;
+
+  @ApiPropertyOptional({
+    description: "Organização para associar o usuário como membro",
+    type: UserOrganizationDto,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UserOrganizationDto)
+  organization?: UserOrganizationDto;
 }

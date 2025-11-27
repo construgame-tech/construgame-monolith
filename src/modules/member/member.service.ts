@@ -1,4 +1,7 @@
-import { MemberEntity } from "@domain/member/entities/member.entity";
+import {
+  MemberEntity,
+  MemberWithUser,
+} from "@domain/member/entities/member.entity";
 import type { IMemberRepository } from "@domain/member/repositories/member.repository.interface";
 import {
   CreateMemberInput,
@@ -89,6 +92,14 @@ export class MemberService {
       this.memberRepository,
     );
     return result.members;
+  }
+
+  async listOrganizationMembersWithUserData(
+    organizationId: string,
+  ): Promise<MemberWithUser[]> {
+    return this.memberRepository.findByOrganizationIdWithUserData(
+      organizationId,
+    );
   }
 
   async listUserOrganizations(userId: string): Promise<MemberEntity[]> {

@@ -51,27 +51,29 @@ export const createUserEntity = (props: {
 };
 
 // Factory function para atualizar um usuário existente
+// Nota: Se um campo for passado como null, ele será removido (setado como undefined)
+// Se um campo não for passado (undefined), mantém o valor atual
 export const updateUserEntity = (
   currentUser: UserEntity,
   updates: {
-    name?: string;
-    email?: string;
-    phone?: string;
-    nickname?: string;
-    photo?: string;
-    customId?: string;
-    signedTermsOfUse?: boolean;
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    nickname?: string | null;
+    photo?: string | null;
+    customId?: string | null;
+    signedTermsOfUse?: boolean | null;
   },
 ): UserEntity => {
   return {
     ...currentUser,
-    name: updates.name ?? currentUser.name,
-    email: updates.email ?? currentUser.email,
-    phone: updates.phone ?? currentUser.phone,
-    nickname: updates.nickname ?? currentUser.nickname,
-    photo: updates.photo ?? currentUser.photo,
-    customId: updates.customId ?? currentUser.customId,
-    signedTermsOfUse: updates.signedTermsOfUse ?? currentUser.signedTermsOfUse,
+    name: updates.name === null ? undefined : (updates.name ?? currentUser.name),
+    email: updates.email === null ? undefined : (updates.email ?? currentUser.email),
+    phone: updates.phone === null ? undefined : (updates.phone ?? currentUser.phone),
+    nickname: updates.nickname === null ? undefined : (updates.nickname ?? currentUser.nickname),
+    photo: updates.photo === null ? undefined : (updates.photo ?? currentUser.photo),
+    customId: updates.customId === null ? undefined : (updates.customId ?? currentUser.customId),
+    signedTermsOfUse: updates.signedTermsOfUse === null ? undefined : (updates.signedTermsOfUse ?? currentUser.signedTermsOfUse),
   };
 };
 
