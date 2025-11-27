@@ -1,3 +1,4 @@
+import { CurrentUser } from "@modules/auth/current-user.decorator";
 import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
   Body,
@@ -20,6 +21,7 @@ import {
 } from "@nestjs/swagger";
 import { ApproveTaskUpdateDto } from "./dto/approve-task-update.dto";
 import { CreateTaskUpdateDto } from "./dto/create-task-update.dto";
+import { CreateTaskUpdateSingularDto } from "./dto/create-task-update-singular.dto";
 import { RejectTaskUpdateDto } from "./dto/reject-task-update.dto";
 import { TaskUpdateService } from "./task-update.service";
 
@@ -72,8 +74,11 @@ export class TaskUpdateController {
   async approve(
     @Param("updateId") updateId: string,
     @Body() dto: ApproveTaskUpdateDto,
+    @CurrentUser() user: { userId: string },
   ) {
-    return this.taskUpdateService.approve(updateId, dto);
+    // Se reviewedBy não foi informado, usa o userId do token JWT
+    const reviewedBy = dto.reviewedBy || user.userId;
+    return this.taskUpdateService.approve(updateId, { ...dto, reviewedBy });
   }
 
   @Put("task-updates/:updateId/reject")
@@ -102,9 +107,35 @@ export class TaskUpdateController {
   async createSingular(
     @Param("gameId") gameId: string,
     @Param("taskId") taskId: string,
-    @Body() dto: CreateTaskUpdateDto,
+    @Body() dto: CreateTaskUpdateSingularDto,
+    @CurrentUser() user: { userId: string; username: string; roles: string[]; userType: string },
   ) {
-    return this.taskUpdateService.create({ ...dto, gameId, taskId });
+    // Extrai userId do token JWT (JwtStrategy.validate retorna userId, não sub)
+    const submittedBy = user.userId;
+
+    const now = new Date().toISOString();
+
+    return this.taskUpdateService.create({
+      gameId,
+      taskId,
+      submittedBy,
+      participants: dto.participants,
+      photos: dto.photos,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
+      progress: {
+        absolute: dto.absolute,
+        percent: dto.percent,
+        hours: dto.hours,
+        note: dto.note,
+        updatedAt: now,
+      },
+      checklist: dto.checklist?.map((item) => ({
+        id: item.id,
+        checked: item.checked,
+      })),
+      files: dto.files,
+    });
   }
 
   @Put("game/:gameId/task/:taskId/update/:taskUpdateId/approve")
@@ -114,8 +145,11 @@ export class TaskUpdateController {
     @Param("taskId") _taskId: string,
     @Param("taskUpdateId") taskUpdateId: string,
     @Body() dto: ApproveTaskUpdateDto,
+    @CurrentUser() user: { userId: string },
   ) {
-    return this.taskUpdateService.approve(taskUpdateId, dto);
+    // Se reviewedBy não foi informado, usa o userId do token JWT
+    const reviewedBy = dto.reviewedBy || user.userId;
+    return this.taskUpdateService.approve(taskUpdateId, { ...dto, reviewedBy });
   }
 
   @Put("game/:gameId/task/:taskId/update/:taskUpdateId/reject")

@@ -35,7 +35,7 @@ export class TaskTemplateController {
     @Param("organizationId") organizationId: string,
     @Body() dto: CreateTaskTemplateDto,
   ) {
-    return this.taskTemplateService.create({ ...dto, organizationId });
+    return this.taskTemplateService.create(organizationId, dto);
   }
 
   @Get(":templateId")
@@ -47,7 +47,8 @@ export class TaskTemplateController {
   @Get()
   @ApiOperation({ summary: "List task templates by organization" })
   async findByOrganization(@Param("organizationId") organizationId: string) {
-    return this.taskTemplateService.findByOrganizationId(organizationId);
+    const items = await this.taskTemplateService.findByOrganizationId(organizationId);
+    return { items };
   }
 
   @Put(":templateId")

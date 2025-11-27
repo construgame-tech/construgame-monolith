@@ -15,10 +15,10 @@ export class TaskTemplateService {
     private readonly taskTemplateRepository: TaskTemplateRepository,
   ) {}
 
-  async create(dto: CreateTaskTemplateDto) {
+  async create(organizationId: string, dto: CreateTaskTemplateDto) {
     const entity = createTaskTemplateEntity({
       id: randomUUID(),
-      organizationId: dto.organizationId,
+      organizationId,
       kpiId: dto.kpiId,
       name: dto.name,
       rewardPoints: dto.rewardPoints,

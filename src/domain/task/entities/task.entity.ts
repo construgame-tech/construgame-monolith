@@ -118,6 +118,11 @@ export const createTaskEntity = (props: {
     checklist: props.checklist,
     startDate: props.startDate,
     endDate: props.endDate,
+    progress: {
+      absolute: 0,
+      percent: 0,
+      updatedAt: new Date().toISOString(),
+    },
   };
 };
 

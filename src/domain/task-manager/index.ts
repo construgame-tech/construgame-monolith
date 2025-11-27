@@ -7,4 +7,5 @@ export * from "./entities/task-manager.entity";
 // Repository Interface
 export * from "./repositories/task-manager.repository.interface";
 
-// Use Cases (CRUD básico)
+// Use Cases
+export * from "./use-cases/generate-tasks-from-task-manager";

@@ -22,10 +22,10 @@ class TaskUpdateChecklistItemDto {
 }
 
 export class ApproveTaskUpdateDto {
-  @ApiProperty()
+  @ApiPropertyOptional({ description: "ID do revisor. Se não informado, usa o userId do token JWT." })
   @IsString()
-  @IsNotEmpty()
-  reviewedBy!: string;
+  @IsOptional()
+  reviewedBy?: string;
 
   @ApiPropertyOptional()
   @IsString()

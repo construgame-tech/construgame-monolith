@@ -132,7 +132,11 @@ export class TaskRepository implements ITaskRepository {
       checklist: (row.checklist as TaskChecklistItem[]) || undefined,
       startDate: row.startDate || undefined,
       endDate: row.endDate || undefined,
-      progress: (row.progress as TaskProgress) || undefined,
+      progress: (row.progress as TaskProgress) || {
+        absolute: 0,
+        percent: 0,
+        updatedAt: new Date().toISOString(),
+      },
       updates: (row.updates as TaskUpdate[]) || undefined,
       pendingReviewUpdates:
         (row.pendingReviewUpdates as { count: number; progress: number }) ||

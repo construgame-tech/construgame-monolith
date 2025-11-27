@@ -1,6 +1,9 @@
 import { randomUUID } from "node:crypto";
+import { generateTasksFromTaskManager } from "@domain/task-manager";
+import { createTaskEntity } from "@domain/task/entities/task.entity";
 import { GameRepository } from "@infrastructure/repositories/game.repository";
 import { TaskManagerRepository } from "@infrastructure/repositories/task-manager.repository";
+import { TaskRepository } from "@infrastructure/repositories/task.repository";
 import {
   BadRequestException,
   Body,
@@ -9,6 +12,7 @@ import {
   Get,
   HttpCode,
   Inject,
+  Logger,
   NotFoundException,
   Param,
   Post,
@@ -268,11 +272,15 @@ class UpdateTaskManagerDto {
 @UseGuards(JwtAuthGuard)
 @Controller()
 export class TaskManagerController {
+  private readonly logger = new Logger(TaskManagerController.name);
+
   constructor(
     @Inject(TaskManagerRepository)
     private readonly repository: TaskManagerRepository,
     @Inject(GameRepository)
     private readonly gameRepository: GameRepository,
+    @Inject(TaskRepository)
+    private readonly taskRepository: TaskRepository,
   ) {}
 
   @Post("games/:gameId/task-managers")
@@ -317,6 +325,65 @@ export class TaskManagerController {
       tasks: [],
     });
 
+    // Converte para o tipo TaskManagerEntity esperado pelo use case (null -> undefined)
+    const taskManagerEntity = {
+      ...taskManager,
+      macrostep: taskManager.macrostep ?? undefined,
+      location: taskManager.location ?? undefined,
+      description: taskManager.description ?? undefined,
+      measurementUnit: taskManager.measurementUnit ?? undefined,
+      totalMeasurementExpected: taskManager.totalMeasurementExpected ?? undefined,
+      videoUrl: taskManager.videoUrl ?? undefined,
+      embedVideoUrl: taskManager.embedVideoUrl ?? undefined,
+      checklist: taskManager.checklist ?? undefined,
+      tasks: taskManager.tasks ?? undefined,
+    };
+
+    // Gera e salva as tasks a partir do Task Manager
+    const generatedTasks = generateTasksFromTaskManager(taskManagerEntity);
+    const createdTasks: { id: string; progressAbsolute: number }[] = [];
+
+    this.logger.log(
+      `Gerando ${generatedTasks.length} tasks para Task Manager ${taskManager.id}`,
+    );
+
+    for (const genTask of generatedTasks) {
+      const taskId = randomUUID();
+      const taskEntity = createTaskEntity({
+        id: taskId,
+        gameId: genTask.gameId,
+        name: genTask.name,
+        rewardPoints: genTask.rewardPoints,
+        kpiId: genTask.kpiId,
+        taskManagerId: genTask.taskManagerId,
+        description: genTask.description,
+        measurementUnit: genTask.measurementUnit,
+        totalMeasurementExpected: genTask.totalMeasurementExpected,
+        videoUrl: genTask.videoUrl,
+        embedVideoUrl: genTask.embedVideoUrl,
+        location: genTask.location,
+        checklist: genTask.checklist,
+        startDate: genTask.startDate,
+        endDate: genTask.endDate,
+        teamId: genTask.responsibleType === "team" ? genTask.responsibleId : undefined,
+        userId: genTask.responsibleType === "user" ? genTask.responsibleId : undefined,
+      });
+
+      await this.taskRepository.save(taskEntity);
+      createdTasks.push({ id: taskId, progressAbsolute: 0 });
+    }
+
+    // Atualiza o Task Manager com os IDs das tasks criadas
+    if (createdTasks.length > 0) {
+      await this.repository.update(taskManager.id, {
+        tasks: createdTasks,
+      });
+    }
+
+    this.logger.log(
+      `Tasks criadas com sucesso: ${createdTasks.length} tasks para Task Manager ${taskManager.id}`,
+    );
+
     return {
       id: taskManager.id,
       organizationId: taskManager.organizationId,
@@ -335,6 +402,7 @@ export class TaskManagerController {
       responsible: taskManager.responsible,
       schedule: taskManager.schedule,
       checklist: taskManager.checklist,
+      tasksCreated: createdTasks.length,
     };
   }
 
@@ -511,6 +579,65 @@ export class TaskManagerController {
       tasks: [],
     });
 
+    // Converte para o tipo TaskManagerEntity esperado pelo use case (null -> undefined)
+    const taskManagerEntity = {
+      ...taskManager,
+      macrostep: taskManager.macrostep ?? undefined,
+      location: taskManager.location ?? undefined,
+      description: taskManager.description ?? undefined,
+      measurementUnit: taskManager.measurementUnit ?? undefined,
+      totalMeasurementExpected: taskManager.totalMeasurementExpected ?? undefined,
+      videoUrl: taskManager.videoUrl ?? undefined,
+      embedVideoUrl: taskManager.embedVideoUrl ?? undefined,
+      checklist: taskManager.checklist ?? undefined,
+      tasks: taskManager.tasks ?? undefined,
+    };
+
+    // Gera e salva as tasks a partir do Task Manager
+    const generatedTasks = generateTasksFromTaskManager(taskManagerEntity);
+    const createdTasks: { id: string; progressAbsolute: number }[] = [];
+
+    this.logger.log(
+      `Gerando ${generatedTasks.length} tasks para Task Manager ${taskManager.id}`,
+    );
+
+    for (const genTask of generatedTasks) {
+      const taskId = randomUUID();
+      const taskEntity = createTaskEntity({
+        id: taskId,
+        gameId: genTask.gameId,
+        name: genTask.name,
+        rewardPoints: genTask.rewardPoints,
+        kpiId: genTask.kpiId,
+        taskManagerId: genTask.taskManagerId,
+        description: genTask.description,
+        measurementUnit: genTask.measurementUnit,
+        totalMeasurementExpected: genTask.totalMeasurementExpected,
+        videoUrl: genTask.videoUrl,
+        embedVideoUrl: genTask.embedVideoUrl,
+        location: genTask.location,
+        checklist: genTask.checklist,
+        startDate: genTask.startDate,
+        endDate: genTask.endDate,
+        teamId: genTask.responsibleType === "team" ? genTask.responsibleId : undefined,
+        userId: genTask.responsibleType === "user" ? genTask.responsibleId : undefined,
+      });
+
+      await this.taskRepository.save(taskEntity);
+      createdTasks.push({ id: taskId, progressAbsolute: 0 });
+    }
+
+    // Atualiza o Task Manager com os IDs das tasks criadas
+    if (createdTasks.length > 0) {
+      await this.repository.update(taskManager.id, {
+        tasks: createdTasks,
+      });
+    }
+
+    this.logger.log(
+      `Tasks criadas com sucesso: ${createdTasks.length} tasks para Task Manager ${taskManager.id}`,
+    );
+
     return {
       id: taskManager.id,
       organizationId: taskManager.organizationId,
@@ -529,6 +656,7 @@ export class TaskManagerController {
       responsible: taskManager.responsible,
       schedule: taskManager.schedule,
       checklist: taskManager.checklist,
+      tasksCreated: createdTasks.length,
     };
   }
 
