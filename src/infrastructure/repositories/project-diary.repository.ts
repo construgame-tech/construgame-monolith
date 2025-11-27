@@ -17,7 +17,6 @@ export class ProjectDiaryRepository {
         .update(projectDiaries)
         .set({
           ...data,
-          sequence: existing.sequence + 1,
           updatedAt: new Date(),
         })
         .where(

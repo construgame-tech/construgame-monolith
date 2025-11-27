@@ -143,7 +143,6 @@ export class ProjectPlanningRepository {
         target: macrostepOrders.projectId,
         set: {
           macrostepIds: data.macrostepIds,
-          sequence: data.sequence,
           updatedAt: new Date(),
         },
       })

@@ -14,14 +14,10 @@ export class OrgKaizenConfigResponseDto {
     "5"?: { points: number; description?: string };
   };
 
-  @ApiProperty()
-  sequence: number;
-
   static fromEntity(entity: OrgKaizenConfigEntity): OrgKaizenConfigResponseDto {
     return {
       organizationId: entity.organizationId,
       categoryPoints: entity.categoryPoints,
-      sequence: entity.sequence,
     };
   }
 }

@@ -17,14 +17,12 @@ export class KaizenTypeRepository implements IKaizenTypeRepository {
         organizationId: type.organizationId,
         name: type.name,
         rewardPoints: type.points,
-        sequence: type.sequence,
       })
       .onConflictDoUpdate({
         target: kaizenTypes.id,
         set: {
           name: type.name,
           rewardPoints: type.points,
-          sequence: type.sequence,
         },
       });
   }
@@ -75,7 +73,6 @@ export class KaizenTypeRepository implements IKaizenTypeRepository {
       organizationId: row.organizationId,
       name: row.name,
       points: row.rewardPoints,
-      sequence: row.sequence,
     };
   }
 }

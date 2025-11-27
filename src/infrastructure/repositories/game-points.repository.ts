@@ -29,7 +29,6 @@ export class UserGamePointsRepository implements IUserGamePointsRepository {
         taskPoints: points.taskPoints,
         kaizenPoints: points.kaizenPoints,
         totalPoints: points.totalPoints,
-        sequence: points.sequence,
       })
       .onConflictDoUpdate({
         target: [userGamePoints.userId, userGamePoints.gameId],
@@ -37,7 +36,6 @@ export class UserGamePointsRepository implements IUserGamePointsRepository {
           taskPoints: points.taskPoints,
           kaizenPoints: points.kaizenPoints,
           totalPoints: points.totalPoints,
-          sequence: points.sequence,
         },
       });
   }
@@ -71,7 +69,6 @@ export class UserGamePointsRepository implements IUserGamePointsRepository {
       taskPoints: row.taskPoints,
       kaizenPoints: row.kaizenPoints,
       totalPoints: row.totalPoints,
-      sequence: row.sequence,
     };
   }
 }
@@ -91,7 +88,6 @@ export class TeamGamePointsRepository implements ITeamGamePointsRepository {
         taskPoints: points.taskPoints,
         kaizenPoints: points.kaizenPoints,
         totalPoints: points.totalPoints,
-        sequence: points.sequence,
       })
       .onConflictDoUpdate({
         target: [teamGamePoints.teamId, teamGamePoints.gameId],
@@ -99,7 +95,6 @@ export class TeamGamePointsRepository implements ITeamGamePointsRepository {
           taskPoints: points.taskPoints,
           kaizenPoints: points.kaizenPoints,
           totalPoints: points.totalPoints,
-          sequence: points.sequence,
         },
       });
   }
@@ -133,7 +128,6 @@ export class TeamGamePointsRepository implements ITeamGamePointsRepository {
       taskPoints: row.taskPoints,
       kaizenPoints: row.kaizenPoints,
       totalPoints: row.totalPoints,
-      sequence: row.sequence,
     };
   }
 }

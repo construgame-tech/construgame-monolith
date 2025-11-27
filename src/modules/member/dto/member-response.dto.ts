@@ -52,7 +52,6 @@ export class MemberResponseDto {
     dto.sectorId = entity.sectorId;
     dto.sector = entity.sector;
     dto.position = entity.position;
-    dto.sequence = entity.sequence;
     dto.jobRoleId = entity.jobRoleId;
     dto.jobRoleVariantId = entity.jobRoleVariantId;
     dto.salary = entity.salary;

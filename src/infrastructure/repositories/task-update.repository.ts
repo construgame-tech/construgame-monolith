@@ -29,7 +29,6 @@ export class TaskUpdateRepository {
         progress: entity.progress as any,
         checklist: entity.checklist,
         files: entity.files,
-        sequence: entity.sequence,
       })
       .onConflictDoUpdate({
         target: taskUpdates.id,
@@ -44,7 +43,6 @@ export class TaskUpdateRepository {
           progress: entity.progress as any,
           checklist: entity.checklist,
           files: entity.files,
-          sequence: entity.sequence,
         },
       })
       .returning();
@@ -181,7 +179,6 @@ export class TaskUpdateRepository {
       progress: row.progress as any,
       checklist: row.checklist as any,
       files: row.files as any,
-      sequence: row.sequence,
     };
   }
 }

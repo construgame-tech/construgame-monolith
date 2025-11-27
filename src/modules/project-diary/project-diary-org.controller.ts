@@ -251,7 +251,6 @@ export class ProjectDiaryOrgController {
       equipment: body.equipment,
       manpower: body.manpower,
       indirectManpower: body.indirectManpower,
-      sequence: existing.sequence,
     });
 
     return {

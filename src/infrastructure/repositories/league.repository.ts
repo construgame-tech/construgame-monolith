@@ -20,7 +20,6 @@ export class LeagueRepository implements ILeagueRepository {
         startDate: league.startDate,
         endDate: league.endDate,
         prizes: league.prizes,
-        sequence: league.sequence,
       })
       .onConflictDoUpdate({
         target: leagues.id,
@@ -30,7 +29,6 @@ export class LeagueRepository implements ILeagueRepository {
           startDate: league.startDate,
           endDate: league.endDate,
           prizes: league.prizes,
-          sequence: league.sequence,
         },
       });
   }
@@ -84,7 +82,6 @@ export class LeagueRepository implements ILeagueRepository {
       endDate: row.endDate ?? undefined,
       prizes: row.prizes ?? undefined,
       games: [row.gameId],
-      sequence: row.sequence,
     };
   }
 }

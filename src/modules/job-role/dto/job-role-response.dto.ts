@@ -42,7 +42,6 @@ export class JobRoleResponseDto {
     dto.updatedAt = entity.updatedAt;
     dto.createdAt = entity.createdAt;
     dto.createdBy = entity.createdBy;
-    dto.sequence = entity.sequence;
     return dto;
   }
 }

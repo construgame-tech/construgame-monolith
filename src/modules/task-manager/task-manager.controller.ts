@@ -307,7 +307,6 @@ export class TaskManagerController {
       checklist,
       progressAbsolute: 0,
       tasks: [],
-      sequence: 0,
     });
 
     return {
@@ -369,7 +368,6 @@ export class TaskManagerController {
       checklist,
       videoUrl: body.videoUrl,
       embedVideoUrl: body.embedVideoUrl,
-      sequence: existing.sequence + 1,
     });
 
     return {
@@ -503,7 +501,6 @@ export class TaskManagerController {
       checklist,
       progressAbsolute: 0,
       tasks: [],
-      sequence: 0,
     });
 
     return {
@@ -596,7 +593,6 @@ export class TaskManagerController {
       checklist,
       videoUrl: body.videoUrl,
       embedVideoUrl: body.embedVideoUrl,
-      sequence: existing.sequence + 1,
     });
 
     return {

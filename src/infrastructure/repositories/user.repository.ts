@@ -30,7 +30,6 @@ export class UserRepository implements IUserRepository {
       passwordRecoveryCodeExpires: user.passwordRecoveryCodeExpires || null,
       type: user.type || null,
       customId: user.customId || null,
-      sequence: user.sequence,
       updatedAt: new Date(),
     };
 
@@ -126,7 +125,6 @@ export class UserRepository implements IUserRepository {
       passwordRecoveryCodeExpires: row.passwordRecoveryCodeExpires || undefined,
       type: (row.type as "user" | "superuser") || undefined,
       customId: row.customId || undefined,
-      sequence: row.sequence,
     };
   }
 }

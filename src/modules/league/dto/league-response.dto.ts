@@ -63,7 +63,6 @@ export class LeagueResponseDto {
     dto.projects = entity.projects;
     dto.games = entity.games;
     dto.hidden = entity.hidden;
-    dto.sequence = entity.sequence;
     return dto;
   }
 }

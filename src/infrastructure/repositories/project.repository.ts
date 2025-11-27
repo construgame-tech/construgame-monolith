@@ -29,7 +29,6 @@ export class ProjectRepository implements IProjectRepository {
       endDate: project.endDate || null,
       prizes: project.prizes || null,
       teams: project.teams || null,
-      sequence: project.sequence,
     };
 
     await this.db.insert(projects).values(projectData).onConflictDoUpdate({
@@ -96,7 +95,6 @@ export class ProjectRepository implements IProjectRepository {
       endDate: row.endDate || undefined,
       prizes: row.prizes || undefined,
       teams: row.teams || undefined,
-      sequence: row.sequence,
     };
   }
 }

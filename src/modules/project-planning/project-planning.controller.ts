@@ -380,7 +380,6 @@ export class ProjectPlanningController {
         projectId,
         organizationId,
         macrostepIds: [],
-        sequence: 0,
       });
     }
 
@@ -391,14 +390,12 @@ export class ProjectPlanningController {
       projectId,
       name: body.name,
       progressPercent: 0,
-      sequence: 0,
     });
 
     // Update order
     order.macrostepIds.push(macrostepId);
     await this.repository.upsertMacrostepOrder({
       ...order,
-      sequence: order.sequence + 1,
     });
 
     return {
@@ -437,7 +434,6 @@ export class ProjectPlanningController {
       macrostepId,
       {
         name: body.name,
-        sequence: macrostep.sequence + 1,
       },
     );
 
@@ -487,7 +483,6 @@ export class ProjectPlanningController {
       );
       await this.repository.upsertMacrostepOrder({
         ...order,
-        sequence: order.sequence + 1,
       });
     }
 
@@ -599,7 +594,6 @@ export class ProjectPlanningController {
 
     await this.repository.upsertMacrostepOrder({
       ...order,
-      sequence: order.sequence + 1,
     });
 
     return {};
@@ -632,7 +626,6 @@ export class ProjectPlanningController {
         projectId,
         organizationId,
         macrostepIds: [],
-        sequence: 0,
       });
     }
 
@@ -654,7 +647,6 @@ export class ProjectPlanningController {
         projectId,
         name: macrostepData.name,
         progressPercent: 0,
-        sequence: 0,
       });
 
       // Adicionar ao order
@@ -685,7 +677,6 @@ export class ProjectPlanningController {
             laborCompositionList: activityData.laborCompositionList,
             prizesPerRange: activityData.prizesPerRange,
             prizesPerProductivity: activityData.prizesPerProductivity,
-            sequence: 0,
           });
           activitiesCount++;
         }
@@ -704,7 +695,6 @@ export class ProjectPlanningController {
     // Atualizar order
     await this.repository.upsertMacrostepOrder({
       ...order,
-      sequence: order.sequence + 1,
     });
 
     return {
@@ -761,7 +751,6 @@ export class ProjectPlanningController {
       laborCompositionList: body.laborCompositionList,
       prizesPerRange: body.prizesPerRange,
       prizesPerProductivity: body.prizesPerProductivity,
-      sequence: 0,
     });
 
     // Update macrostep progress
@@ -770,7 +759,6 @@ export class ProjectPlanningController {
     const newProgress = this.repository.calculateMacrostepProgress(activities);
     await this.repository.updateMacrostep(projectId, macrostepId, {
       progressPercent: newProgress,
-      sequence: macrostep.sequence + 1,
     });
 
     return {
@@ -824,7 +812,6 @@ export class ProjectPlanningController {
       activityId,
       {
         ...body,
-        sequence: activity.sequence + 1,
       },
     );
 
@@ -838,7 +825,6 @@ export class ProjectPlanningController {
     const newProgress = this.repository.calculateMacrostepProgress(activities);
     await this.repository.updateMacrostep(projectId, macrostepId, {
       progressPercent: newProgress,
-      sequence: macrostep.sequence + 1,
     });
 
     return {
@@ -898,7 +884,6 @@ export class ProjectPlanningController {
     const newProgress = this.repository.calculateMacrostepProgress(activities);
     await this.repository.updateMacrostep(projectId, macrostepId, {
       progressPercent: newProgress,
-      sequence: macrostep.sequence + 1,
     });
 
     return {};

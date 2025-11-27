@@ -35,7 +35,6 @@ export class KaizenTypeResponseDto {
     dto.points = entity.points;
     dto.ideaPoints = entity.ideaPoints;
     dto.ideaExecutionPoints = entity.ideaExecutionPoints;
-    dto.sequence = entity.sequence;
     return dto;
   }
 }

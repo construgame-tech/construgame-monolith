@@ -43,7 +43,6 @@ export class TaskRepository implements ITaskRepository {
       progress: task.progress || null,
       updates: task.updates || null,
       pendingReviewUpdates: task.pendingReviewUpdates || null,
-      sequence: task.sequence,
       updatedAt: new Date(),
     };
 
@@ -138,7 +137,6 @@ export class TaskRepository implements ITaskRepository {
       pendingReviewUpdates:
         (row.pendingReviewUpdates as { count: number; progress: number }) ||
         undefined,
-      sequence: row.sequence,
     };
   }
 

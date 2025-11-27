@@ -15,13 +15,11 @@ export class OrgKaizenConfigRepository implements IOrgKaizenConfigRepository {
       .values({
         organizationId: config.organizationId,
         categoryPoints: config.categoryPoints,
-        sequence: config.sequence,
       })
       .onConflictDoUpdate({
         target: orgKaizenConfigs.organizationId,
         set: {
           categoryPoints: config.categoryPoints,
-          sequence: config.sequence,
         },
       });
   }
@@ -44,7 +42,6 @@ export class OrgKaizenConfigRepository implements IOrgKaizenConfigRepository {
     return {
       organizationId: row.organizationId,
       categoryPoints: row.categoryPoints,
-      sequence: row.sequence,
     };
   }
 }

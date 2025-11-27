@@ -19,7 +19,6 @@ export class OrganizationRepository implements IOrganizationRepository {
       ownerId: organization.ownerId,
       name: organization.name,
       photo: organization.photo || null,
-      sequence: organization.sequence,
       updatedAt: new Date(),
     };
 
@@ -64,7 +63,6 @@ export class OrganizationRepository implements IOrganizationRepository {
       ownerId: row.ownerId,
       name: row.name,
       photo: row.photo || undefined,
-      sequence: row.sequence,
     };
   }
 }

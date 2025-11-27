@@ -38,8 +38,6 @@ export class OrgConfigResponseDto {
     };
   };
 
-  @ApiProperty()
-  sequence: number;
 
   static fromEntity(entity: OrgConfigEntity): OrgConfigResponseDto {
     return {
@@ -51,7 +49,6 @@ export class OrgConfigResponseDto {
       missionConfig: entity.missionConfig,
       theme: entity.theme,
       auth: entity.auth,
-      sequence: entity.sequence,
     };
   }
 }

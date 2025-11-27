@@ -145,12 +145,6 @@ export class GameResponseDto {
   })
   gameManagerId?: string;
 
-  @ApiProperty({
-    description: "Game sequence number (for optimistic locking)",
-    example: 0,
-  })
-  sequence: number;
-
   static fromEntity(entity: GameEntity): GameResponseDto {
     return {
       id: entity.id,
@@ -169,7 +163,6 @@ export class GameResponseDto {
       kpis: entity.kpis,
       archived: entity.archived,
       gameManagerId: entity.gameManagerId,
-      sequence: entity.sequence,
     };
   }
 }

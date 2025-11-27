@@ -29,7 +29,6 @@ export class KaizenIdeaRepository implements IKaizenIdeaRepository {
         attachments: idea.attachments,
         createdDate: idea.createdDate,
         updatedDate: idea.updatedDate,
-        sequence: idea.sequence,
         executableKaizenProjectIds: idea.executableKaizenProjectIds,
         nonExecutableProjects: idea.nonExecutableProjects,
       })
@@ -49,7 +48,6 @@ export class KaizenIdeaRepository implements IKaizenIdeaRepository {
           benefits: idea.benefits,
           attachments: idea.attachments,
           updatedDate: idea.updatedDate,
-          sequence: idea.sequence,
           executableKaizenProjectIds: idea.executableKaizenProjectIds,
           nonExecutableProjects: idea.nonExecutableProjects,
         },
@@ -114,7 +112,6 @@ export class KaizenIdeaRepository implements IKaizenIdeaRepository {
       attachments: row.attachments ?? undefined,
       createdDate: row.createdDate,
       updatedDate: row.updatedDate ?? undefined,
-      sequence: row.sequence,
       executableKaizenProjectIds: row.executableKaizenProjectIds ?? undefined,
       nonExecutableProjects: row.nonExecutableProjects ?? undefined,
     };

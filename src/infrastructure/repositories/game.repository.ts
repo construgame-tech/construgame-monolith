@@ -36,7 +36,6 @@ export class GameRepository implements IGameRepository {
         kpis: game.kpis || null,
         archived: (game.archived ? 1 : 0) as 0 | 1,
         gameManagerId: game.gameManagerId || null,
-        sequence: game.sequence,
         updatedAt: new Date(),
       })
       .onConflictDoUpdate({
@@ -57,7 +56,6 @@ export class GameRepository implements IGameRepository {
           kpis: game.kpis || null,
           archived: (game.archived ? 1 : 0) as 0 | 1,
           gameManagerId: game.gameManagerId || null,
-          sequence: game.sequence,
           updatedAt: new Date(),
         },
       });
@@ -135,7 +133,6 @@ export class GameRepository implements IGameRepository {
       kpis: row.kpis || undefined,
       archived: row.archived === 1,
       gameManagerId: row.gameManagerId || undefined,
-      sequence: row.sequence,
     };
   }
 }

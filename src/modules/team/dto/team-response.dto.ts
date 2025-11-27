@@ -40,7 +40,6 @@ export class TeamResponseDto {
     dto.managerId = entity.managerId;
     dto.fieldOfAction = entity.fieldOfAction;
     dto.members = entity.members;
-    dto.sequence = entity.sequence;
     dto.photo = entity.photo;
     dto.color = entity.color;
     dto.description = entity.description;

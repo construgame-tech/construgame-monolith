@@ -67,7 +67,6 @@ export class ProjectResponseDto {
     dto.endDate = entity.endDate;
     dto.prizes = entity.prizes;
     dto.teams = entity.teams;
-    dto.sequence = entity.sequence;
     return dto;
   }
 }

@@ -34,8 +34,6 @@ export class FinancialPrizeResponseDto {
     kaizenPoints?: number;
   };
 
-  @ApiProperty()
-  sequence: number;
 
   static fromEntity(entity: FinancialPrizeEntity): FinancialPrizeResponseDto {
     return {
@@ -48,7 +46,6 @@ export class FinancialPrizeResponseDto {
       period: entity.period,
       calculatedAt: entity.calculatedAt,
       details: entity.details,
-      sequence: entity.sequence,
     };
   }
 }

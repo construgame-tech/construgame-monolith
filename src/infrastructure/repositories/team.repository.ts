@@ -21,7 +21,6 @@ export class TeamRepository implements ITeamRepository {
       managerId: team.managerId || null,
       fieldOfAction: team.fieldOfAction || null,
       members: team.members || null,
-      sequence: team.sequence,
       photo: team.photo || null,
     };
 
@@ -76,7 +75,6 @@ export class TeamRepository implements ITeamRepository {
       managerId: row.managerId || undefined,
       fieldOfAction: row.fieldOfAction || undefined,
       members: row.members || undefined,
-      sequence: row.sequence,
       photo: row.photo || undefined,
       color: row.color || undefined,
       description: row.description || undefined,

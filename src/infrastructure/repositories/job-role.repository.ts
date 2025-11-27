@@ -21,7 +21,6 @@ export class JobRoleRepository implements IJobRoleRepository {
         updatedAt: jobRole.updatedAt,
         createdAt: jobRole.createdAt,
         createdBy: jobRole.createdBy,
-        sequence: jobRole.sequence,
       })
       .onConflictDoUpdate({
         target: jobRoles.id,
@@ -30,7 +29,6 @@ export class JobRoleRepository implements IJobRoleRepository {
           variants: jobRole.variants ?? [],
           updatedBy: jobRole.updatedBy,
           updatedAt: jobRole.updatedAt,
-          sequence: jobRole.sequence,
         },
       });
   }
@@ -83,7 +81,6 @@ export class JobRoleRepository implements IJobRoleRepository {
       updatedAt: row.updatedAt ?? undefined,
       createdAt: row.createdAt ?? undefined,
       createdBy: row.createdBy ?? undefined,
-      sequence: row.sequence,
     };
   }
 }

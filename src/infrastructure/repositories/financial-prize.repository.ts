@@ -22,14 +22,12 @@ export class FinancialPrizeRepository implements IFinancialPrizeRepository {
         period: prize.period,
         calculatedAt: prize.calculatedAt,
         details: prize.details,
-        sequence: prize.sequence,
       })
       .onConflictDoUpdate({
         target: financialPrizes.id,
         set: {
           amount: prize.amount.toString(),
           details: prize.details,
-          sequence: prize.sequence,
         },
       });
   }
@@ -93,7 +91,6 @@ export class FinancialPrizeRepository implements IFinancialPrizeRepository {
       period: row.period,
       calculatedAt: row.calculatedAt,
       details: row.details ?? undefined,
-      sequence: row.sequence,
     };
   }
 }

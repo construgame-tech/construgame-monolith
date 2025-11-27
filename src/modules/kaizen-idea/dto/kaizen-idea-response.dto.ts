@@ -87,7 +87,6 @@ export class KaizenIdeaResponseDto {
     dto.attachments = entity.attachments;
     dto.createdDate = entity.createdDate;
     dto.updatedDate = entity.updatedDate;
-    dto.sequence = entity.sequence;
     dto.executableKaizenProjectIds = entity.executableKaizenProjectIds;
     dto.nonExecutableProjects = entity.nonExecutableProjects;
     return dto;

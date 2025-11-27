@@ -21,7 +21,6 @@ export class OrgConfigRepository implements IOrgConfigRepository {
         missionConfig: config.missionConfig,
         theme: config.theme,
         auth: config.auth,
-        sequence: config.sequence,
       })
       .onConflictDoUpdate({
         target: orgConfigs.organizationId,
@@ -33,7 +32,6 @@ export class OrgConfigRepository implements IOrgConfigRepository {
           missionConfig: config.missionConfig,
           theme: config.theme,
           auth: config.auth,
-          sequence: config.sequence,
         },
       });
   }
@@ -60,7 +58,6 @@ export class OrgConfigRepository implements IOrgConfigRepository {
       missionConfig: row.missionConfig ?? undefined,
       theme: row.theme,
       auth: row.auth,
-      sequence: row.sequence,
     };
   }
 }
