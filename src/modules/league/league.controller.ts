@@ -6,8 +6,8 @@ import {
   HttpCode,
   Inject,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -25,7 +25,7 @@ import { LeagueService } from "./league.service";
 @ApiTags("leagues")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/leagues")
+@Controller("organization/:organizationId/league")
 export class LeagueController {
   constructor(
     @Inject(LeagueService)
@@ -67,7 +67,7 @@ export class LeagueController {
     return leagues.map(LeagueResponseDto.fromEntity);
   }
 
-  @Put(":leagueId")
+  @Patch(":leagueId")
   @ApiOperation({ summary: "Update league" })
   @ApiResponse({ status: 200, type: LeagueResponseDto })
   async updateLeague(

@@ -5,6 +5,7 @@ import {
   deleteRequest,
   faker,
   getRequest,
+  patchRequest,
   postRequest,
   putRequest,
 } from "../../helpers";
@@ -434,8 +435,9 @@ describe("TaskController (e2e)", () => {
 
   describe("POST /api/v1/game/:gameId/task", () => {
     it("should create task using singular route", async () => {
-      // Arrange
+      // Arrange - gameId is required in DTO even though it's in the path
       const taskData = {
+        gameId,
         name: "Singular POST Task",
         rewardPoints: 20,
         description: "Task created via singular route",
@@ -672,13 +674,13 @@ describe("TaskController (e2e)", () => {
     });
 
     it("should silently handle failed commands", async () => {
-      // Arrange - Commands with invalid data
+      // Arrange - Commands with valid UUIDs but non-existent task
       const batchData = {
         commands: [
           {
             action: "delete",
             gameId,
-            taskId: "nonexistent-task-id",
+            taskId: faker.uuid(), // Valid UUID but non-existent task
           },
         ],
       };
@@ -689,7 +691,7 @@ describe("TaskController (e2e)", () => {
         body: batchData,
       });
 
-      // Assert - Should not fail even with invalid data
+      // Assert - Should not fail even with non-existent task
       expect(response.statusCode).toBe(200);
       expect(response.body.message).toBe("Batch processed");
     });

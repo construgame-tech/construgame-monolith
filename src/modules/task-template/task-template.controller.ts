@@ -22,7 +22,7 @@ import { TaskTemplateService } from "./task-template.service";
 @ApiTags("task-templates")
 @ApiBearerAuth("JWT-auth")
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/task-templates")
+@Controller("organization/:organizationId/task-template")
 export class TaskTemplateController {
   constructor(
     @Inject(TaskTemplateService)

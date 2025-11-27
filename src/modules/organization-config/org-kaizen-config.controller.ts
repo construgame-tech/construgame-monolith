@@ -5,8 +5,8 @@ import {
   Get,
   Inject,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
@@ -18,7 +18,7 @@ import { OrgKaizenConfigService } from "./org-kaizen-config.service";
 @ApiTags("Organization Kaizen Config")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/kaizen-config")
+@Controller("organization/:organizationId/config/kaizen")
 export class OrgKaizenConfigController {
   constructor(
     @Inject(OrgKaizenConfigService)
@@ -42,7 +42,7 @@ export class OrgKaizenConfigController {
     return OrgKaizenConfigResponseDto.fromEntity(config);
   }
 
-  @Put()
+  @Patch()
   @ApiOperation({ summary: "Update kaizen config" })
   async update(
     @Param("organizationId") organizationId: string,

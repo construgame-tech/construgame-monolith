@@ -5,8 +5,8 @@ import {
   deleteRequest,
   faker,
   getRequest,
+  patchRequest,
   postRequest,
-  putRequest,
 } from "../../helpers";
 import { closeTestApp, setupTestApp } from "../../setup";
 
@@ -27,7 +27,7 @@ describe("UserController (e2e)", () => {
     await closeTestApp();
   });
 
-  describe("POST /api/v1/users", () => {
+  describe("POST /api/v1/user", () => {
     it("should create a new user", async () => {
       // Arrange
       const userData = {
@@ -38,7 +38,7 @@ describe("UserController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/users", {
+      const response = await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: userData,
       });
@@ -62,7 +62,7 @@ describe("UserController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/users", {
+      const response = await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: userData,
       });
@@ -80,7 +80,7 @@ describe("UserController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/users", {
+      const response = await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: invalidData,
       });
@@ -97,7 +97,7 @@ describe("UserController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/users", {
+      const response = await postRequest(app, "/api/v1/user", {
         body: userData,
       });
 
@@ -106,10 +106,10 @@ describe("UserController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/users/:id", () => {
+  describe("GET /api/v1/user/:id", () => {
     it("should get a user by id", async () => {
       // Arrange - Create user first
-      const createResponse = await postRequest(app, "/api/v1/users", {
+      const createResponse = await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: {
           email: "get.user@test.com",
@@ -121,7 +121,7 @@ describe("UserController (e2e)", () => {
       const userId = createResponse.body.id;
 
       // Act
-      const response = await getRequest(app, `/api/v1/users/${userId}`, {
+      const response = await getRequest(app, `/api/v1/user/${userId}`, {
         token: authToken,
       });
 
@@ -139,7 +139,7 @@ describe("UserController (e2e)", () => {
       const nonExistentId = faker.uuid();
 
       // Act
-      const response = await getRequest(app, `/api/v1/users/${nonExistentId}`, {
+      const response = await getRequest(app, `/api/v1/user/${nonExistentId}`, {
         token: authToken,
       });
 
@@ -148,11 +148,11 @@ describe("UserController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/users/by-email/:email", () => {
+  describe("GET /api/v1/user/by-email/:email", () => {
     it("should get a user by email", async () => {
       // Arrange - Create user
       const email = "find.by.email@test.com";
-      await postRequest(app, "/api/v1/users", {
+      await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: {
           email,
@@ -164,7 +164,7 @@ describe("UserController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/users/by-email/${encodeURIComponent(email)}`,
+        `/api/v1/user/by-email/${encodeURIComponent(email)}`,
         {
           token: authToken,
         },
@@ -182,7 +182,7 @@ describe("UserController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/users/by-email/${encodeURIComponent(nonExistentEmail)}`,
+        `/api/v1/user/by-email/${encodeURIComponent(nonExistentEmail)}`,
         {
           token: authToken,
         },
@@ -193,11 +193,11 @@ describe("UserController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/users/by-phone/:phone", () => {
+  describe("GET /api/v1/user/by-phone/:phone", () => {
     it("should get a user by phone", async () => {
       // Arrange - Create user
       const phone = "+55 11 91234-5678";
-      await postRequest(app, "/api/v1/users", {
+      await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: {
           email: "find.by.phone@test.com",
@@ -210,7 +210,7 @@ describe("UserController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/users/by-phone/${encodeURIComponent(phone)}`,
+        `/api/v1/user/by-phone/${encodeURIComponent(phone)}`,
         {
           token: authToken,
         },
@@ -228,7 +228,7 @@ describe("UserController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/users/by-phone/${encodeURIComponent(nonExistentPhone)}`,
+        `/api/v1/user/by-phone/${encodeURIComponent(nonExistentPhone)}`,
         {
           token: authToken,
         },
@@ -239,10 +239,10 @@ describe("UserController (e2e)", () => {
     });
   });
 
-  describe("PUT /api/v1/users/:id", () => {
+  describe("PATCH /api/v1/user/:id", () => {
     it("should update a user", async () => {
       // Arrange - Create user
-      const createResponse = await postRequest(app, "/api/v1/users", {
+      const createResponse = await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: {
           email: "update.user@test.com",
@@ -254,7 +254,7 @@ describe("UserController (e2e)", () => {
       const userId = createResponse.body.id;
 
       // Act
-      const response = await putRequest(app, `/api/v1/users/${userId}`, {
+      const response = await patchRequest(app, `/api/v1/user/${userId}`, {
         token: authToken,
         body: {
           name: "User Atualizado",
@@ -273,7 +273,7 @@ describe("UserController (e2e)", () => {
       const nonExistentId = faker.uuid();
 
       // Act
-      const response = await putRequest(app, `/api/v1/users/${nonExistentId}`, {
+      const response = await patchRequest(app, `/api/v1/user/${nonExistentId}`, {
         token: authToken,
         body: { name: "Test" },
       });
@@ -283,10 +283,10 @@ describe("UserController (e2e)", () => {
     });
   });
 
-  describe("POST /api/v1/users/:id/activate", () => {
+  describe("POST /api/v1/user/:id/activate", () => {
     it("should activate a user", async () => {
       // Arrange - Create inactive user
-      const createResponse = await postRequest(app, "/api/v1/users", {
+      const createResponse = await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: {
           email: "activate.user@test.com",
@@ -299,7 +299,7 @@ describe("UserController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/users/${userId}/activate`,
+        `/api/v1/user/${userId}/activate`,
         {
           token: authToken,
         },
@@ -311,10 +311,10 @@ describe("UserController (e2e)", () => {
     });
   });
 
-  describe("POST /api/v1/users/:id/superuser", () => {
+  describe("POST /api/v1/user/:id/superuser", () => {
     it("should make a user superuser when requester is superuser", async () => {
       // Arrange - Create regular user
-      const createResponse = await postRequest(app, "/api/v1/users", {
+      const createResponse = await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: {
           email: "superuser.test@test.com",
@@ -332,7 +332,7 @@ describe("UserController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/users/${targetUserId}/superuser`,
+        `/api/v1/user/${targetUserId}/superuser`,
         {
           token: superuserToken,
         },
@@ -345,7 +345,7 @@ describe("UserController (e2e)", () => {
 
     it("should return 403 when requester is not superuser", async () => {
       // Arrange - Create regular user
-      const createResponse = await postRequest(app, "/api/v1/users", {
+      const createResponse = await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: {
           email: "superuser.forbidden@test.com",
@@ -358,7 +358,7 @@ describe("UserController (e2e)", () => {
       // Act - Use regular token (not superuser)
       const response = await postRequest(
         app,
-        `/api/v1/users/${targetUserId}/superuser`,
+        `/api/v1/user/${targetUserId}/superuser`,
         {
           token: authToken,
         },
@@ -369,10 +369,10 @@ describe("UserController (e2e)", () => {
     });
   });
 
-  describe("DELETE /api/v1/users/:id", () => {
+  describe("DELETE /api/v1/user/:id", () => {
     it("should delete a user", async () => {
       // Arrange - Create user
-      const createResponse = await postRequest(app, "/api/v1/users", {
+      const createResponse = await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: {
           email: "delete.user@test.com",
@@ -383,7 +383,7 @@ describe("UserController (e2e)", () => {
       const userId = createResponse.body.id;
 
       // Act
-      const response = await deleteRequest(app, `/api/v1/users/${userId}`, {
+      const response = await deleteRequest(app, `/api/v1/user/${userId}`, {
         token: authToken,
       });
 
@@ -391,7 +391,7 @@ describe("UserController (e2e)", () => {
       expect(response.statusCode).toBe(204);
 
       // Verify it was deleted
-      const getResponse = await getRequest(app, `/api/v1/users/${userId}`, {
+      const getResponse = await getRequest(app, `/api/v1/user/${userId}`, {
         token: authToken,
       });
 
@@ -405,7 +405,7 @@ describe("UserController (e2e)", () => {
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/users/${nonExistentId}`,
+        `/api/v1/user/${nonExistentId}`,
         {
           token: authToken,
         },
@@ -421,7 +421,7 @@ describe("UserController (e2e)", () => {
   describe("Integration Tests", () => {
     it("should handle complete user lifecycle", async () => {
       // Arrange & Act - Create
-      const createResponse = await postRequest(app, "/api/v1/users", {
+      const createResponse = await postRequest(app, "/api/v1/user", {
         token: authToken,
         body: {
           email: "lifecycle@test.com",
@@ -435,7 +435,7 @@ describe("UserController (e2e)", () => {
       const userId = createResponse.body.id;
 
       // Act - Get
-      const getResponse = await getRequest(app, `/api/v1/users/${userId}`, {
+      const getResponse = await getRequest(app, `/api/v1/user/${userId}`, {
         token: authToken,
       });
 
@@ -443,7 +443,7 @@ describe("UserController (e2e)", () => {
       expect(getResponse.body.email).toBe("lifecycle@test.com");
 
       // Act - Update
-      const updateResponse = await putRequest(app, `/api/v1/users/${userId}`, {
+      const updateResponse = await patchRequest(app, `/api/v1/user/${userId}`, {
         token: authToken,
         body: {
           name: "Updated Lifecycle User",
@@ -456,7 +456,7 @@ describe("UserController (e2e)", () => {
       // Act - Activate
       const activateResponse = await postRequest(
         app,
-        `/api/v1/users/${userId}/activate`,
+        `/api/v1/user/${userId}/activate`,
         {
           token: authToken,
         },
@@ -467,7 +467,7 @@ describe("UserController (e2e)", () => {
       // Act - Delete
       const deleteResponse = await deleteRequest(
         app,
-        `/api/v1/users/${userId}`,
+        `/api/v1/user/${userId}`,
         {
           token: authToken,
         },

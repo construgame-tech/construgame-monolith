@@ -29,7 +29,7 @@ export class FinancialPrizeController {
     private readonly service: FinancialPrizeService,
   ) {}
 
-  @Post("organizations/:organizationId/financial-prizes")
+  @Post("organization/:organizationId/financial-prize")
   @ApiOperation({ summary: "Create financial prize" })
   async create(
     @Param("organizationId") organizationId: string,

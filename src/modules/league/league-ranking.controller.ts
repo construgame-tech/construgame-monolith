@@ -64,7 +64,7 @@ export class LeagueRankingController {
 @ApiTags("league-dashboards")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/leagues/:leagueId/reports")
+@Controller("organization/:organizationId/league/:leagueId/report")
 export class LeagueReportsController {
   constructor(
     @Inject(LeagueService)

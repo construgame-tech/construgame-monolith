@@ -30,7 +30,7 @@ export class ImageController {
     private readonly imageService: ImageService,
   ) {}
 
-  @Get("organizations/:organizationId/presigned-url")
+  @Get("organization/:organizationId/presigned-url")
   @ApiOperation({ summary: "Generate presigned URL for file upload" })
   @ApiQuery({ name: "fileName", required: true, type: String })
   @ApiQuery({ name: "fileType", required: true, type: String })

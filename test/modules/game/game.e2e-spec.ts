@@ -27,7 +27,7 @@ describe("GameController (e2e)", () => {
     token = createToken(userId);
 
     // Create real test data in database
-    const orgResponse = await postRequest(app, "/api/v1/organizations", {
+    const orgResponse = await postRequest(app, "/api/v1/organization", {
       body: testData.organization({ ownerId: userId }),
       token,
     });
@@ -35,7 +35,7 @@ describe("GameController (e2e)", () => {
 
     const projectResponse = await postRequest(
       app,
-      `/api/v1/organizations/${organizationId}/projects`,
+      `/api/v1/organization/${organizationId}/project`,
       {
         body: testData.project(organizationId),
         token,

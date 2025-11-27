@@ -17,8 +17,8 @@ import {
   Inject,
   NotFoundException,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -33,10 +33,10 @@ import type { CreateOrganizationDto } from "./dto/create-organization.dto";
 import { OrganizationResponseDto } from "./dto/organization-response.dto";
 import type { UpdateOrganizationDto } from "./dto/update-organization.dto";
 
-@ApiTags("organizations")
+@ApiTags("organization")
 @ApiBearerAuth("JWT-auth")
 @UseGuards(JwtAuthGuard)
-@Controller("organizations")
+@Controller("organization")
 export class OrganizationController {
   constructor(
     @Inject(OrganizationRepository)
@@ -60,15 +60,20 @@ export class OrganizationController {
     }
   }
 
-  @Get(":id")
+  @Get(":organizationId")
   @ApiOperation({ summary: "Get organization by ID" })
-  @ApiParam({ name: "id", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiParam({
+    name: "organizationId",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
   @ApiResponse({ status: 200, type: OrganizationResponseDto })
   @ApiResponse({ status: 404, description: "Organization not found" })
-  async findOne(@Param("id") id: string): Promise<OrganizationResponseDto> {
+  async findOne(
+    @Param("organizationId") organizationId: string,
+  ): Promise<OrganizationResponseDto> {
     try {
       const result = await getOrganization(
-        { organizationId: id },
+        { organizationId },
         this.organizationRepository,
       );
       return OrganizationResponseDto.fromEntity(result.organization);
@@ -93,17 +98,20 @@ export class OrganizationController {
     }
   }
 
-  @Put(":id")
+  @Patch(":organizationId")
   @ApiOperation({ summary: "Update organization" })
-  @ApiParam({ name: "id", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiParam({
+    name: "organizationId",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
   @ApiResponse({ status: 200, type: OrganizationResponseDto })
   async update(
-    @Param("id") id: string,
+    @Param("organizationId") organizationId: string,
     @Body() updateOrganizationDto: UpdateOrganizationDto,
   ): Promise<OrganizationResponseDto> {
     try {
       const result = await updateOrganization(
-        { organizationId: id, ...updateOrganizationDto },
+        { organizationId, ...updateOrganizationDto },
         this.organizationRepository,
       );
       return OrganizationResponseDto.fromEntity(result.organization);
@@ -115,17 +123,17 @@ export class OrganizationController {
     }
   }
 
-  @Delete(":id")
+  @Delete(":organizationId")
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Delete organization" })
-  @ApiParam({ name: "id", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiParam({
+    name: "organizationId",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
   @ApiResponse({ status: 204, description: "Organization deleted" })
-  async remove(@Param("id") id: string): Promise<void> {
+  async remove(@Param("organizationId") organizationId: string): Promise<void> {
     try {
-      await deleteOrganization(
-        { organizationId: id },
-        this.organizationRepository,
-      );
+      await deleteOrganization({ organizationId }, this.organizationRepository);
     } catch (error) {
       if (error.message.includes("not found")) {
         throw new NotFoundException(error.message);

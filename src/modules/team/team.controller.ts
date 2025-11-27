@@ -6,8 +6,8 @@ import {
   HttpCode,
   Inject,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -67,10 +67,10 @@ class ImportTeamsBodyDto {
   teams: ImportTeamItemDto[];
 }
 
-@ApiTags("teams")
+@ApiTags("team")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/teams")
+@Controller("organization/:organizationId/team")
 export class TeamController {
   constructor(
     @Inject(TeamService)
@@ -174,7 +174,7 @@ export class TeamController {
     return teams.map(TeamResponseDto.fromEntity);
   }
 
-  @Put(":teamId")
+  @Patch(":teamId")
   @ApiOperation({ summary: "Update team" })
   @ApiResponse({ status: 200, type: TeamResponseDto })
   async updateTeam(

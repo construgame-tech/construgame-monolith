@@ -21,7 +21,7 @@ describe("SearchController (e2e)", () => {
     token = createToken(userId);
 
     // Create real test data in database for searching
-    await postRequest(app, "/api/v1/organizations", {
+    await postRequest(app, "/api/v1/organization", {
       body: testData.organization({ ownerId: userId }),
       token,
     });

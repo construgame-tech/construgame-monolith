@@ -8,8 +8,8 @@ import {
   HttpStatus,
   Inject,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
@@ -21,7 +21,7 @@ import { SectorService } from "./sector.service";
 @ApiTags("Sectors")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/sectors")
+@Controller("organization/:organizationId/config/sector")
 export class SectorController {
   constructor(
     @Inject(SectorService)
@@ -55,7 +55,7 @@ export class SectorController {
     return SectorResponseDto.fromEntity(sector);
   }
 
-  @Put(":sectorId")
+  @Patch(":sectorId")
   @ApiOperation({ summary: "Update sector" })
   async update(
     @Param("organizationId") organizationId: string,

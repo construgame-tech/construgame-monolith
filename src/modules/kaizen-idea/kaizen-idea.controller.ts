@@ -6,8 +6,8 @@ import {
   HttpCode,
   Inject,
   Param,
+  Patch,
   Post,
-  Put,
   Query,
   UseGuards,
 } from "@nestjs/common";
@@ -35,7 +35,7 @@ export class KaizenIdeaController {
 
   // ========== New Routes (/organization/:organizationId/kaizen/idea) ==========
 
-  @Post("organizations/:organizationId/kaizen/idea")
+  @Post("organization/:organizationId/kaizen/idea")
   @ApiOperation({ summary: "Create a new kaizen idea" })
   @ApiResponse({ status: 201, type: KaizenIdeaResponseDto })
   async createIdeaNew(
@@ -49,7 +49,7 @@ export class KaizenIdeaController {
     return KaizenIdeaResponseDto.fromEntity(idea);
   }
 
-  @Get("organizations/:organizationId/kaizen/idea/search")
+  @Get("organization/:organizationId/kaizen/idea/search")
   @ApiOperation({ summary: "Search kaizen ideas" })
   @ApiQuery({ name: "search", required: false, type: String })
   @ApiQuery({
@@ -83,7 +83,7 @@ export class KaizenIdeaController {
     };
   }
 
-  @Put("organizations/:organizationId/kaizen/idea/:kaizenIdeaId")
+  @Patch("organization/:organizationId/kaizen/idea/:kaizenIdeaId")
   @ApiOperation({ summary: "Update kaizen idea" })
   @ApiResponse({ status: 200, type: KaizenIdeaResponseDto })
   async updateIdeaNew(
@@ -99,7 +99,7 @@ export class KaizenIdeaController {
     return KaizenIdeaResponseDto.fromEntity(idea);
   }
 
-  @Delete("organizations/:organizationId/kaizen/idea/:kaizenIdeaId")
+  @Delete("organization/:organizationId/kaizen/idea/:kaizenIdeaId")
   @HttpCode(204)
   @ApiOperation({ summary: "Delete kaizen idea" })
   @ApiResponse({ status: 204 })
@@ -112,7 +112,7 @@ export class KaizenIdeaController {
 
   // ========== Legacy Routes (keep for backwards compatibility) ==========
 
-  @Post("organizations/:organizationId/kaizen-ideas")
+  @Post("organization/:organizationId/kaizen-idea")
   @ApiOperation({ summary: "Create a new kaizen idea" })
   @ApiResponse({ status: 201, type: KaizenIdeaResponseDto })
   async createIdea(
@@ -126,7 +126,7 @@ export class KaizenIdeaController {
     return KaizenIdeaResponseDto.fromEntity(idea);
   }
 
-  @Get("organizations/:organizationId/kaizen-ideas/:ideaId")
+  @Get("organization/:organizationId/kaizen-idea/:ideaId")
   @ApiOperation({ summary: "Get kaizen idea by ID" })
   @ApiResponse({ status: 200, type: KaizenIdeaResponseDto })
   async getIdea(
@@ -137,7 +137,7 @@ export class KaizenIdeaController {
     return KaizenIdeaResponseDto.fromEntity(idea);
   }
 
-  @Get("organizations/:organizationId/kaizen-ideas")
+  @Get("organization/:organizationId/kaizen-idea")
   @ApiOperation({ summary: "List all kaizen ideas of an organization" })
   @ApiResponse({ status: 200, type: [KaizenIdeaResponseDto] })
   async listIdeas(
@@ -147,7 +147,7 @@ export class KaizenIdeaController {
     return ideas.map(KaizenIdeaResponseDto.fromEntity);
   }
 
-  @Put("organizations/:organizationId/kaizen-ideas/:ideaId")
+  @Patch("organization/:organizationId/kaizen-idea/:ideaId")
   @ApiOperation({ summary: "Update kaizen idea" })
   @ApiResponse({ status: 200, type: KaizenIdeaResponseDto })
   async updateIdea(
@@ -163,7 +163,7 @@ export class KaizenIdeaController {
     return KaizenIdeaResponseDto.fromEntity(idea);
   }
 
-  @Delete("organizations/:organizationId/kaizen-ideas/:ideaId")
+  @Delete("organization/:organizationId/kaizen-idea/:ideaId")
   @HttpCode(204)
   @ApiOperation({ summary: "Delete kaizen idea" })
   @ApiResponse({ status: 204 })

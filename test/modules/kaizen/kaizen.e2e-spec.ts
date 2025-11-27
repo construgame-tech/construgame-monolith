@@ -5,8 +5,8 @@ import {
   deleteRequest,
   faker,
   getRequest,
+  patchRequest,
   postRequest,
-  putRequest,
 } from "../../helpers";
 import { closeTestApp, setupTestApp } from "../../setup";
 
@@ -31,7 +31,7 @@ describe("KaizenController (e2e)", () => {
     await closeTestApp();
   });
 
-  describe("POST /api/v1/organizations/:organizationId/projects/:projectId/kaizens", () => {
+  describe("POST /api/v1/organization/:organizationId/project/:projectId/kaizen", () => {
     it("should create a new kaizen", async () => {
       // Arrange
       const kaizenData = {
@@ -44,7 +44,7 @@ describe("KaizenController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/kaizens`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/kaizen`,
         {
           token: authToken,
           body: kaizenData,
@@ -72,7 +72,7 @@ describe("KaizenController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/kaizens`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/kaizen`,
         {
           token: authToken,
           body: invalidData,
@@ -85,12 +85,12 @@ describe("KaizenController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/kaizens/:kaizenId", () => {
+  describe("GET /api/v1/kaizen/:kaizenId", () => {
     it("should get a kaizen by id", async () => {
       // Arrange - Create kaizen first
       const createResponse = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/kaizens`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/kaizen`,
         {
           token: authToken,
           body: {
@@ -104,7 +104,7 @@ describe("KaizenController (e2e)", () => {
       const kaizenId = createResponse.body.id;
 
       // Act
-      const response = await getRequest(app, `/api/v1/kaizens/${kaizenId}`, {
+      const response = await getRequest(app, `/api/v1/kaizen/${kaizenId}`, {
         token: authToken,
       });
 
@@ -123,7 +123,7 @@ describe("KaizenController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/kaizens/${nonExistentId}`,
+        `/api/v1/kaizen/${nonExistentId}`,
         {
           token: authToken,
         },
@@ -134,12 +134,12 @@ describe("KaizenController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/games/:gameId/kaizens", () => {
+  describe("GET /api/v1/game/:gameId/kaizen", () => {
     it("should list all kaizens for a game", async () => {
       // Arrange - Create at least 2 kaizens
       await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/kaizens`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/kaizen`,
         {
           token: authToken,
           body: {
@@ -153,7 +153,7 @@ describe("KaizenController (e2e)", () => {
 
       await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/kaizens`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/kaizen`,
         {
           token: authToken,
           body: {
@@ -166,13 +166,9 @@ describe("KaizenController (e2e)", () => {
       );
 
       // Act
-      const response = await getRequest(
-        app,
-        `/api/v1/games/${gameId}/kaizens`,
-        {
-          token: authToken,
-        },
-      );
+      const response = await getRequest(app, `/api/v1/game/${gameId}/kaizen`, {
+        token: authToken,
+      });
 
       // Assert
       expect(response.statusCode).toBe(200);
@@ -181,12 +177,12 @@ describe("KaizenController (e2e)", () => {
     });
   });
 
-  describe("PUT /api/v1/kaizens/:kaizenId", () => {
+  describe("PATCH /api/v1/kaizen/:kaizenId", () => {
     it("should update a kaizen", async () => {
       // Arrange - Create kaizen
       const createResponse = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/kaizens`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/kaizen`,
         {
           token: authToken,
           body: {
@@ -200,7 +196,7 @@ describe("KaizenController (e2e)", () => {
       const kaizenId = createResponse.body.id;
 
       // Act
-      const response = await putRequest(app, `/api/v1/kaizens/${kaizenId}`, {
+      const response = await patchRequest(app, `/api/v1/kaizen/${kaizenId}`, {
         token: authToken,
         body: {
           name: "Kaizen Atualizado",
@@ -216,12 +212,12 @@ describe("KaizenController (e2e)", () => {
     });
   });
 
-  describe("DELETE /api/v1/kaizens/:kaizenId", () => {
+  describe("DELETE /api/v1/kaizen/:kaizenId", () => {
     it("should delete a kaizen", async () => {
       // Arrange - Create kaizen
       const createResponse = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/kaizens`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/kaizen`,
         {
           token: authToken,
           body: {
@@ -235,7 +231,7 @@ describe("KaizenController (e2e)", () => {
       const kaizenId = createResponse.body.id;
 
       // Act
-      const response = await deleteRequest(app, `/api/v1/kaizens/${kaizenId}`, {
+      const response = await deleteRequest(app, `/api/v1/kaizen/${kaizenId}`, {
         token: authToken,
       });
 
@@ -249,7 +245,7 @@ describe("KaizenController (e2e)", () => {
       // Arrange & Act - Create
       const createResponse = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/kaizens`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/kaizen`,
         {
           token: authToken,
           body: {
@@ -265,9 +261,9 @@ describe("KaizenController (e2e)", () => {
       const kaizenId = createResponse.body.id;
 
       // Act - Update to in progress (ACTIVE is already the default)
-      const updateResponse1 = await putRequest(
+      const updateResponse1 = await patchRequest(
         app,
-        `/api/v1/kaizens/${kaizenId}`,
+        `/api/v1/kaizen/${kaizenId}`,
         {
           token: authToken,
           body: { status: "ACTIVE" },
@@ -278,9 +274,9 @@ describe("KaizenController (e2e)", () => {
       expect(updateResponse1.body.status).toBe("ACTIVE");
 
       // Act - Update to completed (DONE)
-      const updateResponse2 = await putRequest(
+      const updateResponse2 = await patchRequest(
         app,
-        `/api/v1/kaizens/${kaizenId}`,
+        `/api/v1/kaizen/${kaizenId}`,
         {
           token: authToken,
           body: { status: "DONE" },
@@ -291,9 +287,9 @@ describe("KaizenController (e2e)", () => {
       expect(updateResponse2.body.status).toBe("DONE");
 
       // Act - Update to approved
-      const updateResponse3 = await putRequest(
+      const updateResponse3 = await patchRequest(
         app,
-        `/api/v1/kaizens/${kaizenId}`,
+        `/api/v1/kaizen/${kaizenId}`,
         {
           token: authToken,
           body: { status: "APPROVED" },

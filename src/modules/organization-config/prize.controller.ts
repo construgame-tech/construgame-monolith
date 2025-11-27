@@ -8,8 +8,8 @@ import {
   HttpStatus,
   Inject,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
@@ -21,7 +21,7 @@ import { PrizeService } from "./prize.service";
 @ApiTags("Prizes")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/prizes")
+@Controller("organization/:organizationId/config/prize")
 export class PrizeController {
   constructor(
     @Inject(PrizeService)
@@ -55,7 +55,7 @@ export class PrizeController {
     return PrizeResponseDto.fromEntity(prize);
   }
 
-  @Put(":prizeId")
+  @Patch(":prizeId")
   @ApiOperation({ summary: "Update prize" })
   async update(
     @Param("organizationId") organizationId: string,

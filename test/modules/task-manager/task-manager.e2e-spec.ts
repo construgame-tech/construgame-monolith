@@ -566,4 +566,144 @@ describe("TaskManagerController (e2e)", () => {
       expect(response.body.schedule.recurrence.sun).toBe(false);
     });
   });
+
+  // ===========================================
+  // Singular Route Tests (/game/:gameId/task-manager)
+  // ===========================================
+  describe("GET /api/v1/game/:gameId/task-manager", () => {
+    it("should list task managers using singular route", async () => {
+      // Arrange - Create a task manager first
+      await postRequest(
+        app,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
+        {
+          token: authToken,
+          body: {
+            name: "Singular Route Test",
+            kpiId,
+            rewardPoints: 10,
+            responsible: { type: "team", ids: [] },
+            schedule: { startDate: "2024-01-01", endDate: "2024-12-31" },
+          },
+        },
+      );
+
+      // Act
+      const response = await getRequest(
+        app,
+        `/api/v1/game/${gameId}/task-manager`,
+        {
+          token: authToken,
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toHaveProperty("items");
+      expect(Array.isArray(response.body.items)).toBe(true);
+    });
+  });
+
+  describe("POST /api/v1/game/:gameId/task-manager", () => {
+    it("should create task manager using singular route", async () => {
+      // Arrange
+      const taskManagerData = {
+        name: "Singular POST Task Manager",
+        kpiId,
+        rewardPoints: 15,
+        responsible: { type: "player", ids: [userId] },
+        schedule: { startDate: "2024-01-01", endDate: "2024-12-31" },
+      };
+
+      // Act
+      const response = await postRequest(
+        app,
+        `/api/v1/game/${gameId}/task-manager?organizationId=${organizationId}&projectId=${projectId}`,
+        {
+          token: authToken,
+          body: taskManagerData,
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(201);
+      expect(response.body.name).toBe("Singular POST Task Manager");
+      expect(response.body.gameId).toBe(gameId);
+    });
+  });
+
+  describe("PUT /api/v1/game/:gameId/task-manager/:taskManagerId", () => {
+    it("should update task manager using singular route", async () => {
+      // Arrange - Create task manager first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
+        {
+          token: authToken,
+          body: {
+            name: "Task Manager for Update",
+            kpiId,
+            rewardPoints: 20,
+            responsible: { type: "team", ids: [] },
+            schedule: { startDate: "2024-01-01", endDate: "2024-12-31" },
+          },
+        },
+      );
+      const taskManagerId = createResponse.body.id;
+
+      // Act
+      const response = await putRequest(
+        app,
+        `/api/v1/game/${gameId}/task-manager/${taskManagerId}`,
+        {
+          token: authToken,
+          body: {
+            name: "Updated Singular Route",
+            kpiId,
+            rewardPoints: 25,
+            responsible: { type: "team", ids: [] },
+            schedule: { startDate: "2024-01-01", endDate: "2024-12-31" },
+          },
+        },
+      );
+
+      // Assert
+      expect(response.statusCode).toBe(200);
+      expect(response.body.name).toBe("Updated Singular Route");
+      expect(response.body.rewardPoints).toBe(25);
+    });
+  });
+
+  describe("DELETE /api/v1/game/:gameId/task-manager/:taskManagerId", () => {
+    it("should delete task manager using singular route", async () => {
+      // Arrange - Create task manager first
+      const createResponse = await postRequest(
+        app,
+        `/api/v1/games/${gameId}/task-managers?organizationId=${organizationId}&projectId=${projectId}`,
+        {
+          token: authToken,
+          body: {
+            name: "Task Manager for Delete",
+            kpiId,
+            rewardPoints: 30,
+            responsible: { type: "team", ids: [] },
+            schedule: { startDate: "2024-01-01", endDate: "2024-12-31" },
+          },
+        },
+      );
+      const taskManagerId = createResponse.body.id;
+
+      // Act
+      const response = await deleteRequest(
+        app,
+        `/api/v1/game/${gameId}/task-manager/${taskManagerId}`,
+        {
+          token: authToken,
+        },
+      );
+
+      // Assert - Controller returns 200 for successful delete
+      expect(response.statusCode).toBe(200);
+    });
+  });
 });

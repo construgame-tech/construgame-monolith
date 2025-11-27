@@ -42,7 +42,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
             body: macrostepData,
@@ -72,7 +72,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
             body: macrostepData,
@@ -92,7 +92,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
             body: invalidData,
@@ -110,7 +110,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             body: macrostepData,
           },
@@ -126,7 +126,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Arrange - Create 2 macrosteps
         await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
             body: { name: "Macrostep 1" },
@@ -135,7 +135,7 @@ describe("ProjectPlanningController (e2e)", () => {
 
         await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
             body: { name: "Macrostep 2" },
@@ -145,7 +145,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await getRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
           },
@@ -164,7 +164,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await getRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${emptyProjectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${emptyProjectId}/macrostep`,
           {
             token: authToken,
           },
@@ -181,7 +181,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Arrange - Create a macrostep
         const createResponse = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
             body: { name: "Original Name" },
@@ -193,7 +193,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await putRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}`,
           {
             token: authToken,
             body: { name: "Updated Name" },
@@ -213,7 +213,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await putRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${nonExistentId}`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${nonExistentId}`,
           {
             token: authToken,
             body: { name: "New Name" },
@@ -230,7 +230,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Arrange - Create a macrostep
         const createResponse = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
             body: { name: "To Delete" },
@@ -242,7 +242,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await deleteRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}`,
           {
             token: authToken,
           },
@@ -254,7 +254,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Verify it was deleted
         const getResponse = await getRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
           },
@@ -273,7 +273,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await deleteRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${nonExistentId}`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${nonExistentId}`,
           {
             token: authToken,
           },
@@ -289,7 +289,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Arrange - Create 3 macrosteps
         const m1 = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
             body: { name: "First" },
@@ -298,7 +298,7 @@ describe("ProjectPlanningController (e2e)", () => {
 
         const _m2 = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
             body: { name: "Second" },
@@ -307,7 +307,7 @@ describe("ProjectPlanningController (e2e)", () => {
 
         const _m3 = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
           {
             token: authToken,
             body: { name: "Third" },
@@ -317,7 +317,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act - Move first to last position (index 2)
         const response = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/move-order`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/move-order`,
           {
             token: authToken,
             body: {
@@ -340,7 +340,7 @@ describe("ProjectPlanningController (e2e)", () => {
       // Create a macrostep for activity tests
       const response = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
         {
           token: authToken,
           body: { name: "Test Macrostep for Activities" },
@@ -365,7 +365,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities`,
           {
             token: authToken,
             body: activityData,
@@ -412,7 +412,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities`,
           {
             token: authToken,
             body: activityData,
@@ -433,7 +433,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${nonExistentMacrostepId}/activities`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${nonExistentMacrostepId}/activities`,
           {
             token: authToken,
             body: activityData,
@@ -450,7 +450,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Arrange - Create 2 activities
         await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities`,
           {
             token: authToken,
             body: { name: "Activity 1" },
@@ -459,7 +459,7 @@ describe("ProjectPlanningController (e2e)", () => {
 
         await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities`,
           {
             token: authToken,
             body: { name: "Activity 2" },
@@ -469,7 +469,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await getRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities`,
           {
             token: authToken,
           },
@@ -487,7 +487,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Arrange - Create an activity
         const createResponse = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities`,
           {
             token: authToken,
             body: { name: "Original Activity" },
@@ -499,7 +499,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await putRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities/${activityId}`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities/${activityId}`,
           {
             token: authToken,
             body: {
@@ -521,7 +521,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Arrange - Create an activity
         const createResponse = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities`,
           {
             token: authToken,
             body: { name: "To Delete Activity" },
@@ -533,7 +533,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Act
         const response = await deleteRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities/${activityId}`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities/${activityId}`,
           {
             token: authToken,
           },
@@ -545,7 +545,7 @@ describe("ProjectPlanningController (e2e)", () => {
         // Verify it was deleted
         const getResponse = await getRequest(
           app,
-          `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities`,
+          `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities`,
           {
             token: authToken,
           },
@@ -564,7 +564,7 @@ describe("ProjectPlanningController (e2e)", () => {
       // Arrange - Create a macrostep
       const macrostepResponse = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
         {
           token: authToken,
           body: { name: "Progress Test Macrostep" },
@@ -576,7 +576,7 @@ describe("ProjectPlanningController (e2e)", () => {
       // Create 2 activities with 50% progress each
       await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities`,
         {
           token: authToken,
           body: { name: "Activity 1", progressPercent: 50 },
@@ -585,7 +585,7 @@ describe("ProjectPlanningController (e2e)", () => {
 
       await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/${macrostepId}/activities`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/${macrostepId}/activities`,
         {
           token: authToken,
           body: { name: "Activity 2", progressPercent: 50 },
@@ -595,7 +595,7 @@ describe("ProjectPlanningController (e2e)", () => {
       // Act - Get macrosteps list (should show calculated progress)
       const response = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
         {
           token: authToken,
         },
@@ -614,7 +614,7 @@ describe("ProjectPlanningController (e2e)", () => {
       // Arrange - Create 3 macrosteps
       const m1 = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
         {
           token: authToken,
           body: { name: "Order Test 1" },
@@ -623,7 +623,7 @@ describe("ProjectPlanningController (e2e)", () => {
 
       const _m2 = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
         {
           token: authToken,
           body: { name: "Order Test 2" },
@@ -632,7 +632,7 @@ describe("ProjectPlanningController (e2e)", () => {
 
       const _m3 = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
         {
           token: authToken,
           body: { name: "Order Test 3" },
@@ -642,7 +642,7 @@ describe("ProjectPlanningController (e2e)", () => {
       // Act - Reorder
       await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps/move-order`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/macrostep/move-order`,
         {
           token: authToken,
           body: {
@@ -655,7 +655,7 @@ describe("ProjectPlanningController (e2e)", () => {
       // Get list to verify order
       const response = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/projects/${projectId}/macrosteps`,
+        `/api/v1/organization/${organizationId}/project/${projectId}/macrostep`,
         {
           token: authToken,
         },

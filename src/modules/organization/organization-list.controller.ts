@@ -18,7 +18,7 @@ export class OrganizationListController {
     private readonly organizationRepository: OrganizationRepository,
   ) {}
 
-  @Get()
+  @Get("all")
   @UseGuards(JwtAuthGuard, SuperuserGuard)
   @ApiOperation({
     summary: "List all organizations (superuser only)",

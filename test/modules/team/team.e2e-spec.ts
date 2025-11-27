@@ -5,8 +5,8 @@ import {
   deleteRequest,
   faker,
   getRequest,
+  patchRequest,
   postRequest,
-  putRequest,
 } from "../../helpers";
 import { closeTestApp, setupTestApp } from "../../setup";
 
@@ -29,7 +29,7 @@ describe("TeamController (e2e)", () => {
     await closeTestApp();
   });
 
-  describe("POST /api/v1/organizations/:organizationId/teams", () => {
+  describe("POST /api/v1/organization/:organizationId/team", () => {
     it("should create a new team", async () => {
       // Arrange
       const teamData = {
@@ -41,7 +41,7 @@ describe("TeamController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams`,
+        `/api/v1/organization/${organizationId}/team`,
         {
           token: authToken,
           body: teamData,
@@ -67,7 +67,7 @@ describe("TeamController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams`,
+        `/api/v1/organization/${organizationId}/team`,
         {
           token: authToken,
           body: teamData,
@@ -88,7 +88,7 @@ describe("TeamController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams`,
+        `/api/v1/organization/${organizationId}/team`,
         {
           token: authToken,
           body: invalidData,
@@ -110,7 +110,7 @@ describe("TeamController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams`,
+        `/api/v1/organization/${organizationId}/team`,
         {
           body: teamData,
         },
@@ -121,12 +121,12 @@ describe("TeamController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/organizations/:organizationId/teams/:teamId", () => {
+  describe("GET /api/v1/organization/:organizationId/team/:teamId", () => {
     it("should get a team by id", async () => {
       // Arrange - Create team first
       const createResponse = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams`,
+        `/api/v1/organization/${organizationId}/team`,
         {
           token: authToken,
           body: {
@@ -140,7 +140,7 @@ describe("TeamController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        `/api/v1/organization/${organizationId}/team/${teamId}`,
         {
           token: authToken,
         },
@@ -161,7 +161,7 @@ describe("TeamController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams/${nonExistentId}`,
+        `/api/v1/organization/${organizationId}/team/${nonExistentId}`,
         {
           token: authToken,
         },
@@ -172,17 +172,17 @@ describe("TeamController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/organizations/:organizationId/teams", () => {
+  describe("GET /api/v1/organization/:organizationId/team", () => {
     it("should list all teams for a project", async () => {
       // Arrange - Create at least 2 teams
-      await postRequest(app, `/api/v1/organizations/${organizationId}/teams`, {
+      await postRequest(app, `/api/v1/organization/${organizationId}/team`, {
         token: authToken,
         body: {
           name: "Equipe List 1",
         },
       });
 
-      await postRequest(app, `/api/v1/organizations/${organizationId}/teams`, {
+      await postRequest(app, `/api/v1/organization/${organizationId}/team`, {
         token: authToken,
         body: {
           name: "Equipe List 2",
@@ -192,7 +192,7 @@ describe("TeamController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams`,
+        `/api/v1/organization/${organizationId}/team`,
         {
           token: authToken,
           query: { projectId },
@@ -206,12 +206,12 @@ describe("TeamController (e2e)", () => {
     });
   });
 
-  describe("PUT /api/v1/organizations/:organizationId/teams/:teamId", () => {
+  describe("PATCH /api/v1/organization/:organizationId/team/:teamId", () => {
     it("should update a team", async () => {
       // Arrange - Create team
       const createResponse = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams`,
+        `/api/v1/organization/${organizationId}/team`,
         {
           token: authToken,
           body: {
@@ -224,9 +224,9 @@ describe("TeamController (e2e)", () => {
       const teamId = createResponse.body.id;
 
       // Act
-      const response = await putRequest(
+      const response = await patchRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        `/api/v1/organization/${organizationId}/team/${teamId}`,
         {
           token: authToken,
           body: {
@@ -249,9 +249,9 @@ describe("TeamController (e2e)", () => {
       const nonExistentId = faker.uuid();
 
       // Act
-      const response = await putRequest(
+      const response = await patchRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams/${nonExistentId}`,
+        `/api/v1/organization/${organizationId}/team/${nonExistentId}`,
         {
           token: authToken,
           body: { name: "Test" },
@@ -263,12 +263,12 @@ describe("TeamController (e2e)", () => {
     });
   });
 
-  describe("DELETE /api/v1/organizations/:organizationId/teams/:teamId", () => {
+  describe("DELETE /api/v1/organization/:organizationId/team/:teamId", () => {
     it("should delete a team", async () => {
       // Arrange - Create team
       const createResponse = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams`,
+        `/api/v1/organization/${organizationId}/team`,
         {
           token: authToken,
           body: {
@@ -282,7 +282,7 @@ describe("TeamController (e2e)", () => {
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        `/api/v1/organization/${organizationId}/team/${teamId}`,
         {
           token: authToken,
         },
@@ -294,7 +294,7 @@ describe("TeamController (e2e)", () => {
       // Verify it was deleted
       const getResponse = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        `/api/v1/organization/${organizationId}/team/${teamId}`,
         {
           token: authToken,
         },
@@ -310,7 +310,7 @@ describe("TeamController (e2e)", () => {
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams/${nonExistentId}`,
+        `/api/v1/organization/${organizationId}/team/${nonExistentId}`,
         {
           token: authToken,
         },
@@ -326,7 +326,7 @@ describe("TeamController (e2e)", () => {
       // Arrange & Act - Create
       const createResponse = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams`,
+        `/api/v1/organization/${organizationId}/team`,
         {
           token: authToken,
           body: {
@@ -343,7 +343,7 @@ describe("TeamController (e2e)", () => {
       // Act - Get
       const getResponse = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        `/api/v1/organization/${organizationId}/team/${teamId}`,
         {
           token: authToken,
         },
@@ -353,9 +353,9 @@ describe("TeamController (e2e)", () => {
       expect(getResponse.body.name).toBe("Lifecycle Team");
 
       // Act - Update
-      const updateResponse = await putRequest(
+      const updateResponse = await patchRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        `/api/v1/organization/${organizationId}/team/${teamId}`,
         {
           token: authToken,
           body: {
@@ -371,7 +371,7 @@ describe("TeamController (e2e)", () => {
       // Act - Delete
       const deleteResponse = await deleteRequest(
         app,
-        `/api/v1/organizations/${organizationId}/teams/${teamId}`,
+        `/api/v1/organization/${organizationId}/team/${teamId}`,
         {
           token: authToken,
         },
@@ -388,7 +388,7 @@ describe("TeamController (e2e)", () => {
       for (const color of colors) {
         const response = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/teams`,
+          `/api/v1/organization/${organizationId}/team`,
           {
             token: authToken,
             body: {

@@ -45,7 +45,7 @@ class UserRankingsResponseDto {
 @UseGuards(JwtAuthGuard)
 @Controller()
 export class UserRankingController {
-  @Get("organizations/:organizationId/users/:userId/ranking")
+  @Get("organization/:organizationId/user/:userId/ranking")
   @ApiOperation({
     summary: "Get user rankings",
     description: "List of rankings the user is part of, or is responsible for",

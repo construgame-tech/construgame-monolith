@@ -14,6 +14,7 @@ import {
   NotFoundException,
   Param,
   Patch,
+  Post,
   Put,
   Query,
   UseGuards,
@@ -27,6 +28,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserResponseDto } from "./dto/user-response.dto";
 import { UserService } from "./user.service";
@@ -49,6 +51,18 @@ export class UserSingularController {
     @Inject("TaskUpdateRepository")
     private readonly taskUpdateRepository: TaskUpdateRepository,
   ) {}
+
+  @Post()
+  @ApiOperation({ summary: "Create a new user" })
+  @ApiResponse({ status: 201, type: UserResponseDto })
+  async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
+    try {
+      const result = await this.userService.create(createUserDto);
+      return UserResponseDto.fromEntity(result.user);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
 
   @Get(":userId")
   @ApiOperation({ summary: "Get user by ID" })

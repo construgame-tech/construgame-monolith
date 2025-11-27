@@ -7,8 +7,8 @@ import {
   HttpStatus,
   Inject,
   Param,
+  Patch,
   Post,
-  Put,
   Query,
   Request,
   UseGuards,
@@ -39,7 +39,7 @@ export class KaizenController {
     private readonly kaizenService: KaizenService,
   ) {}
 
-  @Post("organizations/:organizationId/projects/:projectId/kaizens")
+  @Post("organization/:organizationId/project/:projectId/kaizen")
   @ApiOperation({ summary: "Create a new kaizen" })
   @ApiResponse({ status: 201, type: KaizenResponseDto })
   async createKaizen(
@@ -62,7 +62,7 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
-  @Get("kaizens/:kaizenId")
+  @Get("kaizen/:kaizenId")
   @ApiOperation({ summary: "Get kaizen by ID" })
   @ApiResponse({ status: 200, type: KaizenResponseDto })
   async getKaizen(
@@ -72,7 +72,7 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
-  @Get("games/:gameId/kaizens")
+  @Get("game/:gameId/kaizen")
   @ApiOperation({ summary: "List kaizens by game" })
   @ApiResponse({ status: 200, type: [KaizenResponseDto] })
   async listByGame(@Param("gameId") gameId: string) {
@@ -82,7 +82,7 @@ export class KaizenController {
     };
   }
 
-  @Get("organizations/:organizationId/projects/:projectId/kaizens")
+  @Get("organization/:organizationId/project/:projectId/kaizen")
   @ApiOperation({ summary: "List kaizens by project" })
   @ApiResponse({ status: 200, type: [KaizenResponseDto] })
   async listByProject(
@@ -96,7 +96,7 @@ export class KaizenController {
     return kaizens.map(KaizenResponseDto.fromEntity);
   }
 
-  @Get("organizations/:organizationId/kaizens")
+  @Get("organization/:organizationId/kaizen")
   @ApiOperation({ summary: "List all kaizens of an organization" })
   @ApiResponse({ status: 200, type: [KaizenResponseDto] })
   async listByOrganization(
@@ -106,7 +106,7 @@ export class KaizenController {
     return kaizens.map(KaizenResponseDto.fromEntity);
   }
 
-  @Put("kaizens/:kaizenId")
+  @Patch("kaizen/:kaizenId")
   @ApiOperation({ summary: "Update kaizen" })
   @ApiResponse({ status: 200, type: KaizenResponseDto })
   async updateKaizen(
@@ -127,7 +127,7 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
-  @Delete("kaizens/:kaizenId")
+  @Delete("kaizen/:kaizenId")
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Delete kaizen" })
   @ApiResponse({ status: 204 })
@@ -137,7 +137,7 @@ export class KaizenController {
 
   // Rotas adicionais do openapi.yaml
 
-  @Get("organizations/:organizationId/kaizens/count")
+  @Get("organization/:organizationId/kaizen/count")
   @ApiOperation({ summary: "Count organization kaizens" })
   @ApiParam({ name: "organizationId", type: String })
   @ApiResponse({ status: 200, description: "Kaizen count" })
@@ -148,7 +148,7 @@ export class KaizenController {
     return { count };
   }
 
-  @Post("games/:gameId/kaizens")
+  @Post("game/:gameId/kaizen")
   @ApiOperation({ summary: "Create kaizen for a game" })
   @ApiParam({ name: "gameId", type: String })
   @ApiResponse({ status: 201, type: KaizenResponseDto })
@@ -174,7 +174,7 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
-  @Post("games/:gameId/kaizens/replicate")
+  @Post("game/:gameId/kaizen/replicate")
   @ApiOperation({
     summary: "Replicate kaizen",
     description:
@@ -197,7 +197,7 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
-  @Get("games/:gameId/kaizens/:kaizenId")
+  @Get("game/:gameId/kaizen/:kaizenId")
   @ApiOperation({ summary: "Get kaizen by ID within a game" })
   @ApiParam({ name: "gameId", type: String })
   @ApiParam({ name: "kaizenId", type: String })
@@ -210,7 +210,7 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
-  @Put("games/:gameId/kaizens/:kaizenId")
+  @Patch("game/:gameId/kaizen/:kaizenId")
   @ApiOperation({ summary: "Update kaizen within a game" })
   @ApiParam({ name: "gameId", type: String })
   @ApiParam({ name: "kaizenId", type: String })
@@ -234,7 +234,7 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
-  @Delete("games/:gameId/kaizens/:kaizenId")
+  @Delete("game/:gameId/kaizen/:kaizenId")
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Delete kaizen within a game" })
   @ApiParam({ name: "gameId", type: String })
@@ -247,7 +247,7 @@ export class KaizenController {
     await this.kaizenService.deleteKaizen(kaizenId);
   }
 
-  @Put("games/:gameId/kaizens/:kaizenId/complete")
+  @Patch("game/:gameId/kaizen/:kaizenId/complete")
   @ApiOperation({
     summary: "Complete kaizen",
     description: "Mark kaizen as completed, distributing points to the leader",
@@ -263,7 +263,7 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
-  @Put("games/:gameId/kaizens/:kaizenId/reopen")
+  @Patch("game/:gameId/kaizen/:kaizenId/reopen")
   @ApiOperation({
     summary: "Reopen kaizen",
     description:
@@ -280,7 +280,7 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
-  @Put("games/:gameId/kaizens/:kaizenId/archive")
+  @Patch("game/:gameId/kaizen/:kaizenId/archive")
   @ApiOperation({
     summary: "Archive kaizen",
     description: "Archive an active kaizen",
@@ -296,7 +296,7 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
-  @Put("games/:gameId/kaizens/:kaizenId/unarchive")
+  @Patch("game/:gameId/kaizen/:kaizenId/unarchive")
   @ApiOperation({
     summary: "Unarchive kaizen",
     description: "Unarchive an archived kaizen",
@@ -314,7 +314,7 @@ export class KaizenController {
 
   // ========== Kaizen Comment Routes ==========
 
-  @Get("games/:gameId/kaizens/:kaizenId/comments")
+  @Get("game/:gameId/kaizen/:kaizenId/comment")
   @ApiOperation({ summary: "List kaizen comments" })
   @ApiParam({ name: "gameId", type: String })
   @ApiParam({ name: "kaizenId", type: String })
@@ -329,7 +329,7 @@ export class KaizenController {
     };
   }
 
-  @Post("games/:gameId/kaizens/:kaizenId/comments")
+  @Post("game/:gameId/kaizen/:kaizenId/comment")
   @ApiOperation({ summary: "Create kaizen comment" })
   @ApiParam({ name: "gameId", type: String })
   @ApiParam({ name: "kaizenId", type: String })
@@ -349,7 +349,7 @@ export class KaizenController {
     return KaizenCommentResponseDto.fromEntity(comment);
   }
 
-  @Delete("games/:gameId/kaizens/:kaizenId/comments/:commentId")
+  @Delete("game/:gameId/kaizen/:kaizenId/comment/:commentId")
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Delete kaizen comment" })
   @ApiParam({ name: "gameId", type: String })

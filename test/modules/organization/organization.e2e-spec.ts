@@ -5,8 +5,8 @@ import {
   deleteRequest,
   faker,
   getRequest,
+  patchRequest,
   postRequest,
-  putRequest,
 } from "../../helpers";
 import { closeTestApp, setupTestApp } from "../../setup";
 
@@ -27,7 +27,7 @@ describe("OrganizationController (e2e)", () => {
     await closeTestApp();
   });
 
-  describe("POST /api/v1/organizations", () => {
+  describe("POST /api/v1/organization", () => {
     it("should create a new organization", async () => {
       // Arrange
       const organizationData = {
@@ -36,7 +36,7 @@ describe("OrganizationController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/organizations", {
+      const response = await postRequest(app, "/api/v1/organization", {
         token: authToken,
         body: organizationData,
       });
@@ -57,7 +57,7 @@ describe("OrganizationController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/organizations", {
+      const response = await postRequest(app, "/api/v1/organization", {
         token: authToken,
         body: organizationData,
       });
@@ -74,7 +74,7 @@ describe("OrganizationController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/organizations", {
+      const response = await postRequest(app, "/api/v1/organization", {
         token: authToken,
         body: invalidData,
       });
@@ -91,7 +91,7 @@ describe("OrganizationController (e2e)", () => {
       };
 
       // Act
-      const response = await postRequest(app, "/api/v1/organizations", {
+      const response = await postRequest(app, "/api/v1/organization", {
         body: organizationData,
       });
 
@@ -100,10 +100,10 @@ describe("OrganizationController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/organizations/:id", () => {
+  describe("GET /api/v1/organization/:organizationId", () => {
     it("should get an organization by id", async () => {
       // Arrange - Create organization first
-      const createResponse = await postRequest(app, "/api/v1/organizations", {
+      const createResponse = await postRequest(app, "/api/v1/organization", {
         token: authToken,
         body: {
           ownerId: userId,
@@ -114,7 +114,7 @@ describe("OrganizationController (e2e)", () => {
       const orgId = createResponse.body.id;
 
       // Act
-      const response = await getRequest(app, `/api/v1/organizations/${orgId}`, {
+      const response = await getRequest(app, `/api/v1/organization/${orgId}`, {
         token: authToken,
       });
 
@@ -133,7 +133,7 @@ describe("OrganizationController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/organizations/${nonExistentId}`,
+        `/api/v1/organization/${nonExistentId}`,
         {
           token: authToken,
         },
@@ -144,21 +144,21 @@ describe("OrganizationController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/organizations", () => {
+  describe("GET /api/v1/organization", () => {
     it("should list all organizations", async () => {
       // Arrange - Create at least 2 organizations
-      await postRequest(app, "/api/v1/organizations", {
+      await postRequest(app, "/api/v1/organization", {
         token: authToken,
         body: { ownerId: userId, name: "Org List 1" },
       });
 
-      await postRequest(app, "/api/v1/organizations", {
+      await postRequest(app, "/api/v1/organization", {
         token: authToken,
         body: { ownerId: userId, name: "Org List 2" },
       });
 
       // Act
-      const response = await getRequest(app, "/api/v1/organizations", {
+      const response = await getRequest(app, "/api/v1/organization", {
         token: authToken,
       });
 
@@ -169,10 +169,10 @@ describe("OrganizationController (e2e)", () => {
     });
   });
 
-  describe("PUT /api/v1/organizations/:id", () => {
+  describe("PATCH /api/v1/organization/:organizationId", () => {
     it("should update an organization", async () => {
       // Arrange - Create organization
-      const createResponse = await postRequest(app, "/api/v1/organizations", {
+      const createResponse = await postRequest(app, "/api/v1/organization", {
         token: authToken,
         body: {
           ownerId: userId,
@@ -183,12 +183,16 @@ describe("OrganizationController (e2e)", () => {
       const orgId = createResponse.body.id;
 
       // Act
-      const response = await putRequest(app, `/api/v1/organizations/${orgId}`, {
-        token: authToken,
-        body: {
-          name: "Org Atualizada",
+      const response = await patchRequest(
+        app,
+        `/api/v1/organization/${orgId}`,
+        {
+          token: authToken,
+          body: {
+            name: "Org Atualizada",
+          },
         },
-      });
+      );
 
       // Assert
       expect(response.statusCode).toBe(200);
@@ -200,9 +204,9 @@ describe("OrganizationController (e2e)", () => {
       const nonExistentId = faker.uuid();
 
       // Act
-      const response = await putRequest(
+      const response = await patchRequest(
         app,
-        `/api/v1/organizations/${nonExistentId}`,
+        `/api/v1/organization/${nonExistentId}`,
         {
           token: authToken,
           body: { name: "Test" },
@@ -214,10 +218,10 @@ describe("OrganizationController (e2e)", () => {
     });
   });
 
-  describe("DELETE /api/v1/organizations/:id", () => {
+  describe("DELETE /api/v1/organization/:organizationId", () => {
     it("should delete an organization", async () => {
       // Arrange - Create organization
-      const createResponse = await postRequest(app, "/api/v1/organizations", {
+      const createResponse = await postRequest(app, "/api/v1/organization", {
         token: authToken,
         body: {
           ownerId: userId,
@@ -230,7 +234,7 @@ describe("OrganizationController (e2e)", () => {
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/organizations/${orgId}`,
+        `/api/v1/organization/${orgId}`,
         {
           token: authToken,
         },
@@ -242,7 +246,7 @@ describe("OrganizationController (e2e)", () => {
       // Verify it was deleted
       const getResponse = await getRequest(
         app,
-        `/api/v1/organizations/${orgId}`,
+        `/api/v1/organization/${orgId}`,
         {
           token: authToken,
         },
@@ -258,7 +262,7 @@ describe("OrganizationController (e2e)", () => {
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/organizations/${nonExistentId}`,
+        `/api/v1/organization/${nonExistentId}`,
         {
           token: authToken,
         },
@@ -272,7 +276,7 @@ describe("OrganizationController (e2e)", () => {
   describe("Integration Tests", () => {
     it("should handle complete organization lifecycle", async () => {
       // Arrange & Act - Create
-      const createResponse = await postRequest(app, "/api/v1/organizations", {
+      const createResponse = await postRequest(app, "/api/v1/organization", {
         token: authToken,
         body: {
           ownerId: userId,
@@ -289,7 +293,7 @@ describe("OrganizationController (e2e)", () => {
       // Act - Get
       const getResponse = await getRequest(
         app,
-        `/api/v1/organizations/${orgId}`,
+        `/api/v1/organization/${orgId}`,
         {
           token: authToken,
         },
@@ -299,9 +303,9 @@ describe("OrganizationController (e2e)", () => {
       expect(getResponse.body.name).toBe("Lifecycle Org");
 
       // Act - Update
-      const updateResponse = await putRequest(
+      const updateResponse = await patchRequest(
         app,
-        `/api/v1/organizations/${orgId}`,
+        `/api/v1/organization/${orgId}`,
         {
           token: authToken,
           body: {
@@ -317,7 +321,7 @@ describe("OrganizationController (e2e)", () => {
       // Act - Delete
       const deleteResponse = await deleteRequest(
         app,
-        `/api/v1/organizations/${orgId}`,
+        `/api/v1/organization/${orgId}`,
         {
           token: authToken,
         },

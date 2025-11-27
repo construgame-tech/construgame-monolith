@@ -6,8 +6,8 @@ import {
   HttpCode,
   Inject,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -33,7 +33,7 @@ export class KaizenTypeController {
 
   // ========== New Routes (/organization/:organizationId/kaizen/type) ==========
 
-  @Post("organizations/:organizationId/kaizen/type")
+  @Post("organization/:organizationId/kaizen/type")
   @ApiOperation({ summary: "Create a new kaizen type" })
   @ApiResponse({ status: 201, type: KaizenTypeResponseDto })
   async createTypeNew(
@@ -47,7 +47,7 @@ export class KaizenTypeController {
     return KaizenTypeResponseDto.fromEntity(type);
   }
 
-  @Get("organizations/:organizationId/kaizen/type")
+  @Get("organization/:organizationId/kaizen/type")
   @ApiOperation({ summary: "List all kaizen types of an organization" })
   @ApiResponse({ status: 200, type: [KaizenTypeResponseDto] })
   async listTypesNew(@Param("organizationId") organizationId: string) {
@@ -57,7 +57,7 @@ export class KaizenTypeController {
     };
   }
 
-  @Put("organizations/:organizationId/kaizen/type/:kaizenTypeId")
+  @Patch("organization/:organizationId/kaizen/type/:kaizenTypeId")
   @ApiOperation({ summary: "Update kaizen type" })
   @ApiResponse({ status: 200, type: KaizenTypeResponseDto })
   async updateTypeNew(
@@ -73,7 +73,7 @@ export class KaizenTypeController {
     return KaizenTypeResponseDto.fromEntity(type);
   }
 
-  @Delete("organizations/:organizationId/kaizen/type/:kaizenTypeId")
+  @Delete("organization/:organizationId/kaizen/type/:kaizenTypeId")
   @HttpCode(204)
   @ApiOperation({ summary: "Delete kaizen type" })
   @ApiResponse({ status: 204 })
@@ -86,7 +86,7 @@ export class KaizenTypeController {
 
   // ========== Legacy Routes (keep for backwards compatibility) ==========
 
-  @Post("organizations/:organizationId/kaizen-types")
+  @Post("organization/:organizationId/kaizen-type")
   @ApiOperation({ summary: "Create a new kaizen type" })
   @ApiResponse({ status: 201, type: KaizenTypeResponseDto })
   async createType(
@@ -100,7 +100,7 @@ export class KaizenTypeController {
     return KaizenTypeResponseDto.fromEntity(type);
   }
 
-  @Get("organizations/:organizationId/kaizen-types/:typeId")
+  @Get("organization/:organizationId/kaizen-type/:typeId")
   @ApiOperation({ summary: "Get kaizen type by ID" })
   @ApiResponse({ status: 200, type: KaizenTypeResponseDto })
   async getType(
@@ -111,7 +111,7 @@ export class KaizenTypeController {
     return KaizenTypeResponseDto.fromEntity(type);
   }
 
-  @Get("organizations/:organizationId/kaizen-types")
+  @Get("organization/:organizationId/kaizen-type")
   @ApiOperation({ summary: "List all kaizen types of an organization" })
   @ApiResponse({ status: 200, type: [KaizenTypeResponseDto] })
   async listTypes(
@@ -121,7 +121,7 @@ export class KaizenTypeController {
     return types.map(KaizenTypeResponseDto.fromEntity);
   }
 
-  @Put("organizations/:organizationId/kaizen-types/:typeId")
+  @Patch("organization/:organizationId/kaizen-type/:typeId")
   @ApiOperation({ summary: "Update kaizen type" })
   @ApiResponse({ status: 200, type: KaizenTypeResponseDto })
   async updateType(
@@ -137,7 +137,7 @@ export class KaizenTypeController {
     return KaizenTypeResponseDto.fromEntity(type);
   }
 
-  @Delete("organizations/:organizationId/kaizen-types/:typeId")
+  @Delete("organization/:organizationId/kaizen-type/:typeId")
   @HttpCode(204)
   @ApiOperation({ summary: "Delete kaizen type" })
   @ApiResponse({ status: 204 })

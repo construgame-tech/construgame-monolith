@@ -5,8 +5,8 @@ import {
   Get,
   Inject,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
@@ -18,7 +18,7 @@ import { OrgConfigService } from "./org-config.service";
 @ApiTags("Organization Config")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/config")
+@Controller("organization/:organizationId/config")
 export class OrgConfigController {
   constructor(
     @Inject(OrgConfigService)
@@ -42,7 +42,7 @@ export class OrgConfigController {
     return OrgConfigResponseDto.fromEntity(config);
   }
 
-  @Put()
+  @Patch()
   @ApiOperation({ summary: "Update organization config" })
   async update(
     @Param("organizationId") organizationId: string,

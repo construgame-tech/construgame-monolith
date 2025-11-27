@@ -20,7 +20,7 @@ export class PointsController {
   ) {}
 
   // User Game Points
-  @Get("users/:userId/games/:gameId/points")
+  @Get("user/:userId/game/:gameId/point")
   @ApiOperation({ summary: "Get user game points" })
   async getUserGamePoints(
     @Param("userId") userId: string,
@@ -29,7 +29,7 @@ export class PointsController {
     return this.pointsService.getUserGamePoints(userId, gameId);
   }
 
-  @Get("games/:gameId/user-points/leaderboard")
+  @Get("game/:gameId/user-point/leaderboard")
   @ApiOperation({ summary: "Get user game points leaderboard" })
   @ApiQuery({ name: "limit", required: false, type: Number })
   async getUserGamePointsLeaderboard(
@@ -43,7 +43,7 @@ export class PointsController {
   }
 
   // Team Game Points
-  @Get("teams/:teamId/games/:gameId/points")
+  @Get("team/:teamId/game/:gameId/point")
   @ApiOperation({ summary: "Get team game points" })
   async getTeamGamePoints(
     @Param("teamId") teamId: string,
@@ -52,7 +52,7 @@ export class PointsController {
     return this.pointsService.getTeamGamePoints(teamId, gameId);
   }
 
-  @Get("games/:gameId/team-points/leaderboard")
+  @Get("game/:gameId/team-point/leaderboard")
   @ApiOperation({ summary: "Get team game points leaderboard" })
   @ApiQuery({ name: "limit", required: false, type: Number })
   async getTeamGamePointsLeaderboard(
@@ -66,7 +66,7 @@ export class PointsController {
   }
 
   // Kaizen Points
-  @Get("users/:userId/games/:gameId/kaizen-points")
+  @Get("user/:userId/game/:gameId/kaizen-point")
   @ApiOperation({ summary: "Get user kaizen points" })
   async getUserKaizenPoints(
     @Param("userId") userId: string,
@@ -75,7 +75,7 @@ export class PointsController {
     return this.pointsService.getUserKaizenPoints(userId, gameId);
   }
 
-  @Get("teams/:teamId/games/:gameId/kaizen-points")
+  @Get("team/:teamId/game/:gameId/kaizen-point")
   @ApiOperation({ summary: "Get team kaizen points" })
   async getTeamKaizenPoints(
     @Param("teamId") teamId: string,
@@ -84,14 +84,14 @@ export class PointsController {
     return this.pointsService.getTeamKaizenPoints(teamId, gameId);
   }
 
-  @Get("games/:gameId/kaizen-points")
+  @Get("game/:gameId/kaizen-point")
   @ApiOperation({ summary: "Get game kaizen points" })
   async getGameKaizenPoints(@Param("gameId") gameId: string) {
     return this.pointsService.getGameKaizenPoints(gameId);
   }
 
   // Task Points
-  @Get("users/:userId/games/:gameId/task-points")
+  @Get("user/:userId/game/:gameId/task-point")
   @ApiOperation({ summary: "Get user task points" })
   async getUserTaskPoints(
     @Param("userId") userId: string,
@@ -100,7 +100,7 @@ export class PointsController {
     return this.pointsService.getUserTaskPoints(userId, gameId);
   }
 
-  @Get("teams/:teamId/games/:gameId/task-points")
+  @Get("team/:teamId/game/:gameId/task-point")
   @ApiOperation({ summary: "Get team task points" })
   async getTeamTaskPoints(
     @Param("teamId") teamId: string,
@@ -109,7 +109,7 @@ export class PointsController {
     return this.pointsService.getTeamTaskPoints(teamId, gameId);
   }
 
-  @Get("games/:gameId/task-points")
+  @Get("game/:gameId/task-point")
   @ApiOperation({ summary: "Get game task points" })
   async getGameTaskPoints(@Param("gameId") gameId: string) {
     return this.pointsService.getGameTaskPoints(gameId);

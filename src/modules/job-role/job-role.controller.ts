@@ -25,7 +25,7 @@ import { JobRoleService } from "./job-role.service";
 @ApiTags("job-roles")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/job-roles")
+@Controller("organization/:organizationId/job-roles")
 export class JobRoleController {
   constructor(
     @Inject(JobRoleService)

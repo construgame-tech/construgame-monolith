@@ -6,8 +6,8 @@ import {
   HttpCode,
   Inject,
   Param,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -25,7 +25,7 @@ import { ProjectService } from "./project.service";
 @ApiTags("projects")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/projects")
+@Controller("organization/:organizationId/project")
 export class ProjectController {
   constructor(
     @Inject(ProjectService)
@@ -71,7 +71,7 @@ export class ProjectController {
     return projects.map(ProjectResponseDto.fromEntity);
   }
 
-  @Put(":projectId")
+  @Patch(":projectId")
   @ApiOperation({ summary: "Update project" })
   @ApiResponse({ status: 200, type: ProjectResponseDto })
   async updateProject(

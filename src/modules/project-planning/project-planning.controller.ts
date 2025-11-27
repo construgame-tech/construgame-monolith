@@ -365,7 +365,7 @@ export class ProjectPlanningController {
 
   // ========== Macrostep Routes ==========
 
-  @Post("organizations/:organizationId/projects/:projectId/macrosteps")
+  @Post("organization/:organizationId/project/:projectId/macrostep")
   async createMacrostep(
     @Param("organizationId") organizationId: string,
     @Param("projectId") projectId: string,
@@ -412,7 +412,7 @@ export class ProjectPlanningController {
   }
 
   @Put(
-    "organizations/:organizationId/projects/:projectId/macrosteps/:macrostepId",
+    "organization/:organizationId/project/:projectId/macrostep/:macrostepId",
   )
   async updateMacrostep(
     @Param("organizationId") organizationId: string,
@@ -459,7 +459,7 @@ export class ProjectPlanningController {
   }
 
   @Delete(
-    "organizations/:organizationId/projects/:projectId/macrosteps/:macrostepId",
+    "organization/:organizationId/project/:projectId/macrostep/:macrostepId",
   )
   @HttpCode(204)
   async deleteMacrostep(
@@ -496,7 +496,7 @@ export class ProjectPlanningController {
     return {};
   }
 
-  @Get("organizations/:organizationId/projects/:projectId/macrosteps")
+  @Get("organization/:organizationId/project/:projectId/macrostep")
   async listMacrosteps(
     @Param("organizationId") organizationId: string,
     @Param("projectId") projectId: string,
@@ -572,7 +572,7 @@ export class ProjectPlanningController {
   }
 
   @Post(
-    "organizations/:organizationId/projects/:projectId/macrosteps/move-order",
+    "organization/:organizationId/project/:projectId/macrostep/move-order",
   )
   async moveMacrostepOrder(
     @Param("organizationId") organizationId: string,
@@ -605,7 +605,7 @@ export class ProjectPlanningController {
     return {};
   }
 
-  @Post("organizations/:organizationId/projects/:projectId/macrosteps/import")
+  @Post("organization/:organizationId/project/:projectId/macrostep/import")
   async importMacrosteps(
     @Param("organizationId") organizationId: string,
     @Param("projectId") projectId: string,
@@ -721,7 +721,7 @@ export class ProjectPlanningController {
   // ========== Activity Routes ==========
 
   @Post(
-    "organizations/:organizationId/projects/:projectId/macrosteps/:macrostepId/activities",
+    "organization/:organizationId/project/:projectId/macrostep/:macrostepId/activities",
   )
   async createActivity(
     @Param("organizationId") organizationId: string,
@@ -798,7 +798,7 @@ export class ProjectPlanningController {
   }
 
   @Put(
-    "organizations/:organizationId/projects/:projectId/macrosteps/:macrostepId/activities/:activityId",
+    "organization/:organizationId/project/:projectId/macrostep/:macrostepId/activities/:activityId",
   )
   async updateActivity(
     @Param("organizationId") organizationId: string,
@@ -865,7 +865,7 @@ export class ProjectPlanningController {
   }
 
   @Delete(
-    "organizations/:organizationId/projects/:projectId/macrosteps/:macrostepId/activities/:activityId",
+    "organization/:organizationId/project/:projectId/macrostep/:macrostepId/activities/:activityId",
   )
   @HttpCode(204)
   async deleteActivity(
@@ -905,7 +905,7 @@ export class ProjectPlanningController {
   }
 
   @Get(
-    "organizations/:organizationId/projects/:projectId/macrosteps/:macrostepId/activities",
+    "organization/:organizationId/project/:projectId/macrostep/:macrostepId/activities",
   )
   async listActivities(
     @Param("organizationId") organizationId: string,
@@ -954,7 +954,7 @@ export class ProjectPlanningController {
 
   // TODO: Export report endpoint - implementar quando necessário
   @Get(
-    "organizations/:organizationId/projects/:projectId/macrosteps/export-report",
+    "organization/:organizationId/project/:projectId/macrostep/export-report",
   )
   async exportReport(
     @Param("organizationId") organizationId: string,

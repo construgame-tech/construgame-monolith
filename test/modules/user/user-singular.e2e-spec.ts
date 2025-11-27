@@ -26,7 +26,7 @@ describe("UserSingularController (e2e)", () => {
     authToken = createToken(userId);
 
     // Create organization and project for testing
-    const orgResponse = await postRequest(app, "/api/v1/organizations", {
+    const orgResponse = await postRequest(app, "/api/v1/organization", {
       body: testData.organization({ ownerId: userId }),
       token: authToken,
     });
@@ -34,7 +34,7 @@ describe("UserSingularController (e2e)", () => {
 
     const projectResponse = await postRequest(
       app,
-      `/api/v1/organizations/${organizationId}/projects`,
+      `/api/v1/organization/${organizationId}/project`,
       {
         body: testData.project(organizationId),
         token: authToken,
@@ -65,7 +65,7 @@ describe("UserSingularController (e2e)", () => {
     gameId = gameResponse.body.id;
 
     // Create a test user
-    const userResponse = await postRequest(app, "/api/v1/users", {
+    const userResponse = await postRequest(app, "/api/v1/user", {
       token: authToken,
       body: {
         email: `singulartest${Date.now()}@test.com`,

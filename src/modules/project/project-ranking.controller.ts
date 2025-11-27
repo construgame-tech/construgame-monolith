@@ -63,7 +63,7 @@ export class ProjectRankingController {
 @ApiTags("reports")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organizations/:organizationId/projects/:projectId")
+@Controller("organization/:organizationId/project/:projectId")
 export class ProjectReportController {
   constructor(
     @Inject(ProjectService)

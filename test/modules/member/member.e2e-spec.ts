@@ -5,8 +5,8 @@ import {
   deleteRequest,
   faker,
   getRequest,
+  patchRequest,
   postRequest,
-  putRequest,
 } from "../../helpers";
 import { closeTestApp, setupTestApp } from "../../setup";
 
@@ -29,7 +29,7 @@ describe("MemberController (e2e)", () => {
     await closeTestApp();
   });
 
-  describe("POST /api/v1/organizations/:organizationId/members", () => {
+  describe("POST /api/v1/organization/:organizationId/member", () => {
     it("should create a new member", async () => {
       // Arrange
       const memberData = {
@@ -41,7 +41,7 @@ describe("MemberController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members`,
+        `/api/v1/organization/${organizationId}/member`,
         {
           token: authToken,
           body: memberData,
@@ -68,7 +68,7 @@ describe("MemberController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members`,
+        `/api/v1/organization/${organizationId}/member`,
         {
           token: authToken,
           body: memberData,
@@ -90,7 +90,7 @@ describe("MemberController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members`,
+        `/api/v1/organization/${organizationId}/member`,
         {
           token: authToken,
           body: invalidData,
@@ -113,7 +113,7 @@ describe("MemberController (e2e)", () => {
       // Act
       const response = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members`,
+        `/api/v1/organization/${organizationId}/member`,
         {
           body: memberData,
         },
@@ -124,26 +124,22 @@ describe("MemberController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/organizations/:organizationId/members/:userId", () => {
+  describe("GET /api/v1/organization/:organizationId/member/:userId", () => {
     it("should get a member by userId", async () => {
       // Arrange - Create member first
       const newUserId = faker.uuid();
-      await postRequest(
-        app,
-        `/api/v1/organizations/${organizationId}/members`,
-        {
-          token: authToken,
-          body: {
-            userId: newUserId,
-            role: "manager",
-          },
+      await postRequest(app, `/api/v1/organization/${organizationId}/member`, {
+        token: authToken,
+        body: {
+          userId: newUserId,
+          role: "manager",
         },
-      );
+      });
 
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members/${newUserId}`,
+        `/api/v1/organization/${organizationId}/member/${newUserId}`,
         {
           token: authToken,
         },
@@ -165,7 +161,7 @@ describe("MemberController (e2e)", () => {
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members/${nonExistentUserId}`,
+        `/api/v1/organization/${organizationId}/member/${nonExistentUserId}`,
         {
           token: authToken,
         },
@@ -176,37 +172,29 @@ describe("MemberController (e2e)", () => {
     });
   });
 
-  describe("GET /api/v1/organizations/:organizationId/members", () => {
+  describe("GET /api/v1/organization/:organizationId/member", () => {
     it("should list all members of an organization", async () => {
       // Arrange - Create at least 2 members
-      await postRequest(
-        app,
-        `/api/v1/organizations/${organizationId}/members`,
-        {
-          token: authToken,
-          body: {
-            userId: faker.uuid(),
-            role: "player",
-          },
+      await postRequest(app, `/api/v1/organization/${organizationId}/member`, {
+        token: authToken,
+        body: {
+          userId: faker.uuid(),
+          role: "player",
         },
-      );
+      });
 
-      await postRequest(
-        app,
-        `/api/v1/organizations/${organizationId}/members`,
-        {
-          token: authToken,
-          body: {
-            userId: faker.uuid(),
-            role: "manager",
-          },
+      await postRequest(app, `/api/v1/organization/${organizationId}/member`, {
+        token: authToken,
+        body: {
+          userId: faker.uuid(),
+          role: "manager",
         },
-      );
+      });
 
       // Act
       const response = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members`,
+        `/api/v1/organization/${organizationId}/member`,
         {
           token: authToken,
         },
@@ -219,26 +207,22 @@ describe("MemberController (e2e)", () => {
     });
   });
 
-  describe("PUT /api/v1/organizations/:organizationId/members/:userId", () => {
+  describe("PATCH /api/v1/organization/:organizationId/member/:userId", () => {
     it("should update a member", async () => {
       // Arrange - Create member
       const newUserId = faker.uuid();
-      await postRequest(
-        app,
-        `/api/v1/organizations/${organizationId}/members`,
-        {
-          token: authToken,
-          body: {
-            userId: newUserId,
-            role: "player",
-          },
+      await postRequest(app, `/api/v1/organization/${organizationId}/member`, {
+        token: authToken,
+        body: {
+          userId: newUserId,
+          role: "player",
         },
-      );
+      });
 
       // Act
-      const response = await putRequest(
+      const response = await patchRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members/${newUserId}`,
+        `/api/v1/organization/${organizationId}/member/${newUserId}`,
         {
           token: authToken,
           body: {
@@ -259,9 +243,9 @@ describe("MemberController (e2e)", () => {
       const nonExistentUserId = faker.uuid();
 
       // Act
-      const response = await putRequest(
+      const response = await patchRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members/${nonExistentUserId}`,
+        `/api/v1/organization/${organizationId}/member/${nonExistentUserId}`,
         {
           token: authToken,
           body: { role: "manager" },
@@ -273,26 +257,22 @@ describe("MemberController (e2e)", () => {
     });
   });
 
-  describe("DELETE /api/v1/organizations/:organizationId/members/:userId", () => {
+  describe("DELETE /api/v1/organization/:organizationId/member/:userId", () => {
     it("should delete a member", async () => {
       // Arrange - Create member
       const newUserId = faker.uuid();
-      await postRequest(
-        app,
-        `/api/v1/organizations/${organizationId}/members`,
-        {
-          token: authToken,
-          body: {
-            userId: newUserId,
-            role: "player",
-          },
+      await postRequest(app, `/api/v1/organization/${organizationId}/member`, {
+        token: authToken,
+        body: {
+          userId: newUserId,
+          role: "player",
         },
-      );
+      });
 
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members/${newUserId}`,
+        `/api/v1/organization/${organizationId}/member/${newUserId}`,
         {
           token: authToken,
         },
@@ -304,7 +284,7 @@ describe("MemberController (e2e)", () => {
       // Verify it was deleted
       const getResponse = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members/${newUserId}`,
+        `/api/v1/organization/${organizationId}/member/${newUserId}`,
         {
           token: authToken,
         },
@@ -320,7 +300,7 @@ describe("MemberController (e2e)", () => {
       // Act
       const response = await deleteRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members/${nonExistentUserId}`,
+        `/api/v1/organization/${organizationId}/member/${nonExistentUserId}`,
         {
           token: authToken,
         },
@@ -337,7 +317,7 @@ describe("MemberController (e2e)", () => {
       const newUserId = faker.uuid();
       const createResponse = await postRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members`,
+        `/api/v1/organization/${organizationId}/member`,
         {
           token: authToken,
           body: {
@@ -353,7 +333,7 @@ describe("MemberController (e2e)", () => {
       // Act - Get
       const getResponse = await getRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members/${newUserId}`,
+        `/api/v1/organization/${organizationId}/member/${newUserId}`,
         {
           token: authToken,
         },
@@ -363,9 +343,9 @@ describe("MemberController (e2e)", () => {
       expect(getResponse.body.userId).toBe(newUserId);
 
       // Act - Update
-      const updateResponse = await putRequest(
+      const updateResponse = await patchRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members/${newUserId}`,
+        `/api/v1/organization/${organizationId}/member/${newUserId}`,
         {
           token: authToken,
           body: {
@@ -380,7 +360,7 @@ describe("MemberController (e2e)", () => {
       // Act - Delete
       const deleteResponse = await deleteRequest(
         app,
-        `/api/v1/organizations/${organizationId}/members/${newUserId}`,
+        `/api/v1/organization/${organizationId}/member/${newUserId}`,
         {
           token: authToken,
         },
@@ -397,7 +377,7 @@ describe("MemberController (e2e)", () => {
       for (const role of roles) {
         const response = await postRequest(
           app,
-          `/api/v1/organizations/${organizationId}/members`,
+          `/api/v1/organization/${organizationId}/member`,
           {
             token: authToken,
             body: {
