@@ -50,10 +50,10 @@ export class KpiController {
 
   @Get()
   @ApiOperation({ summary: "List all KPIs" })
-  @ApiResponse({ status: 200, type: [KpiResponseDto] })
-  async listKpis(): Promise<KpiResponseDto[]> {
+  @ApiResponse({ status: 200 })
+  async listKpis(): Promise<{ items: KpiResponseDto[] }> {
     const kpis = await this.kpiService.listAll();
-    return kpis.map(KpiResponseDto.fromEntity);
+    return { items: kpis.map(KpiResponseDto.fromEntity) };
   }
 
   @Put(":kpiId")

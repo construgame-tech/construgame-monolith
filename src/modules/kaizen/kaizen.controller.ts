@@ -84,26 +84,26 @@ export class KaizenController {
 
   @Get("organization/:organizationId/project/:projectId/kaizen")
   @ApiOperation({ summary: "List kaizens by project" })
-  @ApiResponse({ status: 200, type: [KaizenResponseDto] })
+  @ApiResponse({ status: 200 })
   async listByProject(
     @Param("organizationId") organizationId: string,
     @Param("projectId") projectId: string,
-  ): Promise<KaizenResponseDto[]> {
+  ): Promise<{ items: KaizenResponseDto[] }> {
     const kaizens = await this.kaizenService.listByProject(
       organizationId,
       projectId,
     );
-    return kaizens.map(KaizenResponseDto.fromEntity);
+    return { items: kaizens.map(KaizenResponseDto.fromEntity) };
   }
 
   @Get("organization/:organizationId/kaizen")
   @ApiOperation({ summary: "List all kaizens of an organization" })
-  @ApiResponse({ status: 200, type: [KaizenResponseDto] })
+  @ApiResponse({ status: 200 })
   async listByOrganization(
     @Param("organizationId") organizationId: string,
-  ): Promise<KaizenResponseDto[]> {
+  ): Promise<{ items: KaizenResponseDto[] }> {
     const kaizens = await this.kaizenService.listByOrganization(organizationId);
-    return kaizens.map(KaizenResponseDto.fromEntity);
+    return { items: kaizens.map(KaizenResponseDto.fromEntity) };
   }
 
   @Patch("kaizen/:kaizenId")

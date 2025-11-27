@@ -28,6 +28,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { SuperuserGuard } from "../auth/superuser.guard";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserResponseDto } from "./dto/user-response.dto";
@@ -372,5 +373,88 @@ export class UserSingularController {
       limit: limitNum,
       total: filteredUpdates.length,
     };
+  }
+
+  @Post(":userId/activate")
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Activate user" })
+  @ApiParam({
+    name: "userId",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiResponse({ status: 200, type: UserResponseDto })
+  async activate(
+    @Param("userId") userId: string,
+    @Body() _body?: any,
+  ): Promise<UserResponseDto> {
+    try {
+      const result = await this.userService.activate(userId);
+      return UserResponseDto.fromEntity(result.user);
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Post(":userId/superuser")
+  @UseGuards(SuperuserGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Make user a superuser (superuser only)" })
+  @ApiParam({
+    name: "userId",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
+  @ApiResponse({ status: 200, type: UserResponseDto })
+  @ApiResponse({
+    status: 403,
+    description: "Forbidden - Only superusers can access this resource",
+  })
+  async makeSuperuser(
+    @Param("userId") userId: string,
+    @Body() _body?: any,
+  ): Promise<UserResponseDto> {
+    try {
+      const result = await this.userService.makeSuperuser(userId);
+      return UserResponseDto.fromEntity(result.user);
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Get("by-email/:email")
+  @ApiOperation({ summary: "Get user by email" })
+  @ApiParam({ name: "email", example: "john@example.com" })
+  @ApiResponse({ status: 200, type: UserResponseDto })
+  async findByEmail(@Param("email") email: string): Promise<UserResponseDto> {
+    try {
+      const result = await this.userService.findByEmail(email);
+      if (!result.user) {
+        throw new NotFoundException("User not found");
+      }
+      return UserResponseDto.fromEntity(result.user);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
+  }
+
+  @Get("by-phone/:phone")
+  @ApiOperation({ summary: "Get user by phone" })
+  @ApiParam({ name: "phone", example: "+5511999999999" })
+  @ApiResponse({ status: 200, type: UserResponseDto })
+  async findByPhone(@Param("phone") phone: string): Promise<UserResponseDto> {
+    try {
+      const result = await this.userService.findByPhone(phone);
+      if (!result.user) {
+        throw new NotFoundException("User not found");
+      }
+      return UserResponseDto.fromEntity(result.user);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 }

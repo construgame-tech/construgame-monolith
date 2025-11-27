@@ -42,7 +42,7 @@ export class SectorController {
   @ApiOperation({ summary: "List all sectors" })
   async findAll(@Param("organizationId") organizationId: string) {
     const sectors = await this.service.findAll(organizationId);
-    return sectors.map(SectorResponseDto.fromEntity);
+    return { items: sectors.map(SectorResponseDto.fromEntity) };
   }
 
   @Get(":sectorId")

@@ -42,7 +42,7 @@ export class PrizeController {
   @ApiOperation({ summary: "List all prizes" })
   async findAll(@Param("organizationId") organizationId: string) {
     const prizes = await this.service.findAll(organizationId);
-    return prizes.map(PrizeResponseDto.fromEntity);
+    return { items: prizes.map(PrizeResponseDto.fromEntity) };
   }
 
   @Get(":prizeId")

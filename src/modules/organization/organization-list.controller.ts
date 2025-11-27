@@ -28,20 +28,21 @@ export class OrganizationListController {
   @ApiResponse({
     status: 200,
     description: "List of all organizations",
-    type: [OrganizationListItemDto],
   })
   @ApiResponse({
     status: 403,
     description: "Forbidden - Only superusers can access this resource",
   })
-  async listAllOrganizations(): Promise<OrganizationListItemDto[]> {
+  async listAllOrganizations(): Promise<{ items: OrganizationListItemDto[] }> {
     const organizations = await this.organizationRepository.findAll();
 
-    return organizations.map((org) => ({
-      id: org.id,
-      name: org.name,
-      photo: org.photo,
-      ownerId: org.ownerId,
-    }));
+    return {
+      items: organizations.map((org) => ({
+        id: org.id,
+        name: org.name,
+        photo: org.photo,
+        ownerId: org.ownerId,
+      })),
+    };
   }
 }

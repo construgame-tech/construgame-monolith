@@ -83,11 +83,11 @@ export class TaskController {
   @Get("games/:gameId/tasks")
   @ApiOperation({ summary: "List all tasks for a game" })
   @ApiParam({ name: "gameId", example: "123e4567-e89b-12d3-a456-426614174000" })
-  @ApiResponse({ status: 200, type: [TaskResponseDto] })
-  async findAll(@Param("gameId") gameId: string): Promise<TaskResponseDto[]> {
+  @ApiResponse({ status: 200 })
+  async findAll(@Param("gameId") gameId: string): Promise<{ items: TaskResponseDto[] }> {
     try {
       const result = await listGameTasks({ gameId }, this.taskRepository);
-      return result.tasks.map((task) => TaskResponseDto.fromEntity(task));
+      return { items: result.tasks.map((task) => TaskResponseDto.fromEntity(task)) };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

@@ -43,7 +43,7 @@ export class FinancialPrizeController {
   @ApiOperation({ summary: "Get user financial prizes" })
   async findByUser(@Param("userId") userId: string) {
     const prizes = await this.service.findByUser(userId);
-    return prizes.map(FinancialPrizeResponseDto.fromEntity);
+    return { items: prizes.map(FinancialPrizeResponseDto.fromEntity) };
   }
 
   @Get("users/:userId/games/:gameId/financial-prizes")
@@ -78,6 +78,6 @@ export class FinancialPrizeController {
     @Query("period") period: string,
   ) {
     const prizes = await this.service.findByGameAndPeriod(gameId, period);
-    return prizes.map(FinancialPrizeResponseDto.fromEntity);
+    return { items: prizes.map(FinancialPrizeResponseDto.fromEntity) };
   }
 }

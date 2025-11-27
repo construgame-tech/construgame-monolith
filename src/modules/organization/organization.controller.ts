@@ -5,7 +5,13 @@ import {
   listOrganizations,
   updateOrganization,
 } from "@domain/organization";
+import { createMemberEntity } from "@domain/member/entities/member.entity";
+import { createOrgConfigEntity } from "@domain/organization-config/entities/org-config.entity";
+import { createOrgKaizenConfigEntity } from "@domain/organization-config/entities/org-kaizen-config.entity";
+import { MemberRepository } from "@infrastructure/repositories/member.repository";
 import { OrganizationRepository } from "@infrastructure/repositories/organization.repository";
+import { OrgConfigRepository } from "@infrastructure/repositories/org-config.repository";
+import { OrgKaizenConfigRepository } from "@infrastructure/repositories/org-kaizen-config.repository";
 import {
   BadRequestException,
   Body,
@@ -41,6 +47,12 @@ export class OrganizationController {
   constructor(
     @Inject(OrganizationRepository)
     private readonly organizationRepository: OrganizationRepository,
+    @Inject(OrgConfigRepository)
+    private readonly orgConfigRepository: OrgConfigRepository,
+    @Inject(MemberRepository)
+    private readonly memberRepository: MemberRepository,
+    @Inject(OrgKaizenConfigRepository)
+    private readonly orgKaizenConfigRepository: OrgKaizenConfigRepository,
   ) {}
 
   @Post()
@@ -54,6 +66,34 @@ export class OrganizationController {
         createOrganizationDto,
         this.organizationRepository,
       );
+
+      // Cria a config padrão para a organização
+      const defaultConfig = createOrgConfigEntity({
+        organizationId: result.organization.id,
+      });
+      await this.orgConfigRepository.save(defaultConfig);
+
+      // Cria a config de kaizen padrão para a organização
+      const defaultKaizenConfig = createOrgKaizenConfigEntity({
+        organizationId: result.organization.id,
+        categoryPoints: {
+          "1": { points: 10, description: "Categoria 1" },
+          "2": { points: 20, description: "Categoria 2" },
+          "3": { points: 30, description: "Categoria 3" },
+          "4": { points: 40, description: "Categoria 4" },
+          "5": { points: 50, description: "Categoria 5" },
+        },
+      });
+      await this.orgKaizenConfigRepository.save(defaultKaizenConfig);
+
+      // Cria o member owner para o criador da organização
+      const ownerMember = createMemberEntity({
+        userId: createOrganizationDto.ownerId,
+        organizationId: result.organization.id,
+        role: "owner",
+      });
+      await this.memberRepository.save(ownerMember);
+
       return OrganizationResponseDto.fromEntity(result.organization);
     } catch (error) {
       throw new BadRequestException(error.message);

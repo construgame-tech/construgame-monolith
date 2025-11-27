@@ -59,12 +59,12 @@ export class LeagueController {
 
   @Get()
   @ApiOperation({ summary: "List all leagues of an organization" })
-  @ApiResponse({ status: 200, type: [LeagueResponseDto] })
+  @ApiResponse({ status: 200 })
   async listLeagues(
     @Param("organizationId") organizationId: string,
-  ): Promise<LeagueResponseDto[]> {
+  ): Promise<{ items: LeagueResponseDto[] }> {
     const leagues = await this.leagueService.listByOrganization(organizationId);
-    return leagues.map(LeagueResponseDto.fromEntity);
+    return { items: leagues.map(LeagueResponseDto.fromEntity) };
   }
 
   @Patch(":leagueId")

@@ -36,10 +36,10 @@ export class ConfigKpiController {
   @ApiOperation({ summary: "List organization KPIs" })
   async findAll(
     @Param("organizationId") _organizationId: string,
-  ): Promise<KpiResponseDto[]> {
+  ): Promise<{ items: KpiResponseDto[] }> {
     // Por enquanto retorna todos os KPIs, mas pode ser filtrado por organização no futuro
     const kpis = await this.kpiService.listAll();
-    return kpis.map(KpiResponseDto.fromEntity);
+    return { items: kpis.map(KpiResponseDto.fromEntity) };
   }
 
   @Post()

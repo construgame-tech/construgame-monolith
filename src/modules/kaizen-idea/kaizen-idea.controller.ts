@@ -139,12 +139,12 @@ export class KaizenIdeaController {
 
   @Get("organization/:organizationId/kaizen-idea")
   @ApiOperation({ summary: "List all kaizen ideas of an organization" })
-  @ApiResponse({ status: 200, type: [KaizenIdeaResponseDto] })
+  @ApiResponse({ status: 200 })
   async listIdeas(
     @Param("organizationId") organizationId: string,
-  ): Promise<KaizenIdeaResponseDto[]> {
+  ): Promise<{ items: KaizenIdeaResponseDto[] }> {
     const ideas = await this.ideaService.listByOrganization(organizationId);
-    return ideas.map(KaizenIdeaResponseDto.fromEntity);
+    return { items: ideas.map(KaizenIdeaResponseDto.fromEntity) };
   }
 
   @Patch("organization/:organizationId/kaizen-idea/:ideaId")

@@ -26,7 +26,7 @@ export interface AuthConfig {
 }
 
 export const orgConfigs = pgTable(
-  "org_configs",
+  "organization_configs",
   {
     organizationId: text("organization_id").primaryKey(),
     missionsEnabled: boolean("missions_enabled").notNull(),
@@ -39,7 +39,7 @@ export const orgConfigs = pgTable(
     sequence: integer("sequence").notNull().default(0),
   },
   (table) => ({
-    organizationIdIdx: index("org_configs_organization_id_idx").on(
+    organizationIdIdx: index("organization_configs_organization_id_idx").on(
       table.organizationId,
     ),
   }),

@@ -113,12 +113,12 @@ export class KaizenTypeController {
 
   @Get("organization/:organizationId/kaizen-type")
   @ApiOperation({ summary: "List all kaizen types of an organization" })
-  @ApiResponse({ status: 200, type: [KaizenTypeResponseDto] })
+  @ApiResponse({ status: 200 })
   async listTypes(
     @Param("organizationId") organizationId: string,
-  ): Promise<KaizenTypeResponseDto[]> {
+  ): Promise<{ items: KaizenTypeResponseDto[] }> {
     const types = await this.typeService.listByOrganization(organizationId);
-    return types.map(KaizenTypeResponseDto.fromEntity);
+    return { items: types.map(KaizenTypeResponseDto.fromEntity) };
   }
 
   @Patch("organization/:organizationId/kaizen-type/:typeId")

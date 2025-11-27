@@ -62,13 +62,13 @@ export class JobRoleController {
 
   @Get()
   @ApiOperation({ summary: "List all job roles of an organization" })
-  @ApiResponse({ status: 200, type: [JobRoleResponseDto] })
+  @ApiResponse({ status: 200 })
   async listJobRoles(
     @Param("organizationId") organizationId: string,
-  ): Promise<JobRoleResponseDto[]> {
+  ): Promise<{ items: JobRoleResponseDto[] }> {
     const jobRoles =
       await this.jobRoleService.listByOrganization(organizationId);
-    return jobRoles.map(JobRoleResponseDto.fromEntity);
+    return { items: jobRoles.map(JobRoleResponseDto.fromEntity) };
   }
 
   @Put(":jobRoleId")

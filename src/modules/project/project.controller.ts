@@ -62,13 +62,13 @@ export class ProjectController {
 
   @Get()
   @ApiOperation({ summary: "List all projects of an organization" })
-  @ApiResponse({ status: 200, type: [ProjectResponseDto] })
+  @ApiResponse({ status: 200 })
   async listProjects(
     @Param("organizationId") organizationId: string,
-  ): Promise<ProjectResponseDto[]> {
+  ): Promise<{ items: ProjectResponseDto[] }> {
     const projects =
       await this.projectService.listOrganizationProjects(organizationId);
-    return projects.map(ProjectResponseDto.fromEntity);
+    return { items: projects.map(ProjectResponseDto.fromEntity) };
   }
 
   @Patch(":projectId")

@@ -16,20 +16,14 @@ export class KaizenTypeRepository implements IKaizenTypeRepository {
         id: type.id,
         organizationId: type.organizationId,
         name: type.name,
-        description: type.description,
-        points: type.points,
-        ideaPoints: type.ideaPoints,
-        ideaExecutionPoints: type.ideaExecutionPoints,
+        rewardPoints: type.points,
         sequence: type.sequence,
       })
       .onConflictDoUpdate({
         target: kaizenTypes.id,
         set: {
           name: type.name,
-          description: type.description,
-          points: type.points,
-          ideaPoints: type.ideaPoints,
-          ideaExecutionPoints: type.ideaExecutionPoints,
+          rewardPoints: type.points,
           sequence: type.sequence,
         },
       });
@@ -80,10 +74,7 @@ export class KaizenTypeRepository implements IKaizenTypeRepository {
       id: row.id,
       organizationId: row.organizationId,
       name: row.name,
-      description: row.description ?? undefined,
-      points: row.points,
-      ideaPoints: row.ideaPoints ?? undefined,
-      ideaExecutionPoints: row.ideaExecutionPoints ?? undefined,
+      points: row.rewardPoints,
       sequence: row.sequence,
     };
   }

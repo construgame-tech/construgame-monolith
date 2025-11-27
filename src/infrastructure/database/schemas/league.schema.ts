@@ -1,11 +1,11 @@
 import {
-  boolean,
   index,
   integer,
   jsonb,
   pgTable,
+  uuid,
+  varchar,
   text,
-  timestamp,
 } from "drizzle-orm/pg-core";
 
 export const leagueStatusEnum = [
@@ -22,28 +22,16 @@ export interface LeaguePrize {
 export const leagues = pgTable(
   "leagues",
   {
-    id: text("id").primaryKey(),
-    organizationId: text("organization_id").notNull(),
-    responsibleId: text("responsible_id").notNull(),
-    status: text("status").notNull().$type<(typeof leagueStatusEnum)[number]>(),
-    name: text("name").notNull(),
-    photo: text("photo"),
-    objective: text("objective"),
-    startDate: timestamp("start_date", { mode: "string" }),
-    endDate: timestamp("end_date", { mode: "string" }),
+    id: uuid("id").primaryKey(),
+    gameId: uuid("game_id").notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
+    description: text("description"),
+    startDate: varchar("start_date", { length: 30 }),
+    endDate: varchar("end_date", { length: 30 }),
     prizes: jsonb("prizes").$type<LeaguePrize[]>(),
-    projects: jsonb("projects").$type<string[]>(),
-    games: jsonb("games").$type<string[]>(),
-    hidden: boolean("hidden"),
     sequence: integer("sequence").notNull().default(0),
   },
   (table) => ({
-    organizationIdIdx: index("leagues_organization_id_idx").on(
-      table.organizationId,
-    ),
-    responsibleIdIdx: index("leagues_responsible_id_idx").on(
-      table.responsibleId,
-    ),
-    statusIdx: index("leagues_status_idx").on(table.status),
+    gameIdIdx: index("leagues_game_id_idx").on(table.gameId),
   }),
 );

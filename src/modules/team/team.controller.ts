@@ -166,12 +166,12 @@ export class TeamController {
 
   @Get()
   @ApiOperation({ summary: "List all teams of an organization" })
-  @ApiResponse({ status: 200, type: [TeamResponseDto] })
+  @ApiResponse({ status: 200 })
   async listTeams(
     @Param("organizationId") organizationId: string,
-  ): Promise<TeamResponseDto[]> {
+  ): Promise<{ items: TeamResponseDto[] }> {
     const teams = await this.teamService.listOrganizationTeams(organizationId);
-    return teams.map(TeamResponseDto.fromEntity);
+    return { items: teams.map(TeamResponseDto.fromEntity) };
   }
 
   @Patch(":teamId")

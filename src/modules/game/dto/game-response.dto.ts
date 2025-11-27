@@ -179,11 +179,11 @@ export class GameListResponseDto {
     description: "List of games",
     type: [GameResponseDto],
   })
-  games: GameResponseDto[];
+  items: GameResponseDto[];
 
   static fromEntities(entities: GameEntity[]): GameListResponseDto {
     return {
-      games: entities.map(GameResponseDto.fromEntity),
+      items: entities.map(GameResponseDto.fromEntity),
     };
   }
 }

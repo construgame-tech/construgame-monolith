@@ -14,16 +14,18 @@ export class KpiRepository implements IKpiRepository {
       .insert(kpis)
       .values({
         id: kpi.id,
+        organizationId: (kpi as any).organizationId ?? kpi.id, // Fallback para compatibilidade
         name: kpi.name,
-        type: kpi.type,
-        photo: kpi.photo,
+        description: kpi.type, // Mapeando type para description
+        unit: kpi.photo, // Mapeando photo para unit (temporário)
+        sequence: 0,
       })
       .onConflictDoUpdate({
         target: kpis.id,
         set: {
           name: kpi.name,
-          type: kpi.type,
-          photo: kpi.photo,
+          description: kpi.type,
+          unit: kpi.photo,
         },
       });
   }
@@ -47,12 +49,20 @@ export class KpiRepository implements IKpiRepository {
     return result.map(this.mapToEntity);
   }
 
+  async findByOrganizationId(organizationId: string): Promise<KpiEntity[]> {
+    const result = await this.db
+      .select()
+      .from(kpis)
+      .where(eq(kpis.organizationId, organizationId));
+    return result.map(this.mapToEntity);
+  }
+
   private mapToEntity(row: typeof kpis.$inferSelect): KpiEntity {
     return {
       id: row.id,
       name: row.name,
-      type: row.type,
-      photo: row.photo ?? undefined,
+      type: row.description ?? "", // Mapeando description para type
+      photo: row.unit ?? undefined, // Mapeando unit para photo
     };
   }
 }

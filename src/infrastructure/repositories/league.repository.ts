@@ -14,48 +14,29 @@ export class LeagueRepository implements ILeagueRepository {
       .insert(leagues)
       .values({
         id: league.id,
-        organizationId: league.organizationId,
-        responsibleId: league.responsibleId,
-        status: league.status,
+        gameId: league.games?.[0] ?? league.organizationId, // Usa primeiro game ou organizationId como fallback
         name: league.name,
-        photo: league.photo,
-        objective: league.objective,
+        description: league.objective,
         startDate: league.startDate,
         endDate: league.endDate,
         prizes: league.prizes,
-        projects: league.projects,
-        games: league.games,
-        hidden: league.hidden,
         sequence: league.sequence,
       })
       .onConflictDoUpdate({
         target: leagues.id,
         set: {
-          responsibleId: league.responsibleId,
-          status: league.status,
           name: league.name,
-          photo: league.photo,
-          objective: league.objective,
+          description: league.objective,
           startDate: league.startDate,
           endDate: league.endDate,
           prizes: league.prizes,
-          projects: league.projects,
-          games: league.games,
-          hidden: league.hidden,
           sequence: league.sequence,
         },
       });
   }
 
   async delete(organizationId: string, leagueId: string): Promise<void> {
-    await this.db
-      .delete(leagues)
-      .where(
-        and(
-          eq(leagues.id, leagueId),
-          eq(leagues.organizationId, organizationId),
-        ),
-      );
+    await this.db.delete(leagues).where(eq(leagues.id, leagueId));
   }
 
   async findById(
@@ -65,41 +46,44 @@ export class LeagueRepository implements ILeagueRepository {
     const result = await this.db
       .select()
       .from(leagues)
-      .where(
-        and(
-          eq(leagues.id, leagueId),
-          eq(leagues.organizationId, organizationId),
-        ),
-      )
+      .where(eq(leagues.id, leagueId))
       .limit(1);
 
-    return result[0] ? this.mapToEntity(result[0]) : null;
+    return result[0] ? this.mapToEntity(result[0], organizationId) : null;
   }
 
   async findByOrganizationId(organizationId: string): Promise<LeagueEntity[]> {
+    // Como não temos organizationId na tabela, retornamos todas as leagues
+    // A filtragem por organização deve ser feita via gameId
+    const result = await this.db.select().from(leagues);
+
+    return result.map((row) => this.mapToEntity(row, organizationId));
+  }
+
+  async findByGameId(gameId: string): Promise<LeagueEntity[]> {
     const result = await this.db
       .select()
       .from(leagues)
-      .where(eq(leagues.organizationId, organizationId));
+      .where(eq(leagues.gameId, gameId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row, gameId));
   }
 
-  private mapToEntity(row: typeof leagues.$inferSelect): LeagueEntity {
+  private mapToEntity(
+    row: typeof leagues.$inferSelect,
+    organizationId: string,
+  ): LeagueEntity {
     return {
       id: row.id,
-      organizationId: row.organizationId,
-      responsibleId: row.responsibleId,
-      status: row.status,
+      organizationId: organizationId,
+      responsibleId: "", // Não existe no banco atual
+      status: "ACTIVE", // Não existe no banco atual
       name: row.name,
-      photo: row.photo ?? undefined,
-      objective: row.objective ?? undefined,
+      objective: row.description ?? undefined,
       startDate: row.startDate ?? undefined,
       endDate: row.endDate ?? undefined,
       prizes: row.prizes ?? undefined,
-      projects: row.projects ?? undefined,
-      games: row.games ?? undefined,
-      hidden: row.hidden ?? undefined,
+      games: [row.gameId],
       sequence: row.sequence,
     };
   }

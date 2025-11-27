@@ -2,8 +2,11 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
   IsBoolean,
+  IsNumber,
   IsObject,
   IsOptional,
+  IsString,
+  IsUUID,
   ValidateNested,
 } from "class-validator";
 
@@ -15,9 +18,11 @@ class MissionConfigDto {
 
 class ThemeMenuDto {
   @ApiProperty()
+  @IsString()
   background: string;
 
   @ApiProperty()
+  @IsString()
   color: string;
 }
 
@@ -46,6 +51,11 @@ class AuthConfigDto {
 }
 
 export class CreateOrgConfigDto {
+  @ApiPropertyOptional({ description: "Organization ID (ignored, taken from URL)" })
+  @IsUUID()
+  @IsOptional()
+  organizationId?: string;
+
   @ApiProperty()
   @IsBoolean()
   missionsEnabled: boolean;
@@ -81,4 +91,9 @@ export class CreateOrgConfigDto {
   @ValidateNested()
   @Type(() => AuthConfigDto)
   auth: AuthConfigDto;
+
+  @ApiPropertyOptional({ description: "Sequence number (optional)" })
+  @IsNumber()
+  @IsOptional()
+  sequence?: number;
 }

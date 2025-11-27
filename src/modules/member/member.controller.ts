@@ -254,13 +254,13 @@ export class MemberController {
 
   @Get()
   @ApiOperation({ summary: "List all members of an organization" })
-  @ApiResponse({ status: 200, type: [MemberResponseDto] })
+  @ApiResponse({ status: 200 })
   async listMembers(
     @Param("organizationId") organizationId: string,
-  ): Promise<MemberResponseDto[]> {
+  ): Promise<{ items: MemberResponseDto[] }> {
     const members =
       await this.memberService.listOrganizationMembers(organizationId);
-    return members.map(MemberResponseDto.fromEntity);
+    return { items: members.map(MemberResponseDto.fromEntity) };
   }
 
   @Patch(":userId")

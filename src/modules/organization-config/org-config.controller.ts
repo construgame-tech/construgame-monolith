@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
@@ -42,8 +43,18 @@ export class OrgConfigController {
     return OrgConfigResponseDto.fromEntity(config);
   }
 
+  @Put()
+  @ApiOperation({ summary: "Update organization config (PUT)" })
+  async updatePut(
+    @Param("organizationId") organizationId: string,
+    @Body() dto: UpdateOrgConfigDto,
+  ) {
+    const config = await this.service.update(organizationId, dto);
+    return OrgConfigResponseDto.fromEntity(config);
+  }
+
   @Patch()
-  @ApiOperation({ summary: "Update organization config" })
+  @ApiOperation({ summary: "Update organization config (PATCH)" })
   async update(
     @Param("organizationId") organizationId: string,
     @Body() dto: UpdateOrgConfigDto,
