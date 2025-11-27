@@ -11,6 +11,7 @@ import { MemberRepository } from "@infrastructure/repositories/member.repository
 import { UserRepository } from "@infrastructure/repositories/user.repository";
 import { EmailService } from "@infrastructure/services/email/email.service";
 import { SmsService } from "@infrastructure/services/sms/sms.service";
+import { SsmService } from "@infrastructure/services/ssm/ssm.service";
 import {
   BadRequestException,
   Injectable,
@@ -19,6 +20,7 @@ import {
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
+import * as jsonwebtoken from "jsonwebtoken";
 
 export interface UserRole {
   organizationId: string;
@@ -34,6 +36,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly smsService: SmsService,
+    private readonly ssmService: SsmService,
   ) {}
 
   // Valida usuário com email e senha
@@ -61,29 +64,32 @@ export class AuthService {
       role: member.role,
     }));
 
+    // Buscar o JWT secret do SSM (em produção) ou do env (em dev)
+    const jwtSecret = await this.ssmService.getJwtSecret();
+
     // Payload do access token
     const accessTokenPayload = {
       type: "accessToken",
       roles,
       userType: user.type,
-      aud: "web",
-      sub: user.id,
     };
 
     // Payload do refresh token
     const refreshTokenPayload = {
       type: "refreshToken",
-      aud: "web",
-      sub: user.id,
       jti: randomUUID(), // Identificador único para o refresh token
     };
 
-    // Gerar tokens
-    const accessToken = this.jwtService.sign(accessTokenPayload, {
+    // Gerar tokens usando jsonwebtoken diretamente com o secret do SSM
+    const accessToken = jsonwebtoken.sign(accessTokenPayload, jwtSecret, {
+      audience: "web",
+      subject: user.id,
       expiresIn: "30m", // 30 minutos
     });
 
-    const refreshToken = this.jwtService.sign(refreshTokenPayload, {
+    const refreshToken = jsonwebtoken.sign(refreshTokenPayload, jwtSecret, {
+      audience: "web",
+      subject: user.id,
       expiresIn: "30d", // 30 dias
     });
 
@@ -146,29 +152,32 @@ export class AuthService {
         role: member.role,
       }));
 
+      // Buscar o JWT secret do SSM (em produção) ou do env (em dev)
+      const jwtSecret = await this.ssmService.getJwtSecret();
+
       // Payload do access token
       const accessTokenPayload = {
         type: "accessToken",
         roles,
         userType: user.type,
-        aud: "app",
-        sub: user.id,
       };
 
       // Payload do refresh token
       const refreshTokenPayload = {
         type: "refreshToken",
-        aud: "app",
-        sub: user.id,
         jti: randomUUID(),
       };
 
-      // Gerar tokens
-      const accessToken = this.jwtService.sign(accessTokenPayload, {
+      // Gerar tokens usando jsonwebtoken diretamente com o secret do SSM
+      const accessToken = jsonwebtoken.sign(accessTokenPayload, jwtSecret, {
+        audience: "app",
+        subject: user.id,
         expiresIn: "30m",
       });
 
-      const refreshToken = this.jwtService.sign(refreshTokenPayload, {
+      const refreshToken = jsonwebtoken.sign(refreshTokenPayload, jwtSecret, {
+        audience: "app",
+        subject: user.id,
         expiresIn: "30d",
       });
 
@@ -301,7 +310,14 @@ export class AuthService {
   // Refresh token Web
   async refreshWebToken(refreshToken: string) {
     try {
-      const payload = this.jwtService.verify(refreshToken);
+      // Buscar o JWT secret do SSM
+      const jwtSecret = await this.ssmService.getJwtSecret();
+
+      const payload = jsonwebtoken.verify(refreshToken, jwtSecret) as {
+        type: string;
+        aud: string;
+        sub: string;
+      };
 
       if (payload.type !== "refreshToken" || payload.aud !== "web") {
         throw new UnauthorizedException("Invalid refresh token");
@@ -324,24 +340,28 @@ export class AuthService {
         type: "accessToken",
         roles,
         userType: user.type,
-        aud: "web",
-        sub: user.id,
       };
 
       const refreshTokenPayload = {
         type: "refreshToken",
-        aud: "web",
-        sub: user.id,
         jti: randomUUID(),
       };
 
-      const newAccessToken = this.jwtService.sign(accessTokenPayload, {
+      const newAccessToken = jsonwebtoken.sign(accessTokenPayload, jwtSecret, {
+        audience: "web",
+        subject: user.id,
         expiresIn: "30m",
       });
 
-      const newRefreshToken = this.jwtService.sign(refreshTokenPayload, {
-        expiresIn: "30d",
-      });
+      const newRefreshToken = jsonwebtoken.sign(
+        refreshTokenPayload,
+        jwtSecret,
+        {
+          audience: "web",
+          subject: user.id,
+          expiresIn: "30d",
+        },
+      );
 
       return {
         accessToken: newAccessToken,
@@ -360,7 +380,14 @@ export class AuthService {
   // Refresh token App
   async refreshAppToken(refreshToken: string) {
     try {
-      const payload = this.jwtService.verify(refreshToken);
+      // Buscar o JWT secret do SSM
+      const jwtSecret = await this.ssmService.getJwtSecret();
+
+      const payload = jsonwebtoken.verify(refreshToken, jwtSecret) as {
+        type: string;
+        aud: string;
+        sub: string;
+      };
 
       if (payload.type !== "refreshToken" || payload.aud !== "app") {
         throw new UnauthorizedException("Invalid refresh token");
@@ -383,24 +410,28 @@ export class AuthService {
         type: "accessToken",
         roles,
         userType: user.type,
-        aud: "app",
-        sub: user.id,
       };
 
       const refreshTokenPayload = {
         type: "refreshToken",
-        aud: "app",
-        sub: user.id,
         jti: randomUUID(),
       };
 
-      const newAccessToken = this.jwtService.sign(accessTokenPayload, {
+      const newAccessToken = jsonwebtoken.sign(accessTokenPayload, jwtSecret, {
+        audience: "app",
+        subject: user.id,
         expiresIn: "30m",
       });
 
-      const newRefreshToken = this.jwtService.sign(refreshTokenPayload, {
-        expiresIn: "30d",
-      });
+      const newRefreshToken = jsonwebtoken.sign(
+        refreshTokenPayload,
+        jwtSecret,
+        {
+          audience: "app",
+          subject: user.id,
+          expiresIn: "30d",
+        },
+      );
 
       return {
         accessToken: newAccessToken,

@@ -53,6 +53,7 @@ export const createUserEntity = (props: {
 // Factory function para atualizar um usuário existente
 // Nota: Se um campo for passado como null, ele será removido (setado como undefined)
 // Se um campo não for passado (undefined), mantém o valor atual
+// Exceção: `name` é obrigatório, então null é tratado como "manter o valor atual"
 export const updateUserEntity = (
   currentUser: UserEntity,
   updates: {
@@ -67,7 +68,8 @@ export const updateUserEntity = (
 ): UserEntity => {
   return {
     ...currentUser,
-    name: updates.name === null ? undefined : (updates.name ?? currentUser.name),
+    // name é obrigatório, então null mantém o valor atual
+    name: updates.name === null || updates.name === undefined ? currentUser.name : updates.name,
     email: updates.email === null ? undefined : (updates.email ?? currentUser.email),
     phone: updates.phone === null ? undefined : (updates.phone ?? currentUser.phone),
     nickname: updates.nickname === null ? undefined : (updates.nickname ?? currentUser.nickname),

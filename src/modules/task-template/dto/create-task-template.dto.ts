@@ -10,11 +10,6 @@ import {
 
 export class CreateTaskTemplateDto {
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  organizationId!: string;
-
-  @ApiProperty()
   @IsUUID()
   @IsNotEmpty()
   kpiId!: string;

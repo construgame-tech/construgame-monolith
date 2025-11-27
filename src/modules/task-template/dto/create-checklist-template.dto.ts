@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -18,14 +19,14 @@ export class ChecklistItemDto {
   @IsString()
   @IsNotEmpty()
   label!: string;
+
+  @ApiPropertyOptional({ default: false })
+  @IsBoolean()
+  @IsOptional()
+  checked?: boolean;
 }
 
 export class CreateChecklistTemplateDto {
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  organizationId?: string;
-
   @ApiProperty()
   @IsString()
   @IsNotEmpty()

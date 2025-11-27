@@ -1,5 +1,6 @@
 import { EmailModule } from "@infrastructure/services/email/email.module";
 import { SmsModule } from "@infrastructure/services/sms/sms.module";
+import { SsmService } from "@infrastructure/services/ssm/ssm.service";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
@@ -20,14 +21,20 @@ import { JwtStrategy } from "./jwt.strategy";
     SmsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>("JWT_SECRET") || "dev_secret_key",
-        signOptions: { expiresIn: "1d" },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        // Em produção, o secret será carregado do SSM pelo SsmService
+        // Aqui usamos um placeholder que será substituído dinamicamente
+        const secret =
+          configService.get<string>("JWT_SECRET") || "dev_secret_key";
+        return {
+          secret,
+          signOptions: { expiresIn: "30m" },
+        };
+      },
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, SsmService],
   controllers: [AuthController],
   exports: [AuthService],
 })

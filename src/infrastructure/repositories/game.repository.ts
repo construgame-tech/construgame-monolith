@@ -114,6 +114,24 @@ export class GameRepository implements IGameRepository {
     return result.map((row) => this.mapToEntity(row));
   }
 
+  /**
+   * Busca game apenas pelo ID (sem filtrar por organizationId)
+   * Útil quando já temos o gameId e precisamos descobrir a organização
+   */
+  async findByIdOnly(gameId: string): Promise<GameEntity | null> {
+    const result = await this.db
+      .select()
+      .from(games)
+      .where(eq(games.id, gameId))
+      .limit(1);
+
+    if (!result.length) {
+      return null;
+    }
+
+    return this.mapToEntity(result[0]);
+  }
+
   // Helper para mapear do schema Drizzle para a entidade de domínio
   private mapToEntity(row: typeof games.$inferSelect): GameEntity {
     return {

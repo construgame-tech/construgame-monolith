@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { GameRepository } from "@infrastructure/repositories/game.repository";
 import { TaskManagerRepository } from "@infrastructure/repositories/task-manager.repository";
 import {
   BadRequestException,
@@ -112,6 +113,11 @@ class ChecklistItemDto {
   @IsString()
   @IsNotEmpty()
   label: string;
+
+  @ApiProperty({ required: false, default: false })
+  @IsOptional()
+  @IsBoolean()
+  checked?: boolean;
 }
 
 // Main DTOs
@@ -265,26 +271,28 @@ export class TaskManagerController {
   constructor(
     @Inject(TaskManagerRepository)
     private readonly repository: TaskManagerRepository,
+    @Inject(GameRepository)
+    private readonly gameRepository: GameRepository,
   ) {}
 
   @Post("games/:gameId/task-managers")
   async createTaskManager(
     @Param("gameId") gameId: string,
-    @Query("organizationId") organizationId: string,
-    @Query("projectId") projectId: string,
     @Body() body: CreateTaskManagerDto,
   ) {
-    if (!organizationId || !projectId) {
-      throw new BadRequestException(
-        "organizationId and projectId are required as query parameters",
-      );
+    // Busca o game para obter organizationId e projectId
+    const game = await this.gameRepository.findByIdOnly(gameId);
+    if (!game) {
+      throw new NotFoundException(`Game with ID ${gameId} not found`);
     }
+
+    const { organizationId, projectId } = game;
 
     // Transform checklist items to ensure they have IDs
     const checklist = body.checklist?.map((item) => ({
       id: item.id || randomUUID(),
       label: item.label,
-      checked: false,
+      checked: item.checked ?? false,
     }));
 
     const taskManager = await this.repository.create({
@@ -465,20 +473,20 @@ export class TaskManagerController {
   @Post("game/:gameId/task-manager")
   async createTaskManagerSingular(
     @Param("gameId") gameId: string,
-    @Query("organizationId") organizationId: string,
-    @Query("projectId") projectId: string,
     @Body() body: CreateTaskManagerDto,
   ) {
-    if (!organizationId || !projectId) {
-      throw new BadRequestException(
-        "organizationId and projectId are required as query parameters",
-      );
+    // Busca o game para obter organizationId e projectId
+    const game = await this.gameRepository.findByIdOnly(gameId);
+    if (!game) {
+      throw new NotFoundException(`Game with ID ${gameId} not found`);
     }
+
+    const { organizationId, projectId } = game;
 
     const checklist = body.checklist?.map((item) => ({
       id: item.id || randomUUID(),
       label: item.label,
-      checked: false,
+      checked: item.checked ?? false,
     }));
 
     const taskManager = await this.repository.create({

@@ -116,7 +116,15 @@ export class UserService {
    */
   async update(
     userId: string,
-    input: Partial<CreateUserInput>,
+    input: {
+      name?: string | null;
+      email?: string | null;
+      phone?: string | null;
+      nickname?: string | null;
+      photo?: string | null;
+      customId?: string | null;
+      signedTermsOfUse?: boolean | null;
+    },
   ): Promise<{ user: UserEntity }> {
     return await updateUser({ userId, ...input }, this.userRepository);
   }

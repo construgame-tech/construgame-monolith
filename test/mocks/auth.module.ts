@@ -9,6 +9,7 @@ import { JwtStrategy } from "../../src/modules/auth/jwt.strategy";
 import { UserModule } from "../../src/modules/user/user.module";
 import { TestEmailModule } from "./email.module";
 import { TestSmsModule } from "./sms.module";
+import { TestSsmModule } from "./ssm.module";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { TestSmsModule } from "./sms.module";
     PassportModule,
     TestEmailModule,
     TestSmsModule,
+    TestSsmModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
