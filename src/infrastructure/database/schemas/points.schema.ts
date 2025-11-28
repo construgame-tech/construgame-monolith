@@ -1,4 +1,4 @@
-import { index, integer, pgTable, text } from "drizzle-orm/pg-core";
+import { index, integer, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
 
 export const userGamePoints = pgTable(
   "user_game_points",
@@ -13,7 +13,7 @@ export const userGamePoints = pgTable(
     sequence: integer("sequence").notNull().default(0),
   },
   (table) => ({
-    pk: index("user_game_points_pk").on(table.userId, table.gameId),
+    pk: primaryKey({ columns: [table.userId, table.gameId] }),
     userIdx: index("user_game_points_user_idx").on(table.userId),
     gameIdx: index("user_game_points_game_idx").on(table.gameId),
   }),
@@ -32,7 +32,7 @@ export const teamGamePoints = pgTable(
     sequence: integer("sequence").notNull().default(0),
   },
   (table) => ({
-    pk: index("team_game_points_pk").on(table.teamId, table.gameId),
+    pk: primaryKey({ columns: [table.teamId, table.gameId] }),
     teamIdx: index("team_game_points_team_idx").on(table.teamId),
     gameIdx: index("team_game_points_game_idx").on(table.gameId),
   }),

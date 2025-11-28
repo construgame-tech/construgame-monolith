@@ -1,11 +1,22 @@
 import { randomUUID } from "node:crypto";
 import {
+  createUserGamePointsEntity,
+  createTeamGamePointsEntity,
+} from "@domain/game-points/entities/game-points.entity";
+import type { GameEntity } from "@domain/game/entities/game.entity";
+import type { TaskEntity } from "@domain/task/entities/task.entity";
+import {
   approveTaskUpdateEntity,
   cancelTaskUpdateEntity,
   createTaskUpdateEntity,
   rejectTaskUpdateEntity,
   TaskUpdateStatus,
 } from "@domain/task-update/entities/task-update.entity";
+import type {
+  TeamGamePointsRepository,
+  UserGamePointsRepository,
+} from "@infrastructure/repositories/game-points.repository";
+import { GameRepository } from "@infrastructure/repositories/game.repository";
 import { TaskRepository } from "@infrastructure/repositories/task.repository";
 import { TaskUpdateRepository } from "@infrastructure/repositories/task-update.repository";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
@@ -20,6 +31,12 @@ export class TaskUpdateService {
     private readonly taskUpdateRepository: TaskUpdateRepository,
     @Inject("ITaskRepository")
     private readonly taskRepository: TaskRepository,
+    @Inject("IGameRepository")
+    private readonly gameRepository: GameRepository,
+    @Inject("UserGamePointsRepository")
+    private readonly userGamePointsRepository: UserGamePointsRepository,
+    @Inject("TeamGamePointsRepository")
+    private readonly teamGamePointsRepository: TeamGamePointsRepository,
   ) {}
 
   async create(dto: CreateTaskUpdateDto) {
@@ -82,8 +99,16 @@ export class TaskUpdateService {
   async approve(id: string, dto: ApproveTaskUpdateDto) {
     const current = await this.findById(id);
     
+    // Se já está aprovado, não reprocessar
+    if (current.status === "APPROVED") {
+      return current;
+    }
+    
     // Buscar a Task para calcular o percent
     const task = await this.taskRepository.findById(current.gameId, current.taskId);
+    
+    // Buscar o Game para obter organizationId e projectId
+    const game = await this.gameRepository.findByIdOnly(current.gameId);
     
     // Calcular percent se temos progressAbsolute e totalMeasurementExpected
     let calculatedPercent = current.progress.percent;
@@ -121,7 +146,81 @@ export class TaskUpdateService {
     // Atualiza o progresso da Task
     await this.updateTaskProgress(current.gameId, current.taskId, updatedWithPercent);
     
+    // Creditar pontos aos participantes e times
+    if (task && game) {
+      const participants = dto.participants ?? current.participants ?? [];
+      // Se não houver participantes definidos, credita ao submitter
+      const pointRecipients = participants.length > 0 ? participants : [current.submittedBy];
+      
+      await this.creditTaskPoints({
+        task,
+        game,
+        progressPercent: calculatedPercent ?? 0,
+        participants: pointRecipients,
+      });
+    }
+    
     return savedUpdate;
+  }
+  
+  /**
+   * Credita pontos proporcionais ao progresso da task.
+   * Os pontos são creditados aos participantes e ao time (se aplicável).
+   */
+  private async creditTaskPoints(params: {
+    task: TaskEntity;
+    game: GameEntity;
+    progressPercent: number;
+    participants: string[];
+  }) {
+    const { task, game, progressPercent, participants } = params;
+    
+    // Calcular pontos proporcionais ao progresso deste update
+    const pointsToCredit = Math.round((progressPercent / 100) * task.rewardPoints);
+    
+    if (pointsToCredit <= 0) return;
+    
+    // 1. Creditar pontos a cada participante
+    for (const userId of participants) {
+      const current = await this.userGamePointsRepository.findByUserAndGame(userId, game.id);
+      
+      const userPoints = current ?? createUserGamePointsEntity({
+        userId,
+        gameId: game.id,
+        organizationId: game.organizationId,
+        projectId: game.projectId,
+      });
+      
+      // Adicionar os pontos
+      const updated = {
+        ...userPoints,
+        taskPoints: userPoints.taskPoints + pointsToCredit,
+        totalPoints: userPoints.taskPoints + pointsToCredit + userPoints.kaizenPoints,
+      };
+      
+      await this.userGamePointsRepository.save(updated);
+    }
+    
+    // 2. Creditar pontos ao time (se a task pertence a um time)
+    if (task.teamId) {
+      const currentTeam = await this.teamGamePointsRepository.findByTeamAndGame(task.teamId, game.id);
+      
+      const teamPoints = currentTeam ?? createTeamGamePointsEntity({
+        teamId: task.teamId,
+        gameId: game.id,
+        organizationId: game.organizationId,
+        projectId: game.projectId,
+      });
+      
+      // Adicionar os pontos
+      const updatedTeam = {
+        ...teamPoints,
+        taskPoints: teamPoints.taskPoints + pointsToCredit,
+        totalPoints: teamPoints.taskPoints + pointsToCredit + teamPoints.kaizenPoints,
+      };
+      
+      await this.teamGamePointsRepository.save(updatedTeam);
+    }
   }
   
   /**
@@ -176,9 +275,10 @@ export class TaskUpdateService {
       checklist: approvedUpdate.checklist,
     };
     
-    // Adiciona o update à lista de updates existentes
+    // Remove update existente com mesmo ID (evita duplicatas) e adiciona o novo
     const existingUpdates = task.updates || [];
-    const updatedUpdates = [...existingUpdates, taskUpdate];
+    const filteredUpdates = existingUpdates.filter((u) => u.id !== approvedUpdate.id);
+    const updatedUpdates = [...filteredUpdates, taskUpdate];
     
     // Calcula o novo progresso baseado em todos os updates aprovados
     const totalAbsolute = updatedUpdates.reduce((sum, u) => sum + (u.progress || 0), 0);
