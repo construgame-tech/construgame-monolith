@@ -12,7 +12,7 @@ import {
   userGamePoints,
 } from "@infrastructure/database/schemas";
 import { Inject, Injectable } from "@nestjs/common";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 @Injectable()
 export class UserGamePointsRepository implements IUserGamePointsRepository {
@@ -56,6 +56,29 @@ export class UserGamePointsRepository implements IUserGamePointsRepository {
       .limit(1);
 
     return result[0] ? this.mapToEntity(result[0]) : null;
+  }
+
+  async findByGameId(gameId: string): Promise<UserGamePointsEntity[]> {
+    const result = await this.db
+      .select()
+      .from(userGamePoints)
+      .where(eq(userGamePoints.gameId, gameId));
+
+    return result.map(this.mapToEntity);
+  }
+
+  async getLeaderboard(
+    gameId: string,
+    limit = 10,
+  ): Promise<UserGamePointsEntity[]> {
+    const result = await this.db
+      .select()
+      .from(userGamePoints)
+      .where(eq(userGamePoints.gameId, gameId))
+      .orderBy(desc(userGamePoints.totalPoints))
+      .limit(limit);
+
+    return result.map(this.mapToEntity);
   }
 
   private mapToEntity(
@@ -115,6 +138,29 @@ export class TeamGamePointsRepository implements ITeamGamePointsRepository {
       .limit(1);
 
     return result[0] ? this.mapToEntity(result[0]) : null;
+  }
+
+  async findByGameId(gameId: string): Promise<TeamGamePointsEntity[]> {
+    const result = await this.db
+      .select()
+      .from(teamGamePoints)
+      .where(eq(teamGamePoints.gameId, gameId));
+
+    return result.map(this.mapToEntity);
+  }
+
+  async getLeaderboard(
+    gameId: string,
+    limit = 10,
+  ): Promise<TeamGamePointsEntity[]> {
+    const result = await this.db
+      .select()
+      .from(teamGamePoints)
+      .where(eq(teamGamePoints.gameId, gameId))
+      .orderBy(desc(teamGamePoints.totalPoints))
+      .limit(limit);
+
+    return result.map(this.mapToEntity);
   }
 
   private mapToEntity(

@@ -8,10 +8,18 @@ import {
 } from "../entities/job-role.entity";
 import { IJobRoleRepository } from "../repositories/job-role.repository.interface";
 
+export interface CreateJobRoleVariantInput {
+  id?: string;
+  salary?: number;
+  seniority?: string;
+  state?: string;
+  hoursPerDay?: number;
+}
+
 export interface CreateJobRoleInput {
   organizationId: string;
   name: string;
-  variants: JobRoleVariant[];
+  variants: CreateJobRoleVariantInput[];
   createdBy?: string;
 }
 
@@ -26,12 +34,21 @@ export const createJobRole = async (
   // Gera um ID único para o novo job role
   const jobRoleId = randomUUID();
 
+  // Gera IDs para variantes que não possuem
+  const variantsWithIds: JobRoleVariant[] = input.variants.map((variant) => ({
+    id: variant.id ?? randomUUID(),
+    salary: variant.salary,
+    seniority: variant.seniority,
+    state: variant.state,
+    hoursPerDay: variant.hoursPerDay,
+  }));
+
   // Cria a entidade de domínio
   const jobRole = createJobRoleEntity({
     id: jobRoleId,
     organizationId: input.organizationId,
     name: input.name,
-    variants: input.variants,
+    variants: variantsWithIds,
     createdBy: input.createdBy,
   });
 

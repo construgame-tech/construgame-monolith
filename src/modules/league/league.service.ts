@@ -1,41 +1,15 @@
-import { randomUUID } from "node:crypto";
 import {
-  createLeagueEntity,
+  createLeague,
+  CreateLeagueInput,
+  updateLeague,
+  UpdateLeagueInput,
+  getLeague,
+  deleteLeague,
+  listOrganizationLeagues,
   LeagueEntity,
-  updateLeagueEntity,
-} from "@domain/league/entities/league.entity";
+} from "@domain/league";
 import type { ILeagueRepository } from "@domain/league/repositories/league.repository.interface";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-
-export interface CreateLeagueInput {
-  organizationId: string;
-  responsibleId: string;
-  name: string;
-  photo?: string;
-  objective?: string;
-  startDate?: string;
-  endDate?: string;
-  prizes?: any[];
-  projects?: string[];
-  games?: string[];
-  hidden?: boolean;
-}
-
-export interface UpdateLeagueInput {
-  organizationId: string;
-  leagueId: string;
-  responsibleId?: string;
-  status?: "ACTIVE" | "ARCHIVED" | "DONE" | "PAUSED";
-  name?: string;
-  photo?: string;
-  objective?: string;
-  startDate?: string;
-  endDate?: string;
-  prizes?: any[];
-  projects?: string[];
-  games?: string[];
-  hidden?: boolean;
-}
 
 @Injectable()
 export class LeagueService {
@@ -45,81 +19,56 @@ export class LeagueService {
   ) {}
 
   async createLeague(input: CreateLeagueInput): Promise<LeagueEntity> {
-    const league = createLeagueEntity({
-      id: randomUUID(),
-      organizationId: input.organizationId,
-      responsibleId: input.responsibleId,
-      name: input.name,
-      photo: input.photo,
-      objective: input.objective,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      prizes: input.prizes,
-      projects: input.projects,
-      games: input.games,
-      hidden: input.hidden,
-    });
-
-    await this.leagueRepository.save(league);
-    return league;
+    const result = await createLeague(input, this.leagueRepository);
+    return result.league;
   }
 
   async getLeague(
     organizationId: string,
     leagueId: string,
   ): Promise<LeagueEntity> {
-    const league = await this.leagueRepository.findById(
-      organizationId,
-      leagueId,
-    );
-
-    if (!league) {
-      throw new NotFoundException(`League not found: ${leagueId}`);
+    try {
+      const result = await getLeague(
+        { organizationId, leagueId },
+        this.leagueRepository,
+      );
+      return result.league;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`League not found: ${leagueId}`);
+      }
+      throw error;
     }
-
-    return league;
   }
 
   async updateLeague(input: UpdateLeagueInput): Promise<LeagueEntity> {
-    const currentLeague = await this.leagueRepository.findById(
-      input.organizationId,
-      input.leagueId,
-    );
-
-    if (!currentLeague) {
-      throw new NotFoundException(`League not found: ${input.leagueId}`);
+    try {
+      const result = await updateLeague(input, this.leagueRepository);
+      return result.league;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`League not found: ${input.leagueId}`);
+      }
+      throw error;
     }
-
-    const updatedLeague = updateLeagueEntity(currentLeague, {
-      responsibleId: input.responsibleId,
-      status: input.status,
-      name: input.name,
-      photo: input.photo,
-      objective: input.objective,
-      startDate: input.startDate,
-      endDate: input.endDate,
-      prizes: input.prizes,
-      projects: input.projects,
-      games: input.games,
-      hidden: input.hidden,
-    });
-
-    await this.leagueRepository.save(updatedLeague);
-    return updatedLeague;
   }
 
   async deleteLeague(organizationId: string, leagueId: string): Promise<void> {
-    const league = await this.leagueRepository.findById(
-      organizationId,
-      leagueId,
-    );
-    if (!league) {
-      throw new NotFoundException(`League not found: ${leagueId}`);
+    try {
+      await deleteLeague({ organizationId, leagueId }, this.leagueRepository);
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`League not found: ${leagueId}`);
+      }
+      throw error;
     }
-    await this.leagueRepository.delete(organizationId, leagueId);
   }
 
   async listByOrganization(organizationId: string): Promise<LeagueEntity[]> {
-    return this.leagueRepository.findByOrganizationId(organizationId);
+    const result = await listOrganizationLeagues(
+      { organizationId },
+      this.leagueRepository,
+    );
+    return result.leagues;
   }
 }

@@ -1,26 +1,14 @@
-import { randomUUID } from "node:crypto";
 import {
-  createJobRoleEntity,
+  createJobRole,
+  CreateJobRoleInput,
+  updateJobRole,
+  UpdateJobRoleInput,
+  deleteJobRole,
+  listJobRoles,
   JobRoleEntity,
-  updateJobRoleEntity,
-} from "@domain/job-role/entities/job-role.entity";
+} from "@domain/job-role";
 import type { IJobRoleRepository } from "@domain/job-role/repositories/job-role.repository.interface";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-
-export interface CreateJobRoleInput {
-  organizationId: string;
-  name: string;
-  variants: any[];
-  createdBy?: string;
-}
-
-export interface UpdateJobRoleInput {
-  organizationId: string;
-  jobRoleId: string;
-  name?: string;
-  variants?: any[];
-  updatedBy?: string;
-}
 
 @Injectable()
 export class JobRoleService {
@@ -30,22 +18,8 @@ export class JobRoleService {
   ) {}
 
   async createJobRole(input: CreateJobRoleInput): Promise<JobRoleEntity> {
-    // Gerar ID para variants que não possuem
-    const variantsWithIds = input.variants.map((v) => ({
-      ...v,
-      id: v.id || randomUUID(),
-    }));
-
-    const jobRole = createJobRoleEntity({
-      id: randomUUID(),
-      organizationId: input.organizationId,
-      name: input.name,
-      variants: variantsWithIds,
-      createdBy: input.createdBy,
-    });
-
-    await this.jobRoleRepository.save(jobRole);
-    return jobRole;
+    const result = await createJobRole(input, this.jobRoleRepository);
+    return result.jobRole;
   }
 
   async getJobRole(
@@ -65,46 +39,33 @@ export class JobRoleService {
   }
 
   async updateJobRole(input: UpdateJobRoleInput): Promise<JobRoleEntity> {
-    const currentJobRole = await this.jobRoleRepository.findById(
-      input.organizationId,
-      input.jobRoleId,
-    );
-
-    if (!currentJobRole) {
-      throw new NotFoundException(`Job role not found: ${input.jobRoleId}`);
+    try {
+      const result = await updateJobRole(input, this.jobRoleRepository);
+      return result.jobRole;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`Job role not found: ${input.jobRoleId}`);
+      }
+      throw error;
     }
-
-    // Gerar ID para variants que não possuem
-    const variantsWithIds = input.variants?.map((v) => ({
-      ...v,
-      id: v.id || randomUUID(),
-    }));
-
-    const updatedJobRole = updateJobRoleEntity(currentJobRole, {
-      name: input.name,
-      variants: variantsWithIds,
-      updatedBy: input.updatedBy,
-    });
-
-    await this.jobRoleRepository.save(updatedJobRole);
-    return updatedJobRole;
   }
 
   async deleteJobRole(
     organizationId: string,
     jobRoleId: string,
   ): Promise<void> {
-    const jobRole = await this.jobRoleRepository.findById(
-      organizationId,
-      jobRoleId,
-    );
-    if (!jobRole) {
-      throw new NotFoundException(`Job role not found: ${jobRoleId}`);
+    try {
+      await deleteJobRole({ organizationId, jobRoleId }, this.jobRoleRepository);
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`Job role not found: ${jobRoleId}`);
+      }
+      throw error;
     }
-    await this.jobRoleRepository.delete(organizationId, jobRoleId);
   }
 
   async listByOrganization(organizationId: string): Promise<JobRoleEntity[]> {
-    return this.jobRoleRepository.findByOrganizationId(organizationId);
+    const result = await listJobRoles({ organizationId }, this.jobRoleRepository);
+    return result.jobRoles;
   }
 }

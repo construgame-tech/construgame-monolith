@@ -1,8 +1,9 @@
-import { randomUUID } from "node:crypto";
 import {
-  createPrizeEntity,
-  updatePrizeEntity,
-} from "@domain/organization-config/entities/prize.entity";
+  createPrize,
+  updatePrize,
+  deletePrize,
+  listPrizes,
+} from "@domain/organization-config";
 import type { IPrizeRepository } from "@domain/organization-config/repositories/prize.repository.interface";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { CreatePrizeDto } from "./dto/create-prize.dto";
@@ -16,21 +17,25 @@ export class PrizeService {
   ) {}
 
   async create(organizationId: string, dto: CreatePrizeDto) {
-    const prize = createPrizeEntity({
-      id: randomUUID(),
-      organizationId,
-      name: dto.name,
-      description: dto.description,
-      icon: dto.icon,
-      photo: dto.photo,
-    });
-
-    await this.repository.save(prize);
+    const { prize } = await createPrize(
+      {
+        organizationId,
+        name: dto.name,
+        description: dto.description,
+        icon: dto.icon,
+        photo: dto.photo,
+      },
+      this.repository,
+    );
     return prize;
   }
 
   async findAll(organizationId: string) {
-    return this.repository.findByOrganizationId(organizationId);
+    const { prizes } = await listPrizes(
+      { organizationId },
+      this.repository,
+    );
+    return prizes;
   }
 
   async findById(organizationId: string, prizeId: string) {
@@ -42,14 +47,32 @@ export class PrizeService {
   }
 
   async update(organizationId: string, prizeId: string, dto: UpdatePrizeDto) {
-    const current = await this.findById(organizationId, prizeId);
-    const updated = updatePrizeEntity(current, dto);
-    await this.repository.save(updated);
-    return updated;
+    try {
+      const { prize } = await updatePrize(
+        {
+          organizationId,
+          prizeId,
+          name: dto.name,
+          description: dto.description,
+          icon: dto.icon,
+          photo: dto.photo,
+        },
+        this.repository,
+      );
+      return prize;
+    } catch {
+      throw new NotFoundException("Prize not found");
+    }
   }
 
   async delete(organizationId: string, prizeId: string) {
-    await this.findById(organizationId, prizeId);
-    await this.repository.delete(organizationId, prizeId);
+    try {
+      await deletePrize(
+        { organizationId, prizeId },
+        this.repository,
+      );
+    } catch {
+      throw new NotFoundException("Prize not found");
+    }
   }
 }

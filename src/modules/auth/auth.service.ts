@@ -1,4 +1,5 @@
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
+import { generateRandomCode } from "@common/helpers/code-generator";
 import { UserEntity } from "@domain/user/entities/user.entity";
 import { authenticateWithEmail } from "@domain/user/use-cases/authenticate-with-email";
 import {
@@ -112,7 +113,7 @@ export class AuthService {
 
   // Gera código de autenticação para telefone
   async generatePhoneAuthCode(phone: string) {
-    const authCode = this.generateRandomCode(6);
+    const authCode = generateRandomCode(6);
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutos
 
     const result = await generateAuthCode(
@@ -203,7 +204,7 @@ export class AuthService {
 
   // Inicia recuperação de senha
   async recoverPassword(email: string) {
-    const recoveryCode = this.generateRandomCode(6);
+    const recoveryCode = generateRandomCode(6);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString(); // 15 minutos
 
     const result = await recoverPassword(
@@ -285,7 +286,7 @@ export class AuthService {
 
   // Recuperação de senha pelo admin (retorna o link ao invés de enviar email)
   async adminRecoverPassword(email: string) {
-    const recoveryCode = this.generateRandomCode(6);
+    const recoveryCode = generateRandomCode(6);
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 horas
 
     const result = await recoverPassword(
@@ -457,18 +458,5 @@ export class AuthService {
     throw new BadRequestException(
       "Microsoft SSO is not yet implemented. Please use email/password login.",
     );
-  }
-
-  // Gera código aleatório numérico
-  private generateRandomCode(length: number): string {
-    const digits = "0123456789";
-    let code = "";
-    const randomBytesBuffer = randomBytes(length);
-
-    for (let i = 0; i < length; i++) {
-      code += digits[randomBytesBuffer[i] % 10];
-    }
-
-    return code;
   }
 }

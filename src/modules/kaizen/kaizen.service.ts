@@ -1,27 +1,24 @@
-import { randomUUID } from "node:crypto";
-import { KaizenEntity } from "@domain/kaizen/entities/kaizen.entity";
 import {
-  createKaizenCommentEntity,
+  KaizenEntity,
   KaizenCommentEntity,
-} from "@domain/kaizen/entities/kaizen-comment.entity";
+} from "@domain/kaizen";
 import type { IKaizenRepository } from "@domain/kaizen/repositories/kaizen.repository.interface";
 import type { IKaizenCommentRepository } from "@domain/kaizen/repositories/kaizen-comment.repository.interface";
-import { archiveKaizen } from "@domain/kaizen/use-cases/archive-kaizen";
-import { completeKaizen } from "@domain/kaizen/use-cases/complete-kaizen";
 import {
+  archiveKaizen,
+  completeKaizen,
   CreateKaizenInput,
   createKaizen,
-} from "@domain/kaizen/use-cases/create-kaizen";
-import { reopenKaizen } from "@domain/kaizen/use-cases/reopen-kaizen";
-import {
+  reopenKaizen,
   ReplicateKaizenInput,
   replicateKaizen,
-} from "@domain/kaizen/use-cases/replicate-kaizen";
-import { unarchiveKaizen } from "@domain/kaizen/use-cases/unarchive-kaizen";
-import {
+  unarchiveKaizen,
   UpdateKaizenInput,
   updateKaizen,
-} from "@domain/kaizen/use-cases/update-kaizen";
+  createKaizenComment,
+  listKaizenComments,
+  deleteKaizenComment,
+} from "@domain/kaizen";
 import {
   BadRequestException,
   Inject,
@@ -157,7 +154,11 @@ export class KaizenService {
   // ========== Comment Methods ==========
 
   async listComments(kaizenId: string): Promise<KaizenCommentEntity[]> {
-    return this.commentRepository.findByKaizenId(kaizenId);
+    const { comments } = await listKaizenComments(
+      { kaizenId },
+      this.commentRepository,
+    );
+    return comments;
   }
 
   async createComment(
@@ -165,22 +166,21 @@ export class KaizenService {
     userId: string,
     text: string,
   ): Promise<KaizenCommentEntity> {
-    const comment = createKaizenCommentEntity({
-      id: randomUUID(),
-      kaizenId,
-      userId,
-      text,
-      createdAt: new Date().toISOString(),
-    });
-    await this.commentRepository.save(comment);
+    const { comment } = await createKaizenComment(
+      { kaizenId, userId, text },
+      this.commentRepository,
+    );
     return comment;
   }
 
   async deleteComment(commentId: string): Promise<void> {
-    const comment = await this.commentRepository.findById(commentId);
-    if (!comment) {
+    try {
+      await deleteKaizenComment(
+        { commentId },
+        this.commentRepository,
+      );
+    } catch {
       throw new NotFoundException(`Comment not found: ${commentId}`);
     }
-    await this.commentRepository.delete(commentId);
   }
 }

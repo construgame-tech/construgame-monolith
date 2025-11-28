@@ -6,7 +6,7 @@ import { TaskUpdateEntity } from "../entities/task-update.entity";
 
 export interface ITaskUpdateRepository {
   // Persiste um task update (create ou update)
-  save(taskUpdate: TaskUpdateEntity): Promise<void>;
+  save(taskUpdate: TaskUpdateEntity): Promise<TaskUpdateEntity>;
 
   // Busca um task update por ID
   findById(

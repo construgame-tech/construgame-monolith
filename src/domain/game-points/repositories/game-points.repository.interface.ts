@@ -9,6 +9,8 @@ export interface IUserGamePointsRepository {
     userId: string,
     gameId: string,
   ): Promise<UserGamePointsEntity | null>;
+  findByGameId(gameId: string): Promise<UserGamePointsEntity[]>;
+  getLeaderboard(gameId: string, limit?: number): Promise<UserGamePointsEntity[]>;
 }
 
 export interface ITeamGamePointsRepository {
@@ -17,4 +19,6 @@ export interface ITeamGamePointsRepository {
     teamId: string,
     gameId: string,
   ): Promise<TeamGamePointsEntity | null>;
+  findByGameId(gameId: string): Promise<TeamGamePointsEntity[]>;
+  getLeaderboard(gameId: string, limit?: number): Promise<TeamGamePointsEntity[]>;
 }

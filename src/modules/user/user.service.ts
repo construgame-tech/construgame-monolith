@@ -1,3 +1,4 @@
+import { generateRandomCode } from "@common/helpers/code-generator";
 import {
   activateUser,
   CreateUserInput,
@@ -27,24 +28,12 @@ export class UserService {
   ) {}
 
   /**
-   * Gera um código aleatório de 6 dígitos
-   */
-  private generateRandomCode(length: number): string {
-    const digits = "0123456789";
-    let code = "";
-    for (let i = 0; i < length; i++) {
-      code += digits[Math.floor(Math.random() * digits.length)];
-    }
-    return code;
-  }
-
-  /**
    * Cria um novo usuário e envia email de boas-vindas
    * Se organization for informado, também cria o membro na organização
    */
   async create(input: CreateUserDto): Promise<{ user: UserEntity }> {
     // Gera código de recuperação para o novo usuário criar sua senha
-    const recoveryCode = this.generateRandomCode(6);
+    const recoveryCode = generateRandomCode(6);
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 dias
 
     // Cria o usuário com o código de recuperação

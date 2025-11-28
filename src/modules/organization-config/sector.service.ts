@@ -1,8 +1,9 @@
-import { randomUUID } from "node:crypto";
 import {
-  createSectorEntity,
-  updateSectorEntity,
-} from "@domain/organization-config/entities/sector.entity";
+  createSector,
+  updateSector,
+  deleteSector,
+  listSectors,
+} from "@domain/organization-config";
 import type { ISectorRepository } from "@domain/organization-config/repositories/sector.repository.interface";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { CreateSectorDto } from "./dto/create-sector.dto";
@@ -16,18 +17,19 @@ export class SectorService {
   ) {}
 
   async create(organizationId: string, dto: CreateSectorDto) {
-    const sector = createSectorEntity({
-      id: randomUUID(),
-      organizationId,
-      name: dto.name,
-    });
-
-    await this.repository.save(sector);
+    const { sector } = await createSector(
+      { organizationId, name: dto.name },
+      this.repository,
+    );
     return sector;
   }
 
   async findAll(organizationId: string) {
-    return this.repository.findByOrganizationId(organizationId);
+    const { sectors } = await listSectors(
+      { organizationId },
+      this.repository,
+    );
+    return sectors;
   }
 
   async findById(organizationId: string, sectorId: string) {
@@ -39,14 +41,25 @@ export class SectorService {
   }
 
   async update(organizationId: string, sectorId: string, dto: UpdateSectorDto) {
-    const current = await this.findById(organizationId, sectorId);
-    const updated = updateSectorEntity(current, dto);
-    await this.repository.save(updated);
-    return updated;
+    try {
+      const { sector } = await updateSector(
+        { organizationId, sectorId, name: dto.name },
+        this.repository,
+      );
+      return sector;
+    } catch {
+      throw new NotFoundException("Sector not found");
+    }
   }
 
   async delete(organizationId: string, sectorId: string) {
-    await this.findById(organizationId, sectorId);
-    await this.repository.delete(organizationId, sectorId);
+    try {
+      await deleteSector(
+        { organizationId, sectorId },
+        this.repository,
+      );
+    } catch {
+      throw new NotFoundException("Sector not found");
+    }
   }
 }

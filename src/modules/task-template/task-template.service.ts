@@ -1,8 +1,10 @@
-import { randomUUID } from "node:crypto";
 import {
-  createTaskTemplateEntity,
-  updateTaskTemplateEntity,
-} from "@domain/task-template/entities/task-template.entity";
+  createTaskTemplate,
+  updateTaskTemplate,
+  getTaskTemplate,
+  deleteTaskTemplate,
+  listOrganizationTaskTemplates,
+} from "@domain/task-template";
 import { TaskTemplateRepository } from "@infrastructure/repositories/task-template.repository";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateTaskTemplateDto } from "./dto/create-task-template.dto";
@@ -16,40 +18,70 @@ export class TaskTemplateService {
   ) {}
 
   async create(organizationId: string, dto: CreateTaskTemplateDto) {
-    const entity = createTaskTemplateEntity({
-      id: randomUUID(),
-      organizationId,
-      kpiId: dto.kpiId,
-      name: dto.name,
-      rewardPoints: dto.rewardPoints,
-      description: dto.description,
-      measurementUnit: dto.measurementUnit,
-      totalMeasurementExpected: dto.totalMeasurementExpected,
-    });
+    const { template } = await createTaskTemplate(
+      {
+        organizationId,
+        kpiId: dto.kpiId,
+        name: dto.name,
+        rewardPoints: dto.rewardPoints,
+        description: dto.description,
+        measurementUnit: dto.measurementUnit,
+        totalMeasurementExpected: dto.totalMeasurementExpected,
+      },
+      this.taskTemplateRepository,
+    );
 
-    return this.taskTemplateRepository.save(entity);
-  }
-
-  async findById(id: string) {
-    const template = await this.taskTemplateRepository.findById(id);
-    if (!template) {
-      throw new NotFoundException(`Task template with ID ${id} not found`);
-    }
     return template;
   }
 
+  async findById(id: string) {
+    try {
+      const { template } = await getTaskTemplate(
+        { templateId: id },
+        this.taskTemplateRepository,
+      );
+      return template;
+    } catch {
+      throw new NotFoundException(`Task template with ID ${id} not found`);
+    }
+  }
+
   async findByOrganizationId(organizationId: string) {
-    return this.taskTemplateRepository.findByOrganizationId(organizationId);
+    const { templates } = await listOrganizationTaskTemplates(
+      { organizationId },
+      this.taskTemplateRepository,
+    );
+    return templates;
   }
 
   async update(id: string, dto: UpdateTaskTemplateDto) {
-    const current = await this.findById(id);
-    const updated = updateTaskTemplateEntity(current, dto);
-    return this.taskTemplateRepository.save(updated);
+    try {
+      const { template } = await updateTaskTemplate(
+        {
+          templateId: id,
+          kpiId: dto.kpiId,
+          name: dto.name,
+          rewardPoints: dto.rewardPoints,
+          description: dto.description,
+          measurementUnit: dto.measurementUnit,
+          totalMeasurementExpected: dto.totalMeasurementExpected,
+        },
+        this.taskTemplateRepository,
+      );
+      return template;
+    } catch {
+      throw new NotFoundException(`Task template with ID ${id} not found`);
+    }
   }
 
   async delete(id: string) {
-    await this.findById(id);
-    return this.taskTemplateRepository.delete(id);
+    try {
+      await deleteTaskTemplate(
+        { templateId: id },
+        this.taskTemplateRepository,
+      );
+    } catch {
+      throw new NotFoundException(`Task template with ID ${id} not found`);
+    }
   }
 }

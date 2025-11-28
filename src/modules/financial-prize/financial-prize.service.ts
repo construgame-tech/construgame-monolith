@@ -1,5 +1,9 @@
-import { randomUUID } from "node:crypto";
-import { createFinancialPrizeEntity } from "@domain/financial-prizes/entities/financial-prize.entity";
+import {
+  createFinancialPrize,
+  findPrizeByUserAndPeriod,
+  findPrizesByGameAndPeriod,
+  listUserPrizes,
+} from "@domain/financial-prizes";
 import type { IFinancialPrizeRepository } from "@domain/financial-prizes/repositories/financial-prize.repository.interface";
 import { Inject, Injectable } from "@nestjs/common";
 import type { CreateFinancialPrizeDto } from "./dto/create-financial-prize.dto";
@@ -12,30 +16,48 @@ export class FinancialPrizeService {
   ) {}
 
   async create(dto: CreateFinancialPrizeDto) {
-    const prize = createFinancialPrizeEntity({
-      id: randomUUID(),
-      organizationId: dto.organizationId,
-      projectId: dto.projectId,
-      gameId: dto.gameId,
-      userId: dto.userId,
-      amount: dto.amount,
-      period: dto.period,
-      details: dto.details,
-    });
+    const { prize } = await createFinancialPrize(
+      {
+        organizationId: dto.organizationId,
+        projectId: dto.projectId,
+        gameId: dto.gameId,
+        userId: dto.userId,
+        amount: dto.amount,
+        period: dto.period,
+        details: dto.details ? {
+          laborCost: dto.details.laborCost,
+          kpiMultiplier: dto.details.kpiMultiplier,
+          taskPoints: dto.details.taskPoints,
+          kaizenPoints: dto.details.kaizenPoints,
+        } : undefined,
+      },
+      this.repository,
+    );
 
-    await this.repository.save(prize);
     return prize;
   }
 
   async findByUserAndPeriod(userId: string, gameId: string, period: string) {
-    return this.repository.findByUserAndPeriod(userId, gameId, period);
+    const { prize } = await findPrizeByUserAndPeriod(
+      { userId, gameId, period },
+      this.repository,
+    );
+    return prize;
   }
 
   async findByGameAndPeriod(gameId: string, period: string) {
-    return this.repository.findByGameAndPeriod(gameId, period);
+    const { prizes } = await findPrizesByGameAndPeriod(
+      { gameId, period },
+      this.repository,
+    );
+    return prizes;
   }
 
   async findByUser(userId: string) {
-    return this.repository.findByUser(userId);
+    const { prizes } = await listUserPrizes(
+      { userId },
+      this.repository,
+    );
+    return prizes;
   }
 }

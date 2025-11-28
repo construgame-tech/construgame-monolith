@@ -1,5 +1,6 @@
 // Use Case: Atualizar um job role existente
 
+import { randomUUID } from "node:crypto";
 import {
   JobRoleEntity,
   JobRoleVariant,
@@ -7,11 +8,19 @@ import {
 } from "../entities/job-role.entity";
 import { IJobRoleRepository } from "../repositories/job-role.repository.interface";
 
+export interface UpdateJobRoleVariantInput {
+  id?: string;
+  salary?: number;
+  seniority?: string;
+  state?: string;
+  hoursPerDay?: number;
+}
+
 export interface UpdateJobRoleInput {
   organizationId: string;
   jobRoleId: string;
   name?: string;
-  variants?: JobRoleVariant[];
+  variants?: UpdateJobRoleVariantInput[];
   updatedBy?: string;
 }
 
@@ -33,10 +42,19 @@ export const updateJobRole = async (
     throw new Error(`Job Role not found: ${input.jobRoleId}`);
   }
 
+  // Gera IDs para variantes que não possuem
+  const variantsWithIds: JobRoleVariant[] | undefined = input.variants?.map((variant) => ({
+    id: variant.id ?? randomUUID(),
+    salary: variant.salary,
+    seniority: variant.seniority,
+    state: variant.state,
+    hoursPerDay: variant.hoursPerDay,
+  }));
+
   // Aplica as atualizações na entidade
   const updatedJobRole = updateJobRoleEntity(currentJobRole, {
     name: input.name,
-    variants: input.variants,
+    variants: variantsWithIds,
     updatedBy: input.updatedBy,
   });
 

@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import {
   createUserGamePointsEntity,
   createTeamGamePointsEntity,
@@ -6,12 +5,17 @@ import {
 import type { GameEntity } from "@domain/game/entities/game.entity";
 import type { TaskEntity } from "@domain/task/entities/task.entity";
 import {
+  calculateTaskProgress,
+  calculateUpdatePercent,
+  calculatePointsToCredit,
+} from "@domain/task/helpers/calculate-task-progress";
+import {
   approveTaskUpdateEntity,
   cancelTaskUpdateEntity,
-  createTaskUpdateEntity,
   rejectTaskUpdateEntity,
   TaskUpdateStatus,
 } from "@domain/task-update/entities/task-update.entity";
+import { createTaskUpdate } from "@domain/task-update";
 import type {
   TeamGamePointsRepository,
   UserGamePointsRepository,
@@ -40,40 +44,31 @@ export class TaskUpdateService {
   ) {}
 
   async create(dto: CreateTaskUpdateDto) {
-    // Buscar a task para obter totalMeasurementExpected e calcular percent
+    // Buscar a task para obter totalMeasurementExpected
     const task = await this.taskRepository.findById(dto.gameId, dto.taskId);
-    
-    // Calcular percent se não foi enviado mas temos absolute e totalMeasurementExpected
-    let calculatedPercent = dto.progress.percent;
-    if (
-      calculatedPercent === undefined &&
-      dto.progress.absolute !== undefined &&
-      task?.totalMeasurementExpected
-    ) {
-      const total = Number(task.totalMeasurementExpected);
-      if (total > 0) {
-        calculatedPercent = Math.round((dto.progress.absolute / total) * 100);
-      }
-    }
 
-    const entity = createTaskUpdateEntity({
-      id: randomUUID(),
-      gameId: dto.gameId,
-      taskId: dto.taskId,
-      submittedBy: dto.submittedBy,
-      participants: dto.participants,
-      photos: dto.photos,
-      startDate: dto.startDate ? new Date(dto.startDate) : undefined,
-      endDate: dto.endDate ? new Date(dto.endDate) : undefined,
-      progress: {
-        ...dto.progress,
-        percent: calculatedPercent,
+    const { taskUpdate } = await createTaskUpdate(
+      {
+        gameId: dto.gameId,
+        taskId: dto.taskId,
+        submittedBy: dto.submittedBy,
+        participants: dto.participants,
+        photos: dto.photos,
+        startDate: dto.startDate ? new Date(dto.startDate) : undefined,
+        endDate: dto.endDate ? new Date(dto.endDate) : undefined,
+        progress: {
+          absolute: dto.progress.absolute,
+          hours: dto.progress.hours,
+          note: dto.progress.note,
+        },
+        checklist: dto.checklist,
+        files: dto.files,
+        totalMeasurementExpected: task?.totalMeasurementExpected,
       },
-      checklist: dto.checklist,
-      files: dto.files,
-    });
+      this.taskUpdateRepository,
+    );
 
-    return this.taskUpdateRepository.save(entity);
+    return taskUpdate;
   }
 
   async findById(id: string) {
@@ -99,27 +94,21 @@ export class TaskUpdateService {
   async approve(id: string, dto: ApproveTaskUpdateDto) {
     const current = await this.findById(id);
     
-    // Se já está aprovado, não reprocessar
+    // Se já está aprovado, não reprocessar (regra de negócio validada aqui por simplicidade)
     if (current.status === "APPROVED") {
       return current;
     }
     
-    // Buscar a Task para calcular o percent
+    // Buscar a Task e Game para contexto
     const task = await this.taskRepository.findById(current.gameId, current.taskId);
-    
-    // Buscar o Game para obter organizationId e projectId
     const game = await this.gameRepository.findByIdOnly(current.gameId);
     
-    // Calcular percent se temos progressAbsolute e totalMeasurementExpected
-    let calculatedPercent = current.progress.percent;
+    // Usar domain helper para calcular o percent do update
     const progressAbsolute = dto.progressAbsolute ?? current.progress.absolute;
-    
-    if (progressAbsolute !== undefined && task?.totalMeasurementExpected) {
-      const total = Number(task.totalMeasurementExpected);
-      if (total > 0) {
-        calculatedPercent = Math.round((progressAbsolute / total) * 100);
-      }
-    }
+    const updateChecklist = dto.checklist ?? current.checklist;
+    const calculatedPercent = task
+      ? calculateUpdatePercent(task, progressAbsolute, updateChecklist)
+      : current.progress.percent;
     
     const updated = approveTaskUpdateEntity(current, {
       reviwedBy: dto.reviewedBy,
@@ -175,8 +164,8 @@ export class TaskUpdateService {
   }) {
     const { task, game, progressPercent, participants } = params;
     
-    // Calcular pontos proporcionais ao progresso deste update
-    const pointsToCredit = Math.round((progressPercent / 100) * task.rewardPoints);
+    // Usa domain helper para calcular pontos proporcionais ao progresso
+    const pointsToCredit = calculatePointsToCredit(task.rewardPoints, progressPercent);
     
     if (pointsToCredit <= 0) return;
     
@@ -225,7 +214,7 @@ export class TaskUpdateService {
   
   /**
    * Atualiza o progresso da Task quando um task-update é aprovado.
-   * Adiciona o update à lista de updates da task e recalcula o progresso.
+   * Adiciona o update à lista de updates da task e recalcula o progresso usando domain helper.
    */
   private async updateTaskProgress(
     gameId: string,
@@ -280,28 +269,19 @@ export class TaskUpdateService {
     const filteredUpdates = existingUpdates.filter((u) => u.id !== approvedUpdate.id);
     const updatedUpdates = [...filteredUpdates, taskUpdate];
     
-    // Calcula o novo progresso baseado em todos os updates aprovados
-    const totalAbsolute = updatedUpdates.reduce((sum, u) => sum + (u.progress || 0), 0);
-    const totalMeasurementExpected = Number(task.totalMeasurementExpected) || 0;
-    
-    let newPercent = 0;
-    if (totalMeasurementExpected > 0) {
-      newPercent = Math.min(Math.round((totalAbsolute / totalMeasurementExpected) * 100), 100);
-    } else if (updatedUpdates.length > 0) {
-      // Se não há meta quantitativa, qualquer update aprovado pode ser 100%
-      newPercent = 100;
-    }
+    // Usa domain helper para calcular o progresso
+    const progressResult = calculateTaskProgress(task, updatedUpdates);
     
     // Atualiza a task com o novo progresso
     const updatedTask = {
       ...task,
       updates: updatedUpdates,
       progress: {
-        absolute: totalAbsolute,
-        percent: newPercent,
+        absolute: progressResult.absolute,
+        percent: progressResult.percent,
         updatedAt: new Date().toISOString(),
       },
-      status: newPercent >= 100 ? ("completed" as const) : ("active" as const),
+      status: progressResult.status,
     };
     
     await this.taskRepository.save(updatedTask);
@@ -336,6 +316,7 @@ export class TaskUpdateService {
   /**
    * Remove um update da lista de updates da Task e recalcula o progresso.
    * Usado quando um update aprovado é cancelado.
+   * Usa domain helper para recalcular o progresso.
    */
   private async removeTaskProgress(
     gameId: string,
@@ -350,26 +331,18 @@ export class TaskUpdateService {
     // Remove o update da lista
     const updatedUpdates = (task.updates || []).filter((u) => u.id !== updateId);
     
-    // Recalcula o progresso
-    const totalAbsolute = updatedUpdates.reduce((sum, u) => sum + (u.progress || 0), 0);
-    const totalMeasurementExpected = Number(task.totalMeasurementExpected) || 0;
-    
-    let newPercent = 0;
-    if (totalMeasurementExpected > 0) {
-      newPercent = Math.min(Math.round((totalAbsolute / totalMeasurementExpected) * 100), 100);
-    } else if (updatedUpdates.length > 0) {
-      newPercent = 100;
-    }
+    // Usa domain helper para recalcular o progresso
+    const progressResult = calculateTaskProgress(task, updatedUpdates);
     
     const updatedTask = {
       ...task,
       updates: updatedUpdates,
       progress: {
-        absolute: totalAbsolute,
-        percent: newPercent,
+        absolute: progressResult.absolute,
+        percent: progressResult.percent,
         updatedAt: new Date().toISOString(),
       },
-      status: newPercent >= 100 ? ("completed" as const) : ("active" as const),
+      status: progressResult.status,
     };
     
     await this.taskRepository.save(updatedTask);

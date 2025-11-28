@@ -1,11 +1,12 @@
 import type { TaskTemplateEntity } from "@domain/task-template/entities/task-template.entity";
+import type { ITaskTemplateRepository } from "@domain/task-template/repositories/task-template.repository.interface";
 import type { DrizzleDB } from "@infrastructure/database/database.module";
 import { taskTemplates } from "@infrastructure/database/schemas";
 import { Inject, Injectable } from "@nestjs/common";
 import { eq } from "drizzle-orm";
 
 @Injectable()
-export class TaskTemplateRepository {
+export class TaskTemplateRepository implements ITaskTemplateRepository {
   constructor(@Inject("DRIZZLE_CONNECTION") private readonly db: DrizzleDB) {}
 
   async save(entity: TaskTemplateEntity): Promise<TaskTemplateEntity> {

@@ -1,30 +1,15 @@
-import { randomUUID } from "node:crypto";
 import {
-  createKaizenTypeEntity,
+  createKaizenType,
+  CreateKaizenTypeInput,
+  updateKaizenType,
+  UpdateKaizenTypeInput,
+  getKaizenType,
+  deleteKaizenType,
+  listOrganizationKaizenTypes,
   KaizenTypeEntity,
-  updateKaizenTypeEntity,
-} from "@domain/kaizen-type/entities/kaizen-type.entity";
+} from "@domain/kaizen-type";
 import type { IKaizenTypeRepository } from "@domain/kaizen-type/repositories/kaizen-type.repository.interface";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-
-export interface CreateKaizenTypeInput {
-  organizationId: string;
-  name: string;
-  description?: string;
-  points: number;
-  ideaPoints?: number;
-  ideaExecutionPoints?: number;
-}
-
-export interface UpdateKaizenTypeInput {
-  organizationId: string;
-  typeId: string;
-  name?: string;
-  description?: string;
-  points?: number;
-  ideaPoints?: number;
-  ideaExecutionPoints?: number;
-}
 
 @Injectable()
 export class KaizenTypeService {
@@ -34,66 +19,58 @@ export class KaizenTypeService {
   ) {}
 
   async createType(input: CreateKaizenTypeInput): Promise<KaizenTypeEntity> {
-    const type = createKaizenTypeEntity({
-      id: randomUUID(),
-      organizationId: input.organizationId,
-      name: input.name,
-      description: input.description,
-      points: input.points,
-      ideaPoints: input.ideaPoints,
-      ideaExecutionPoints: input.ideaExecutionPoints,
-    });
-
-    await this.typeRepository.save(type);
-    return type;
+    const result = await createKaizenType(input, this.typeRepository);
+    return result.type;
   }
 
   async getType(
     organizationId: string,
     typeId: string,
   ): Promise<KaizenTypeEntity> {
-    const type = await this.typeRepository.findById(organizationId, typeId);
-
-    if (!type) {
-      throw new NotFoundException(`Kaizen type not found: ${typeId}`);
+    try {
+      const result = await getKaizenType(
+        { organizationId, typeId },
+        this.typeRepository,
+      );
+      return result.type;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`Kaizen type not found: ${typeId}`);
+      }
+      throw error;
     }
-
-    return type;
   }
 
   async updateType(input: UpdateKaizenTypeInput): Promise<KaizenTypeEntity> {
-    const currentType = await this.typeRepository.findById(
-      input.organizationId,
-      input.typeId,
-    );
-
-    if (!currentType) {
-      throw new NotFoundException(`Kaizen type not found: ${input.typeId}`);
+    try {
+      const result = await updateKaizenType(input, this.typeRepository);
+      return result.type;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`Kaizen type not found: ${input.typeId}`);
+      }
+      throw error;
     }
-
-    const updatedType = updateKaizenTypeEntity(currentType, {
-      name: input.name,
-      description: input.description,
-      points: input.points,
-      ideaPoints: input.ideaPoints,
-      ideaExecutionPoints: input.ideaExecutionPoints,
-    });
-
-    await this.typeRepository.save(updatedType);
-    return updatedType;
   }
 
   async deleteType(organizationId: string, typeId: string): Promise<void> {
-    const type = await this.typeRepository.findById(organizationId, typeId);
-    if (!type) {
-      throw new NotFoundException(`Kaizen type not found: ${typeId}`);
+    try {
+      await deleteKaizenType({ organizationId, typeId }, this.typeRepository);
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(`Kaizen type not found: ${typeId}`);
+      }
+      throw error;
     }
-    await this.typeRepository.delete(organizationId, typeId);
   }
 
   async listByOrganization(
     organizationId: string,
   ): Promise<KaizenTypeEntity[]> {
-    return this.typeRepository.findByOrganizationId(organizationId);
+    const result = await listOrganizationKaizenTypes(
+      { organizationId },
+      this.typeRepository,
+    );
+    return result.types;
   }
 }
