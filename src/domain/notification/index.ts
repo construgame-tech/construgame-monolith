@@ -11,4 +11,5 @@ export * from "./repositories/web-notification.repository.interface";
 
 // Use Cases
 export * from "./use-cases/create-web-notification";
+export * from "./use-cases/mark-notifications-as-read";
 export * from "./use-cases/read-web-notifications";

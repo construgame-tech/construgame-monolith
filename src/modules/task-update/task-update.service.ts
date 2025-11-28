@@ -1,7 +1,7 @@
 import {
-  createUserGamePointsEntity,
-  createTeamGamePointsEntity,
-} from "@domain/game-points/entities/game-points.entity";
+  creditUserTaskPoints,
+  creditTeamTaskPoints,
+} from "@domain/game-points";
 import type { GameEntity } from "@domain/game/entities/game.entity";
 import type { TaskEntity } from "@domain/task/entities/task.entity";
 import {
@@ -12,10 +12,9 @@ import {
 import {
   approveTaskUpdateEntity,
   cancelTaskUpdateEntity,
-  rejectTaskUpdateEntity,
   TaskUpdateStatus,
 } from "@domain/task-update/entities/task-update.entity";
-import { createTaskUpdate } from "@domain/task-update";
+import { createTaskUpdate, rejectTaskUpdate } from "@domain/task-update";
 import type {
   TeamGamePointsRepository,
   UserGamePointsRepository,
@@ -169,46 +168,32 @@ export class TaskUpdateService {
     
     if (pointsToCredit <= 0) return;
     
-    // 1. Creditar pontos a cada participante
+    // 1. Creditar pontos a cada participante usando o use case
     for (const userId of participants) {
-      const current = await this.userGamePointsRepository.findByUserAndGame(userId, game.id);
-      
-      const userPoints = current ?? createUserGamePointsEntity({
-        userId,
-        gameId: game.id,
-        organizationId: game.organizationId,
-        projectId: game.projectId,
-      });
-      
-      // Adicionar os pontos
-      const updated = {
-        ...userPoints,
-        taskPoints: userPoints.taskPoints + pointsToCredit,
-        totalPoints: userPoints.taskPoints + pointsToCredit + userPoints.kaizenPoints,
-      };
-      
-      await this.userGamePointsRepository.save(updated);
+      await creditUserTaskPoints(
+        {
+          userId,
+          gameId: game.id,
+          organizationId: game.organizationId,
+          projectId: game.projectId,
+          pointsToCredit,
+        },
+        this.userGamePointsRepository,
+      );
     }
     
     // 2. Creditar pontos ao time (se a task pertence a um time)
     if (task.teamId) {
-      const currentTeam = await this.teamGamePointsRepository.findByTeamAndGame(task.teamId, game.id);
-      
-      const teamPoints = currentTeam ?? createTeamGamePointsEntity({
-        teamId: task.teamId,
-        gameId: game.id,
-        organizationId: game.organizationId,
-        projectId: game.projectId,
-      });
-      
-      // Adicionar os pontos
-      const updatedTeam = {
-        ...teamPoints,
-        taskPoints: teamPoints.taskPoints + pointsToCredit,
-        totalPoints: teamPoints.taskPoints + pointsToCredit + teamPoints.kaizenPoints,
-      };
-      
-      await this.teamGamePointsRepository.save(updatedTeam);
+      await creditTeamTaskPoints(
+        {
+          teamId: task.teamId,
+          gameId: game.id,
+          organizationId: game.organizationId,
+          projectId: game.projectId,
+          pointsToCredit,
+        },
+        this.teamGamePointsRepository,
+      );
     }
   }
   
@@ -289,11 +274,16 @@ export class TaskUpdateService {
 
   async reject(id: string, dto: RejectTaskUpdateDto) {
     const current = await this.findById(id);
-    const updated = rejectTaskUpdateEntity(current, {
-      reviwedBy: dto.reviewedBy || "",
-      reviewNote: dto.reviewNote,
-    });
-    return this.taskUpdateRepository.save(updated);
+    const { taskUpdate } = await rejectTaskUpdate(
+      {
+        taskId: current.taskId,
+        taskUpdateId: current.id,
+        reviwedBy: dto.reviewedBy || "",
+        reviewNote: dto.reviewNote,
+      },
+      this.taskUpdateRepository,
+    );
+    return taskUpdate;
   }
 
   async delete(id: string) {

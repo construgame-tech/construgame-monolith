@@ -1,4 +1,4 @@
-import { createUploadMetadata } from "@domain/image/entities/presigned-url.entity";
+import { generateUploadUrl } from "@domain/image";
 import type { IImageStorageRepository } from "@domain/image/repositories/image-storage.repository.interface";
 import { Inject, Injectable } from "@nestjs/common";
 
@@ -15,14 +15,17 @@ export class ImageService {
     fileType: string,
     imageType: "image" | "file" = "image",
   ) {
-    const { key, contentType } = createUploadMetadata({
-      organizationId,
-      fileName,
-      fileType,
-      imageType,
-    });
+    const { presignedUrl } = await generateUploadUrl(
+      {
+        organizationId,
+        fileName,
+        fileType,
+        imageType,
+      },
+      this.imageStorageRepository,
+    );
 
-    return this.imageStorageRepository.generatePresignedUrl(key, contentType);
+    return presignedUrl;
   }
 
   async deleteFile(key: string): Promise<void> {

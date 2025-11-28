@@ -10,6 +10,7 @@ export * from "./helpers/round-number";
 // Repository Interface
 export * from "./repositories/task-update.repository.interface";
 export * from "./use-cases/approve-task-update";
+export * from "./use-cases/cancel-task-update";
 // Use Cases
 export * from "./use-cases/create-task-update";
 export * from "./use-cases/reject-task-update";

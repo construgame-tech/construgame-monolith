@@ -1,8 +1,8 @@
-import {
-  createOrgKaizenConfigEntity,
-  updateOrgKaizenConfigEntity,
-} from "@domain/organization-config/entities/org-kaizen-config.entity";
 import type { IOrgKaizenConfigRepository } from "@domain/organization-config/repositories/org-kaizen-config.repository.interface";
+import {
+  createOrgKaizenConfig,
+  updateOrgKaizenConfig,
+} from "@domain/organization-config";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { CreateOrgKaizenConfigDto } from "./dto/create-org-kaizen-config.dto";
 import type { UpdateOrgKaizenConfigDto } from "./dto/update-org-kaizen-config.dto";
@@ -15,12 +15,14 @@ export class OrgKaizenConfigService {
   ) {}
 
   async create(organizationId: string, dto: CreateOrgKaizenConfigDto) {
-    const config = createOrgKaizenConfigEntity({
-      organizationId,
-      categoryPoints: dto.categoryPoints,
-    });
+    const { config } = await createOrgKaizenConfig(
+      {
+        organizationId,
+        categoryPoints: dto.categoryPoints,
+      },
+      this.repository,
+    );
 
-    await this.repository.save(config);
     return config;
   }
 
@@ -33,9 +35,14 @@ export class OrgKaizenConfigService {
   }
 
   async update(organizationId: string, dto: UpdateOrgKaizenConfigDto) {
-    const current = await this.findByOrganization(organizationId);
-    const updated = updateOrgKaizenConfigEntity(current, dto);
-    await this.repository.save(updated);
-    return updated;
+    const { config } = await updateOrgKaizenConfig(
+      {
+        organizationId,
+        categoryPoints: dto.categoryPoints,
+      },
+      this.repository,
+    );
+
+    return config;
   }
 }

@@ -1,8 +1,8 @@
-import {
-  createOrgConfigEntity,
-  updateOrgConfigEntity,
-} from "@domain/organization-config/entities/org-config.entity";
 import type { IOrgConfigRepository } from "@domain/organization-config/repositories/org-config.repository.interface";
+import {
+  createOrgConfig,
+  updateOrgConfig,
+} from "@domain/organization-config";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { CreateOrgConfigDto } from "./dto/create-org-config.dto";
 import type { UpdateOrgConfigDto } from "./dto/update-org-config.dto";
@@ -15,18 +15,20 @@ export class OrgConfigService {
   ) {}
 
   async create(organizationId: string, dto: CreateOrgConfigDto) {
-    const config = createOrgConfigEntity({
-      organizationId,
-      missionsEnabled: dto.missionsEnabled,
-      financialEnabled: dto.financialEnabled,
-      kaizensEnabled: dto.kaizensEnabled,
-      projectDiaryEnabled: dto.projectDiaryEnabled,
-      missionConfig: dto.missionConfig,
-      theme: dto.theme,
-      auth: dto.auth,
-    });
+    const { config } = await createOrgConfig(
+      {
+        organizationId,
+        missionsEnabled: dto.missionsEnabled,
+        financialEnabled: dto.financialEnabled,
+        kaizensEnabled: dto.kaizensEnabled,
+        projectDiaryEnabled: dto.projectDiaryEnabled,
+        missionConfig: dto.missionConfig,
+        theme: dto.theme,
+        auth: dto.auth,
+      },
+      this.repository,
+    );
 
-    await this.repository.save(config);
     return config;
   }
 
@@ -39,9 +41,20 @@ export class OrgConfigService {
   }
 
   async update(organizationId: string, dto: UpdateOrgConfigDto) {
-    const current = await this.findByOrganization(organizationId);
-    const updated = updateOrgConfigEntity(current, dto);
-    await this.repository.save(updated);
-    return updated;
+    const { config } = await updateOrgConfig(
+      {
+        organizationId,
+        missionsEnabled: dto.missionsEnabled,
+        financialEnabled: dto.financialEnabled,
+        kaizensEnabled: dto.kaizensEnabled,
+        projectDiaryEnabled: dto.projectDiaryEnabled,
+        missionConfig: dto.missionConfig,
+        theme: dto.theme,
+        auth: dto.auth,
+      },
+      this.repository,
+    );
+
+    return config;
   }
 }

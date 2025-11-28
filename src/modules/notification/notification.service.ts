@@ -7,6 +7,7 @@ import {
   CreateWebNotificationInput,
   createWebNotification,
 } from "@domain/notification/use-cases/create-web-notification";
+import { markNotificationsAsRead } from "@domain/notification/use-cases/mark-notifications-as-read";
 import { readWebNotifications } from "@domain/notification/use-cases/read-web-notifications";
 import { Inject, Injectable } from "@nestjs/common";
 
@@ -47,17 +48,9 @@ export class NotificationService {
     organizationId: string,
     notificationIds: string[],
   ): Promise<void> {
-    // Update cada notificação individualmente
-    for (const id of notificationIds) {
-      const notification = await this.notificationRepository.findById(id);
-      if (
-        notification &&
-        notification.userId === userId &&
-        notification.organizationId === organizationId
-      ) {
-        notification.status = "READ";
-        await this.notificationRepository.save(notification);
-      }
-    }
+    await markNotificationsAsRead(
+      { userId, organizationId, notificationIds },
+      this.notificationRepository,
+    );
   }
 }

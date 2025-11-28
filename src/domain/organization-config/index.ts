@@ -21,10 +21,12 @@ export * from "./use-cases/delete-sector";
 export * from "./use-cases/list-prizes";
 export * from "./use-cases/list-sectors";
 // Use Cases - Organization Config
+export * from "./use-cases/create-org-config";
 export * from "./use-cases/read-org-config";
-// Use Cases - Organization Kaizen Config
-export * from "./use-cases/read-org-kaizen-config";
 export * from "./use-cases/update-org-config";
+// Use Cases - Organization Kaizen Config
+export * from "./use-cases/create-org-kaizen-config";
+export * from "./use-cases/read-org-kaizen-config";
 export * from "./use-cases/update-org-kaizen-config";
 export * from "./use-cases/update-prize";
 export * from "./use-cases/update-sector";
