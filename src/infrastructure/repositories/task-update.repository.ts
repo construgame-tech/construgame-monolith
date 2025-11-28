@@ -297,6 +297,20 @@ export class TaskUpdateRepository {
         updatedAt?: string;
       } | null;
 
+      // Calcular percent dinamicamente se não estiver definido mas temos absolute e totalMeasurementExpected
+      let calculatedPercent = updateProgress?.percent || null;
+      if (
+        calculatedPercent === null &&
+        updateProgress?.absolute !== undefined &&
+        updateProgress?.absolute !== null &&
+        r.task.totalMeasurementExpected
+      ) {
+        const total = Number(r.task.totalMeasurementExpected);
+        if (total > 0) {
+          calculatedPercent = Math.round((updateProgress.absolute / total) * 100);
+        }
+      }
+
       // Para checklist, precisamos buscar o label da task original
       const updateChecklist = (r.taskUpdate.checklist as Array<{ id: string; checked: boolean }>) || [];
       const taskOriginalChecklist = (r.task.checklist as Array<{ id: string; label: string; checked: boolean }>) || [];
@@ -351,7 +365,7 @@ export class TaskUpdateRepository {
           absolute: updateProgress?.absolute || null,
           hours: updateProgress?.hours || null,
           note: updateProgress?.note || null,
-          percent: updateProgress?.percent || null,
+          percent: calculatedPercent,
           updatedAt: updateProgress?.updatedAt || null,
         },
         submitter: {

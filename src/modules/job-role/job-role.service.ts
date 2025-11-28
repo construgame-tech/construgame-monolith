@@ -30,11 +30,17 @@ export class JobRoleService {
   ) {}
 
   async createJobRole(input: CreateJobRoleInput): Promise<JobRoleEntity> {
+    // Gerar ID para variants que não possuem
+    const variantsWithIds = input.variants.map((v) => ({
+      ...v,
+      id: v.id || randomUUID(),
+    }));
+
     const jobRole = createJobRoleEntity({
       id: randomUUID(),
       organizationId: input.organizationId,
       name: input.name,
-      variants: input.variants,
+      variants: variantsWithIds,
       createdBy: input.createdBy,
     });
 
@@ -68,9 +74,15 @@ export class JobRoleService {
       throw new NotFoundException(`Job role not found: ${input.jobRoleId}`);
     }
 
+    // Gerar ID para variants que não possuem
+    const variantsWithIds = input.variants?.map((v) => ({
+      ...v,
+      id: v.id || randomUUID(),
+    }));
+
     const updatedJobRole = updateJobRoleEntity(currentJobRole, {
       name: input.name,
-      variants: input.variants,
+      variants: variantsWithIds,
       updatedBy: input.updatedBy,
     });
 

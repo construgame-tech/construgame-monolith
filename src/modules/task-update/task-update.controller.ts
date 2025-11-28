@@ -86,8 +86,11 @@ export class TaskUpdateController {
   async reject(
     @Param("updateId") updateId: string,
     @Body() dto: RejectTaskUpdateDto,
+    @CurrentUser() user: { userId: string },
   ) {
-    return this.taskUpdateService.reject(updateId, dto);
+    // Se reviewedBy não foi informado, usa o userId do token JWT
+    const reviewedBy = dto.reviewedBy || user.userId;
+    return this.taskUpdateService.reject(updateId, { ...dto, reviewedBy });
   }
 
   @Delete("task-updates/:updateId")
@@ -159,8 +162,11 @@ export class TaskUpdateController {
     @Param("taskId") _taskId: string,
     @Param("taskUpdateId") taskUpdateId: string,
     @Body() dto: RejectTaskUpdateDto,
+    @CurrentUser() user: { userId: string },
   ) {
-    return this.taskUpdateService.reject(taskUpdateId, dto);
+    // Se reviewedBy não foi informado, usa o userId do token JWT
+    const reviewedBy = dto.reviewedBy || user.userId;
+    return this.taskUpdateService.reject(taskUpdateId, { ...dto, reviewedBy });
   }
 
   @Put("game/:gameId/task/:taskId/update/:taskUpdateId/cancel")

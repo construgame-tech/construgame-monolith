@@ -10,6 +10,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
@@ -58,6 +59,17 @@ export class PrizeController {
   @Patch(":prizeId")
   @ApiOperation({ summary: "Update prize" })
   async update(
+    @Param("organizationId") organizationId: string,
+    @Param("prizeId") prizeId: string,
+    @Body() dto: UpdatePrizeDto,
+  ) {
+    const prize = await this.service.update(organizationId, prizeId, dto);
+    return PrizeResponseDto.fromEntity(prize);
+  }
+
+  @Put(":prizeId")
+  @ApiOperation({ summary: "Update prize (PUT alias)" })
+  async updatePut(
     @Param("organizationId") organizationId: string,
     @Param("prizeId") prizeId: string,
     @Body() dto: UpdatePrizeDto,

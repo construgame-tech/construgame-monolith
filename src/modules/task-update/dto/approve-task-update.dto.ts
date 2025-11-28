@@ -16,6 +16,11 @@ class TaskUpdateChecklistItemDto {
   @IsNotEmpty()
   id!: string;
 
+  @ApiPropertyOptional({ description: "Label do item do checklist" })
+  @IsString()
+  @IsOptional()
+  label?: string;
+
   @ApiProperty()
   @IsNotEmpty()
   checked!: boolean;

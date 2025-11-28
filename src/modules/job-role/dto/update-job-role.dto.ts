@@ -9,9 +9,10 @@ import {
 } from "class-validator";
 
 class JobRoleVariantDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
-  id: string;
+  id?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()

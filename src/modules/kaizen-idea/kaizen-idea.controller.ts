@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UseGuards,
 } from "@nestjs/common";
@@ -49,6 +50,17 @@ export class KaizenIdeaController {
     return KaizenIdeaResponseDto.fromEntity(idea);
   }
 
+  @Get("organization/:organizationId/kaizen/idea/:kaizenIdeaId")
+  @ApiOperation({ summary: "Get kaizen idea by ID" })
+  @ApiResponse({ status: 200, type: KaizenIdeaResponseDto })
+  async getIdeaById(
+    @Param("organizationId") organizationId: string,
+    @Param("kaizenIdeaId") ideaId: string,
+  ): Promise<KaizenIdeaResponseDto> {
+    const idea = await this.ideaService.getIdea(organizationId, ideaId);
+    return KaizenIdeaResponseDto.fromEntity(idea);
+  }
+
   @Get("organization/:organizationId/kaizen/idea/search")
   @ApiOperation({ summary: "Search kaizen ideas" })
   @ApiQuery({ name: "search", required: false, type: String })
@@ -87,6 +99,22 @@ export class KaizenIdeaController {
   @ApiOperation({ summary: "Update kaizen idea" })
   @ApiResponse({ status: 200, type: KaizenIdeaResponseDto })
   async updateIdeaNew(
+    @Param("organizationId") organizationId: string,
+    @Param("kaizenIdeaId") ideaId: string,
+    @Body() dto: UpdateKaizenIdeaDto,
+  ): Promise<KaizenIdeaResponseDto> {
+    const idea = await this.ideaService.updateIdea({
+      organizationId,
+      ideaId,
+      ...dto,
+    });
+    return KaizenIdeaResponseDto.fromEntity(idea);
+  }
+
+  @Put("organization/:organizationId/kaizen/idea/:kaizenIdeaId")
+  @ApiOperation({ summary: "Update kaizen idea (PUT alias)" })
+  @ApiResponse({ status: 200, type: KaizenIdeaResponseDto })
+  async updateIdeaNewPut(
     @Param("organizationId") organizationId: string,
     @Param("kaizenIdeaId") ideaId: string,
     @Body() dto: UpdateKaizenIdeaDto,

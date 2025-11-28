@@ -4,6 +4,7 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
@@ -32,6 +33,7 @@ class KaizenIdeaAttachmentDto {
   name: string;
 
   @ApiProperty()
+  @IsNumber()
   size: number;
 
   @ApiProperty()

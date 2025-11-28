@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -61,6 +62,22 @@ export class KaizenTypeController {
   @ApiOperation({ summary: "Update kaizen type" })
   @ApiResponse({ status: 200, type: KaizenTypeResponseDto })
   async updateTypeNew(
+    @Param("organizationId") organizationId: string,
+    @Param("kaizenTypeId") typeId: string,
+    @Body() dto: UpdateKaizenTypeDto,
+  ): Promise<KaizenTypeResponseDto> {
+    const type = await this.typeService.updateType({
+      organizationId,
+      typeId,
+      ...dto,
+    });
+    return KaizenTypeResponseDto.fromEntity(type);
+  }
+
+  @Put("organization/:organizationId/kaizen/type/:kaizenTypeId")
+  @ApiOperation({ summary: "Update kaizen type (PUT alias)" })
+  @ApiResponse({ status: 200, type: KaizenTypeResponseDto })
+  async updateTypeNewPut(
     @Param("organizationId") organizationId: string,
     @Param("kaizenTypeId") typeId: string,
     @Body() dto: UpdateKaizenTypeDto,

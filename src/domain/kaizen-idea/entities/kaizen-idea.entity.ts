@@ -78,9 +78,13 @@ export const updateKaizenIdeaEntity = (
     Omit<KaizenIdeaEntity, "id" | "organizationId" | "createdDate">
   >,
 ): KaizenIdeaEntity => {
+  // Filtra propriedades undefined para não sobrescrever valores existentes
+  const filteredUpdates = Object.fromEntries(
+    Object.entries(updates).filter(([_, value]) => value !== undefined),
+  );
   return {
     ...current,
-    ...updates,
+    ...filteredUpdates,
     updatedDate: new Date().toISOString(),
   };
 };

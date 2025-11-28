@@ -928,6 +928,7 @@ export class ProjectPlanningController {
         location: a.location,
         expectedCost: a.expectedCost,
         progressPercent: a.progressPercent,
+        tasks: [], // Frontend espera este campo
         trackingValue: a.trackingValue,
         trackingUnit: a.trackingUnit,
         laborCompositionList: a.laborCompositionList,
@@ -935,6 +936,59 @@ export class ProjectPlanningController {
         prizesPerProductivity: a.prizesPerProductivity,
       })),
     };
+  }
+
+  // Alias route for frontend compatibility (activity without 's')
+  @Get(
+    "organization/:organizationId/project/:projectId/macrostep/:macrostepId/activity",
+  )
+  async listActivitiesAlias(
+    @Param("organizationId") organizationId: string,
+    @Param("projectId") projectId: string,
+    @Param("macrostepId") macrostepId: string,
+  ) {
+    return this.listActivities(organizationId, projectId, macrostepId);
+  }
+
+  // POST alias for frontend compatibility (activity without 's')
+  @Post(
+    "organization/:organizationId/project/:projectId/macrostep/:macrostepId/activity",
+  )
+  async createActivityAlias(
+    @Param("organizationId") organizationId: string,
+    @Param("projectId") projectId: string,
+    @Param("macrostepId") macrostepId: string,
+    @Body() body: CreateActivityDto,
+  ) {
+    return this.createActivity(organizationId, projectId, macrostepId, body);
+  }
+
+  // PUT alias for frontend compatibility (activity without 's')
+  @Put(
+    "organization/:organizationId/project/:projectId/macrostep/:macrostepId/activity/:activityId",
+  )
+  async updateActivityAlias(
+    @Param("organizationId") organizationId: string,
+    @Param("projectId") projectId: string,
+    @Param("macrostepId") macrostepId: string,
+    @Param("activityId") activityId: string,
+    @Body() body: UpdateActivityDto,
+  ) {
+    return this.updateActivity(organizationId, projectId, macrostepId, activityId, body);
+  }
+
+  // DELETE alias for frontend compatibility (activity without 's')
+  @Delete(
+    "organization/:organizationId/project/:projectId/macrostep/:macrostepId/activity/:activityId",
+  )
+  @HttpCode(204)
+  async deleteActivityAlias(
+    @Param("organizationId") organizationId: string,
+    @Param("projectId") projectId: string,
+    @Param("macrostepId") macrostepId: string,
+    @Param("activityId") activityId: string,
+  ) {
+    return this.deleteActivity(organizationId, projectId, macrostepId, activityId);
   }
 
   // TODO: Export report endpoint - implementar quando necessário

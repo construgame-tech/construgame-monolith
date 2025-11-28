@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -6,9 +7,11 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  NotFoundException,
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Request,
   UseGuards,
@@ -20,6 +23,7 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { GameRepository } from "@infrastructure/repositories/game.repository";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CreateKaizenDto } from "./dto/create-kaizen.dto";
 import { CreateKaizenCommentDto } from "./dto/create-kaizen-comment.dto";
@@ -37,6 +41,7 @@ export class KaizenController {
   constructor(
     @Inject(KaizenService)
     private readonly kaizenService: KaizenService,
+    private readonly gameRepository: GameRepository,
   ) {}
 
   @Post("organization/:organizationId/project/:projectId/kaizen")
@@ -47,10 +52,14 @@ export class KaizenController {
     @Param("projectId") projectId: string,
     @Body() dto: CreateKaizenDto,
   ): Promise<KaizenResponseDto> {
+    if (!dto.gameId) {
+      throw new BadRequestException("gameId is required");
+    }
     const kaizen = await this.kaizenService.createKaizen({
       ...dto,
       organizationId,
       projectId,
+      gameId: dto.gameId,
       tasks: dto.tasks?.map((task) => ({
         name: task.name,
         isComplete: task.isComplete ?? false,
@@ -154,15 +163,28 @@ export class KaizenController {
   @ApiResponse({ status: 201, type: KaizenResponseDto })
   async createKaizenForGame(
     @Param("gameId") gameId: string,
-    @Query("organizationId") organizationId: string,
-    @Query("projectId") projectId: string,
+    @Query("organizationId") queryOrganizationId: string,
+    @Query("projectId") queryProjectId: string,
     @Body() dto: CreateKaizenDto,
   ): Promise<KaizenResponseDto> {
+    // Busca dados do game se não foram fornecidos nos query params
+    let organizationId = queryOrganizationId;
+    let projectId = queryProjectId;
+
+    if (!organizationId || !projectId) {
+      const game = await this.gameRepository.findByIdOnly(gameId);
+      if (!game) {
+        throw new NotFoundException(`Game not found: ${gameId}`);
+      }
+      organizationId = organizationId || game.organizationId;
+      projectId = projectId || game.projectId;
+    }
+
     const kaizen = await this.kaizenService.createKaizen({
       ...dto,
       organizationId,
       projectId,
-      gameId,
+      gameId: gameId, // Usa o gameId do path param (sobrescreve qualquer valor do body)
       tasks: dto.tasks?.map((task) => ({
         name: task.name,
         isComplete: task.isComplete ?? false,
@@ -234,6 +256,30 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
+  @Put("game/:gameId/kaizen/:kaizenId")
+  @ApiOperation({ summary: "Update kaizen within a game (PUT alias)" })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiResponse({ status: 200, type: KaizenResponseDto })
+  async updateKaizenByGamePut(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") kaizenId: string,
+    @Body() dto: UpdateKaizenDto,
+  ): Promise<KaizenResponseDto> {
+    const kaizen = await this.kaizenService.updateKaizen({
+      kaizenId,
+      ...dto,
+      tasks: dto.tasks?.map((task) => ({
+        name: task.name,
+        isComplete: task.isComplete ?? false,
+        responsibleId: task.responsibleId ?? "",
+        endDate: task.endDate,
+        budget: task.budget,
+      })),
+    });
+    return KaizenResponseDto.fromEntity(kaizen);
+  }
+
   @Delete("game/:gameId/kaizen/:kaizenId")
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Delete kaizen within a game" })
@@ -263,6 +309,22 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
+  @Put("game/:gameId/kaizen/:kaizenId/complete")
+  @ApiOperation({
+    summary: "Complete kaizen (PUT alias)",
+    description: "Mark kaizen as completed, distributing points to the leader",
+  })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiResponse({ status: 200, type: KaizenResponseDto })
+  async completeKaizenPut(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") kaizenId: string,
+  ): Promise<KaizenResponseDto> {
+    const kaizen = await this.kaizenService.complete(kaizenId);
+    return KaizenResponseDto.fromEntity(kaizen);
+  }
+
   @Patch("game/:gameId/kaizen/:kaizenId/reopen")
   @ApiOperation({
     summary: "Reopen kaizen",
@@ -273,6 +335,23 @@ export class KaizenController {
   @ApiParam({ name: "kaizenId", type: String })
   @ApiResponse({ status: 200, type: KaizenResponseDto })
   async reopenKaizen(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") kaizenId: string,
+  ): Promise<KaizenResponseDto> {
+    const kaizen = await this.kaizenService.reopen(kaizenId);
+    return KaizenResponseDto.fromEntity(kaizen);
+  }
+
+  @Put("game/:gameId/kaizen/:kaizenId/reopen")
+  @ApiOperation({
+    summary: "Reopen kaizen (PUT alias)",
+    description:
+      "Reopen a kaizen that was completed, removing the points given previously",
+  })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiResponse({ status: 200, type: KaizenResponseDto })
+  async reopenKaizenPut(
     @Param("gameId") _gameId: string,
     @Param("kaizenId") kaizenId: string,
   ): Promise<KaizenResponseDto> {
@@ -296,6 +375,22 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
+  @Put("game/:gameId/kaizen/:kaizenId/archive")
+  @ApiOperation({
+    summary: "Archive kaizen (PUT alias)",
+    description: "Archive an active kaizen",
+  })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiResponse({ status: 200, type: KaizenResponseDto })
+  async archiveKaizenPut(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") kaizenId: string,
+  ): Promise<KaizenResponseDto> {
+    const kaizen = await this.kaizenService.archive(kaizenId);
+    return KaizenResponseDto.fromEntity(kaizen);
+  }
+
   @Patch("game/:gameId/kaizen/:kaizenId/unarchive")
   @ApiOperation({
     summary: "Unarchive kaizen",
@@ -305,6 +400,22 @@ export class KaizenController {
   @ApiParam({ name: "kaizenId", type: String })
   @ApiResponse({ status: 200, type: KaizenResponseDto })
   async unarchiveKaizen(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") kaizenId: string,
+  ): Promise<KaizenResponseDto> {
+    const kaizen = await this.kaizenService.unarchive(kaizenId);
+    return KaizenResponseDto.fromEntity(kaizen);
+  }
+
+  @Put("game/:gameId/kaizen/:kaizenId/unarchive")
+  @ApiOperation({
+    summary: "Unarchive kaizen (PUT alias)",
+    description: "Unarchive an archived kaizen",
+  })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiResponse({ status: 200, type: KaizenResponseDto })
+  async unarchiveKaizenPut(
     @Param("gameId") _gameId: string,
     @Param("kaizenId") kaizenId: string,
   ): Promise<KaizenResponseDto> {
@@ -329,12 +440,49 @@ export class KaizenController {
     };
   }
 
+  // Alias route with plural 'comments' for frontend compatibility
+  @Get("game/:gameId/kaizen/:kaizenId/comments")
+  @ApiOperation({ summary: "List kaizen comments (plural alias)" })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiResponse({ status: 200, type: [KaizenCommentResponseDto] })
+  async listCommentsPlural(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") kaizenId: string,
+  ) {
+    const comments = await this.kaizenService.listComments(kaizenId);
+    return {
+      items: comments.map(KaizenCommentResponseDto.fromEntity),
+    };
+  }
+
   @Post("game/:gameId/kaizen/:kaizenId/comment")
   @ApiOperation({ summary: "Create kaizen comment" })
   @ApiParam({ name: "gameId", type: String })
   @ApiParam({ name: "kaizenId", type: String })
   @ApiResponse({ status: 201, type: KaizenCommentResponseDto })
   async createComment(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") kaizenId: string,
+    @Body() dto: CreateKaizenCommentDto,
+    @Request() req: any,
+  ): Promise<KaizenCommentResponseDto> {
+    const userId = req.user?.sub || req.user?.userId || "unknown";
+    const comment = await this.kaizenService.createComment(
+      kaizenId,
+      userId,
+      dto.text,
+    );
+    return KaizenCommentResponseDto.fromEntity(comment);
+  }
+
+  // Alias route with plural 'comments' for frontend compatibility
+  @Post("game/:gameId/kaizen/:kaizenId/comments")
+  @ApiOperation({ summary: "Create kaizen comment (plural alias)" })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiResponse({ status: 201, type: KaizenCommentResponseDto })
+  async createCommentPlural(
     @Param("gameId") _gameId: string,
     @Param("kaizenId") kaizenId: string,
     @Body() dto: CreateKaizenCommentDto,

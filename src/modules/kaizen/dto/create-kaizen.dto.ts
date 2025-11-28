@@ -82,10 +82,10 @@ class KaizenResponsiblesDto {
 }
 
 export class CreateKaizenDto {
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({ required: false, description: "Optional if provided in URL path" })
+  @IsOptional()
   @IsString()
-  gameId: string;
+  gameId?: string;
 
   @ApiProperty({ required: true })
   @IsNotEmpty()

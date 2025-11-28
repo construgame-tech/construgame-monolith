@@ -1,11 +1,11 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { ApiPropertyOptional } from "@nestjs/swagger";
+import { IsOptional, IsString } from "class-validator";
 
 export class RejectTaskUpdateDto {
-  @ApiProperty()
+  @ApiPropertyOptional({ description: "ID do usuário revisor (opcional, usa JWT se não informado)" })
   @IsString()
-  @IsNotEmpty()
-  reviewedBy!: string;
+  @IsOptional()
+  reviewedBy?: string;
 
   @ApiPropertyOptional()
   @IsString()
