@@ -8,6 +8,11 @@ import type { IFinancialPrizeRepository } from "@domain/financial-prizes/reposit
 import { Inject, Injectable } from "@nestjs/common";
 import type { CreateFinancialPrizeDto } from "./dto/create-financial-prize.dto";
 
+// Interface de input com organizationId obrigatório (vem do path param)
+interface CreateFinancialPrizeInput extends CreateFinancialPrizeDto {
+  organizationId: string;
+}
+
 @Injectable()
 export class FinancialPrizeService {
   constructor(
@@ -15,7 +20,7 @@ export class FinancialPrizeService {
     private readonly repository: IFinancialPrizeRepository,
   ) {}
 
-  async create(dto: CreateFinancialPrizeDto) {
+  async create(dto: CreateFinancialPrizeInput) {
     const { prize } = await createFinancialPrize(
       {
         organizationId: dto.organizationId,
@@ -24,12 +29,14 @@ export class FinancialPrizeService {
         userId: dto.userId,
         amount: dto.amount,
         period: dto.period,
-        details: dto.details ? {
-          laborCost: dto.details.laborCost,
-          kpiMultiplier: dto.details.kpiMultiplier,
-          taskPoints: dto.details.taskPoints,
-          kaizenPoints: dto.details.kaizenPoints,
-        } : undefined,
+        details: dto.details
+          ? {
+              laborCost: dto.details.laborCost,
+              kpiMultiplier: dto.details.kpiMultiplier,
+              taskPoints: dto.details.taskPoints,
+              kaizenPoints: dto.details.kaizenPoints,
+            }
+          : undefined,
       },
       this.repository,
     );
@@ -54,10 +61,7 @@ export class FinancialPrizeService {
   }
 
   async findByUser(userId: string) {
-    const { prizes } = await listUserPrizes(
-      { userId },
-      this.repository,
-    );
+    const { prizes } = await listUserPrizes({ userId }, this.repository);
     return prizes;
   }
 }

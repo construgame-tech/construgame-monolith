@@ -42,6 +42,8 @@ export * as KaizenType from "./kaizen-type";
 export * as KPI from "./kpi";
 // League: Ligas competitivas
 export * as League from "./league";
+// League Reports: Relatórios e métricas de ligas
+export * as LeagueReports from "./league-reports";
 // Organization Config: Configurações gerais de organizações, prêmios, setores
 export * as OrganizationConfig from "./organization-config";
 // Task Manager: Agrupamento de tarefas

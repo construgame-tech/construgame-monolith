@@ -151,6 +151,41 @@ npm run start:dev
 - `npm run build` - Production build
 - `npm run format` - Format with Biome (configured in `biome.json`)
 
+### Terminal Commands - CRITICAL RULES
+
+**NEVER run commands that produce paginated output without disabling pagination:**
+- ❌ `psql -c "\d table"` (paginates with `less`)
+- ✅ `psql -c "\d table" | cat` (pipe to cat to disable pager)
+- ✅ `PAGER=cat psql -c "\d table"` (set PAGER env var)
+
+- ❌ `git log` (paginates)
+- ✅ `git --no-pager log` (disable pager)
+
+- ❌ `less file.txt` (paginates)
+- ✅ `cat file.txt` (no pagination)
+
+**Always use flags/pipes to prevent paging:**
+```bash
+# PostgreSQL
+PAGER=cat psql -h localhost -U user -d db -c "SELECT * FROM table;"
+
+# Git
+git --no-pager log --oneline -20
+git --no-pager diff
+
+# General
+command | cat  # Pipe to cat disables most pagers
+command | head -100  # Limit output
+```
+
+**Database changes must use Drizzle migrations:**
+- ❌ Never run raw SQL ALTER TABLE manually
+- ✅ Update schema in `src/infrastructure/database/schemas/`
+- ✅ Run `pnpm db:generate` to create migration
+- ✅ Run `pnpm db:migrate` to apply
+
+If migration fails due to existing data, fix the schema to handle it (e.g., make columns nullable, add defaults) rather than running manual SQL.
+
 ### API Documentation
 - Swagger: `http://localhost:3000/docs`
 - Base URL: `http://localhost:3000/api/v1`

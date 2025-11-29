@@ -15,6 +15,7 @@ import {
 } from "@nestjs/swagger";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { LeagueService } from "./league.service";
+import { LeagueReportsService } from "./league-reports.service";
 
 // DTO para ranking
 class RankingItemDto {
@@ -40,7 +41,7 @@ export class LeagueRankingController {
     private readonly leagueService: LeagueService,
   ) {}
 
-  @Get("leagues/:leagueId/ranking")
+  @Get("league/:leagueId/ranking")
   @ApiOperation({ summary: "Get league ranking" })
   @ApiQuery({
     name: "groupBy",
@@ -64,11 +65,11 @@ export class LeagueRankingController {
 @ApiTags("league-dashboards")
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("organization/:organizationId/league/:leagueId/report")
+@Controller("organization/:organizationId/league/:leagueId/reports")
 export class LeagueReportsController {
   constructor(
-    @Inject(LeagueService)
-    private readonly leagueService: LeagueService,
+    @Inject(LeagueReportsService)
+    private readonly reportsService: LeagueReportsService,
   ) {}
 
   @Get("most-replicated-kaizens")
@@ -82,14 +83,21 @@ export class LeagueReportsController {
     enum: ["1", "2", "3", "4", "5"],
   })
   async getMostReplicatedKaizens(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
-    @Query("isReplica") _isReplica?: boolean,
-    @Query("category") _category?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
+    @Query("isReplica") isReplica?: boolean,
+    @Query("category") category?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getMostReplicatedKaizens(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+      isReplica,
+      category,
+    );
   }
 
   @Get("kaizen-counters")
@@ -97,18 +105,17 @@ export class LeagueReportsController {
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizenCounters(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return {
-      projectCount: 0,
-      kaizenCount: 0,
-      kaizenAveragePerProject: 0,
-      kaizensPerProject: 0,
-      kaizensPerParticipant: 0,
-    };
+    return this.reportsService.getKaizenCounters(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
   }
 
   @Get("kaizens-per-project-per-participant")
@@ -116,12 +123,17 @@ export class LeagueReportsController {
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizensPerProjectPerParticipant(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getKaizensPerProjectPerParticipant(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
   }
 
   @Get("kaizens-per-project")
@@ -129,12 +141,17 @@ export class LeagueReportsController {
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizensPerProject(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getKaizensPerProject(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
   }
 
   @Get("kaizens-per-week")
@@ -142,12 +159,17 @@ export class LeagueReportsController {
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizensPerWeek(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getKaizensPerWeek(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
   }
 
   @Get("kaizens-per-sector")
@@ -155,12 +177,17 @@ export class LeagueReportsController {
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizensPerSector(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getKaizensPerSector(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
   }
 
   @Get("kaizens-per-position")
@@ -168,12 +195,17 @@ export class LeagueReportsController {
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizensPerPosition(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getKaizensPerPosition(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
   }
 
   @Get("kaizens-per-type")
@@ -181,12 +213,17 @@ export class LeagueReportsController {
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizensPerType(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getKaizensPerType(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
   }
 
   @Get("kaizens-per-benefit")
@@ -194,12 +231,17 @@ export class LeagueReportsController {
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizensPerBenefit(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getKaizensPerBenefit(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
   }
 
   @Get("kaizens-per-type-per-project")
@@ -207,25 +249,61 @@ export class LeagueReportsController {
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizensPerTypePerProject(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getKaizensPerTypePerProject(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
   }
 
   @Get("kaizens-adherence-percentage")
   @ApiOperation({ summary: "Get kaizens adherence percentage" })
+  @ApiQuery({ name: "kaizenTypeId", required: false, type: String })
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizensAdherencePercentage(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("kaizenTypeId") kaizenTypeId?: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getKaizensAdherencePercentageWithFilter(
+      organizationId,
+      leagueId,
+      kaizenTypeId,
+      sectorId,
+      projectId,
+    );
+  }
+
+  @Get("kaizens-adherence-count")
+  @ApiOperation({
+    summary: "Get kaizens adherence count (possible vs executed)",
+  })
+  @ApiQuery({ name: "kaizenTypeId", required: false, type: String })
+  @ApiQuery({ name: "sectorId", required: false, type: String })
+  @ApiQuery({ name: "projectId", required: false, type: String })
+  async getKaizensAdherenceCount(
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("kaizenTypeId") kaizenTypeId?: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
+  ) {
+    return this.reportsService.getKaizensAdherenceCount(
+      organizationId,
+      leagueId,
+      kaizenTypeId,
+      sectorId,
+      projectId,
+    );
   }
 
   @Get("kaizens-adherence")
@@ -246,11 +324,90 @@ export class LeagueReportsController {
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizensParticipantsPerProject(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getKaizensParticipantsPerProject(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
+  }
+
+  // Task reports
+
+  @Get("task-counters")
+  @ApiOperation({ summary: "Get task counters" })
+  @ApiQuery({ name: "sectorId", required: false, type: String })
+  @ApiQuery({ name: "projectId", required: false, type: String })
+  async getTaskCounters(
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
+  ) {
+    return this.reportsService.getTaskCounters(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
+  }
+
+  @Get("task-performance-per-project")
+  @ApiOperation({ summary: "Get task performance per project" })
+  @ApiQuery({ name: "sectorId", required: false, type: String })
+  @ApiQuery({ name: "projectId", required: false, type: String })
+  async getTaskPerformancePerProject(
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
+  ) {
+    return this.reportsService.getTaskPerformancePerProject(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
+  }
+
+  @Get("task-performance-per-game")
+  @ApiOperation({ summary: "Get task performance per game" })
+  @ApiQuery({ name: "sectorId", required: false, type: String })
+  @ApiQuery({ name: "projectId", required: false, type: String })
+  async getTaskPerformancePerGame(
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
+  ) {
+    return this.reportsService.getTaskPerformancePerGame(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
+  }
+
+  @Get("task-best-players")
+  @ApiOperation({ summary: "Get task best players" })
+  @ApiQuery({ name: "sectorId", required: false, type: String })
+  @ApiQuery({ name: "projectId", required: false, type: String })
+  async getTaskBestPlayers(
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
+  ) {
+    return this.reportsService.getTaskBestPlayers(
+      organizationId,
+      leagueId,
+      sectorId,
+      projectId,
+    );
   }
 }

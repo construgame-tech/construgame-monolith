@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createKaizenIdea } from "./create-kaizen-idea";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { IKaizenIdeaRepository } from "../repositories/kaizen-idea.repository.interface";
+import { createKaizenIdea } from "./create-kaizen-idea";
 
 describe("createKaizenIdea", () => {
   let mockRepository: IKaizenIdeaRepository;

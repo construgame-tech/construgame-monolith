@@ -7,6 +7,7 @@ import {
   LeagueRankingController,
   LeagueReportsController,
 } from "./league-ranking.controller";
+import { LeagueReportsService } from "./league-reports.service";
 
 @Module({
   imports: [DatabaseModule],
@@ -17,11 +18,12 @@ import {
   ],
   providers: [
     LeagueService,
+    LeagueReportsService,
     {
       provide: "ILeagueRepository",
       useClass: LeagueRepository,
     },
   ],
-  exports: [LeagueService],
+  exports: [LeagueService, LeagueReportsService],
 })
 export class LeagueModule {}

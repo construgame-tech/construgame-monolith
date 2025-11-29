@@ -6,8 +6,8 @@ import {
   HttpCode,
   Inject,
   Param,
-  Patch,
   Post,
+  Put,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -67,7 +67,7 @@ export class LeagueController {
     return { items: leagues.map(LeagueResponseDto.fromEntity) };
   }
 
-  @Patch(":leagueId")
+  @Put(":leagueId")
   @ApiOperation({ summary: "Update league" })
   @ApiResponse({ status: 200, type: LeagueResponseDto })
   async updateLeague(
@@ -75,10 +75,11 @@ export class LeagueController {
     @Param("leagueId") leagueId: string,
     @Body() dto: UpdateLeagueDto,
   ): Promise<LeagueResponseDto> {
+    // Spread dto first, then override with path params to ensure they take precedence
     const league = await this.leagueService.updateLeague({
+      ...dto,
       organizationId,
       leagueId,
-      ...dto,
     });
     return LeagueResponseDto.fromEntity(league);
   }

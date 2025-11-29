@@ -29,7 +29,7 @@ coverage/
 *.tsbuildinfo
 
 # Drizzle
-drizzle/
+# drizzle/
 *.db
 *.db-journal
 

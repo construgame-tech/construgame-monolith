@@ -3,7 +3,7 @@ import type { ILeagueRepository } from "@domain/league/repositories/league.repos
 import type { DrizzleDB } from "@infrastructure/database/database.module";
 import { leagues } from "@infrastructure/database/schemas";
 import { Inject, Injectable } from "@nestjs/common";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 @Injectable()
 export class LeagueRepository implements ILeagueRepository {
@@ -14,21 +14,34 @@ export class LeagueRepository implements ILeagueRepository {
       .insert(leagues)
       .values({
         id: league.id,
-        gameId: league.games?.[0] ?? league.organizationId, // Usa primeiro game ou organizationId como fallback
+        organizationId: league.organizationId,
+        gameId: league.games?.[0] ?? null,
+        responsibleId: league.responsibleId || null,
+        status: league.status,
         name: league.name,
+        photo: league.photo || null,
         description: league.objective,
         startDate: league.startDate,
         endDate: league.endDate,
         prizes: league.prizes,
+        projects: league.projects,
+        games: league.games,
+        hidden: league.hidden ?? false,
       })
       .onConflictDoUpdate({
         target: leagues.id,
         set: {
+          responsibleId: league.responsibleId || null,
+          status: league.status,
           name: league.name,
+          photo: league.photo || null,
           description: league.objective,
           startDate: league.startDate,
           endDate: league.endDate,
           prizes: league.prizes,
+          projects: league.projects,
+          games: league.games,
+          hidden: league.hidden ?? false,
         },
       });
   }
@@ -47,15 +60,16 @@ export class LeagueRepository implements ILeagueRepository {
       .where(eq(leagues.id, leagueId))
       .limit(1);
 
-    return result[0] ? this.mapToEntity(result[0], organizationId) : null;
+    return result[0] ? this.mapToEntity(result[0]) : null;
   }
 
   async findByOrganizationId(organizationId: string): Promise<LeagueEntity[]> {
-    // Como não temos organizationId na tabela, retornamos todas as leagues
-    // A filtragem por organização deve ser feita via gameId
-    const result = await this.db.select().from(leagues);
+    const result = await this.db
+      .select()
+      .from(leagues)
+      .where(eq(leagues.organizationId, organizationId));
 
-    return result.map((row) => this.mapToEntity(row, organizationId));
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findByGameId(gameId: string): Promise<LeagueEntity[]> {
@@ -64,24 +78,24 @@ export class LeagueRepository implements ILeagueRepository {
       .from(leagues)
       .where(eq(leagues.gameId, gameId));
 
-    return result.map((row) => this.mapToEntity(row, gameId));
+    return result.map((row) => this.mapToEntity(row));
   }
 
-  private mapToEntity(
-    row: typeof leagues.$inferSelect,
-    organizationId: string,
-  ): LeagueEntity {
+  private mapToEntity(row: typeof leagues.$inferSelect): LeagueEntity {
     return {
       id: row.id,
-      organizationId: organizationId,
-      responsibleId: "", // Não existe no banco atual
-      status: "ACTIVE", // Não existe no banco atual
+      organizationId: row.organizationId ?? "",
+      responsibleId: row.responsibleId ?? "",
+      status: row.status ?? "ACTIVE",
       name: row.name,
+      photo: row.photo ?? undefined,
       objective: row.description ?? undefined,
       startDate: row.startDate ?? undefined,
       endDate: row.endDate ?? undefined,
       prizes: row.prizes ?? undefined,
-      games: [row.gameId],
+      projects: row.projects ?? undefined,
+      games: row.games ?? (row.gameId ? [row.gameId] : undefined),
+      hidden: row.hidden ?? undefined,
     };
   }
 }
