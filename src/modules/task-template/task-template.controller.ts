@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
   Body,
@@ -14,6 +13,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ChecklistTemplateService } from "./checklist-template.service";
 import { CreateChecklistTemplateDto } from "./dto/create-checklist-template.dto";
 import { CreateTaskTemplateDto } from "./dto/create-task-template.dto";
 import { UpdateTaskTemplateDto } from "./dto/update-task-template.dto";
@@ -47,7 +47,8 @@ export class TaskTemplateController {
   @Get()
   @ApiOperation({ summary: "List task templates by organization" })
   async findByOrganization(@Param("organizationId") organizationId: string) {
-    const items = await this.taskTemplateService.findByOrganizationId(organizationId);
+    const items =
+      await this.taskTemplateService.findByOrganizationId(organizationId);
     return { items };
   }
 
@@ -69,29 +70,21 @@ export class TaskTemplateController {
   }
 }
 
-// In-memory storage for checklist templates (for MVP, can be replaced with DB later)
-const checklistTemplatesStore = new Map<
-  string,
-  {
-    id: string;
-    organizationId: string;
-    name: string;
-    checklist: Array<{ id: string; label: string }>;
-  }
->();
-
-// Controller para checklist templates
-@ApiTags("task-templates")
+// Controller para checklist templates reutilizáveis
+@ApiTags("checklist-templates")
 @ApiBearerAuth("JWT-auth")
 @UseGuards(JwtAuthGuard)
 @Controller("organization/:organizationId/checklist-template")
 export class ChecklistTemplateController {
+  constructor(
+    private readonly checklistTemplateService: ChecklistTemplateService,
+  ) {}
+
   @Get()
   @ApiOperation({ summary: "List organization checklist templates" })
   async findByOrganization(@Param("organizationId") organizationId: string) {
-    const items = Array.from(checklistTemplatesStore.values()).filter(
-      (t) => t.organizationId === organizationId,
-    );
+    const items =
+      await this.checklistTemplateService.findByOrganizationId(organizationId);
     return { items };
   }
 
@@ -101,22 +94,16 @@ export class ChecklistTemplateController {
     @Param("organizationId") organizationId: string,
     @Body() dto: CreateChecklistTemplateDto,
   ) {
-    const id = randomUUID();
+    // Conforme API original, checklist armazena apenas { label }
     const checklist = (dto.checklist || []).map((item) => ({
-      id: item.id || randomUUID(),
       label: item.label,
     }));
 
-    const template = {
-      id,
+    return this.checklistTemplateService.create({
       organizationId,
       name: dto.name,
       checklist,
-    };
-
-    checklistTemplatesStore.set(id, template);
-
-    return template;
+    });
   }
 
   @Delete(":checklistTemplateId")
@@ -126,13 +113,16 @@ export class ChecklistTemplateController {
     @Param("organizationId") organizationId: string,
     @Param("checklistTemplateId") checklistTemplateId: string,
   ) {
-    const template = checklistTemplatesStore.get(checklistTemplateId);
-    if (!template || template.organizationId !== organizationId) {
+    // Verifica se existe e pertence à organização
+    const template =
+      await this.checklistTemplateService.findById(checklistTemplateId);
+
+    if (template.organizationId !== organizationId) {
       throw new NotFoundException("Checklist template not found");
     }
 
-    checklistTemplatesStore.delete(checklistTemplateId);
+    await this.checklistTemplateService.delete(checklistTemplateId);
 
-    return { message: "Checklist template deleted" };
+    return {}; // API original retorna objeto vazio
   }
 }

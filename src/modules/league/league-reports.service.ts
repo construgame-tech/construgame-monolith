@@ -10,7 +10,7 @@ import { tasks } from "@infrastructure/database/schemas/task.schema";
 import { teams } from "@infrastructure/database/schemas/team.schema";
 import { users } from "@infrastructure/database/schemas/user.schema";
 import { Inject, Injectable } from "@nestjs/common";
-import { and, count, countDistinct, eq, inArray, sql, sum } from "drizzle-orm";
+import { and, count, countDistinct, eq, inArray, sql } from "drizzle-orm";
 
 // Response DTOs
 export interface KaizenCountersResponse {
@@ -343,7 +343,9 @@ export class LeagueReportsService {
         });
       }
 
-      const typeData = typeMap.get(typeId)!;
+      const typeData = typeMap.get(typeId);
+      if (!typeData) continue;
+
       typeData.projects.set(r.projectId, {
         name: projectNameMap.get(r.projectId) || "",
         count: r.kaizenCount,

@@ -1,6 +1,7 @@
 import { EmailModule } from "@infrastructure/services/email/email.module";
 import { SmsModule } from "@infrastructure/services/sms/sms.module";
 import { SsmService } from "@infrastructure/services/ssm/ssm.service";
+import { WhatsAppModule } from "@infrastructure/services/whatsapp/whatsapp.module";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
@@ -19,6 +20,7 @@ import { JwtStrategy } from "./jwt.strategy";
     PassportModule,
     EmailModule,
     SmsModule,
+    WhatsAppModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {

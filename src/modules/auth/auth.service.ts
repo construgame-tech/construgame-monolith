@@ -13,12 +13,14 @@ import { UserRepository } from "@infrastructure/repositories/user.repository";
 import { EmailService } from "@infrastructure/services/email/email.service";
 import { SmsService } from "@infrastructure/services/sms/sms.service";
 import { SsmService } from "@infrastructure/services/ssm/ssm.service";
+import { WhatsAppService } from "@infrastructure/services/whatsapp/whatsapp.service";
 import {
   BadRequestException,
   Injectable,
   Logger,
   UnauthorizedException,
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import * as jsonwebtoken from "jsonwebtoken";
@@ -28,17 +30,33 @@ export interface UserRole {
   role: string;
 }
 
+// Constantes para conta de teste da Play Store
+const PLAY_STORE_TESTER_PHONE = "+5512999999999";
+const PLAY_STORE_TESTER_CODE = "7381";
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly playStoreTesterPhone: string;
+  private readonly playStoreTesterCode: string;
+
   constructor(
     private readonly userRepository: UserRepository,
     private readonly memberRepository: MemberRepository,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly smsService: SmsService,
+    private readonly whatsAppService: WhatsAppService,
     private readonly ssmService: SsmService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.playStoreTesterPhone =
+      this.configService.get<string>("PLAY_STORE_TESTER_PHONE") ||
+      PLAY_STORE_TESTER_PHONE;
+    this.playStoreTesterCode =
+      this.configService.get<string>("PLAY_STORE_TESTER_CODE") ||
+      PLAY_STORE_TESTER_CODE;
+  }
 
   // Valida usuário com email e senha
   async validateUser(email: string, pass: string): Promise<UserEntity | null> {
@@ -111,22 +129,53 @@ export class AuthService {
     };
   }
 
-  // Gera código de autenticação para telefone
-  async generatePhoneAuthCode(phone: string) {
-    const authCode = generateRandomCode(6);
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutos
+  /**
+   * Gera código de autenticação para telefone e envia via SMS e WhatsApp.
+   * Para a conta de teste da Play Store, usa código fixo e não envia mensagens.
+   * @param phone Número de telefone no formato +5511999999999
+   * @param userName Nome do usuário (opcional, para personalizar mensagem)
+   * @param otpHash Hash para SMS Retriever API do Android (opcional)
+   */
+  async generatePhoneAuthCode(
+    phone: string,
+    userName?: string,
+    otpHash?: string,
+  ) {
+    // Conta de teste da Play Store: código fixo, não envia mensagem
+    const isPlayStoreTester = phone === this.playStoreTesterPhone;
+    const authCode = isPlayStoreTester
+      ? this.playStoreTesterCode
+      : generateRandomCode(4); // Código de 4 dígitos como na API original
+
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hora (como na API original)
 
     const result = await generateAuthCode(
       { phone, authCode, expiresAt },
       this.userRepository,
     );
 
-    // Envia o código via SMS
-    await this.smsService.sendSms(
-      phone,
-      `Seu código de autenticação Construgame é: ${authCode}`,
-    );
-    console.log(`📱 Auth code for ${phone}: ${authCode}`);
+    // Não envia mensagem para conta de teste da Play Store
+    if (!isPlayStoreTester) {
+      const name = userName || "usuário";
+      const otpSuffix = otpHash ? `\n\n${otpHash}` : "";
+      const smsMessage = `Olá ${name}! O seu codigo de login é: ${authCode}${otpSuffix}`;
+
+      // Envia SMS e WhatsApp em paralelo
+      await Promise.all([
+        this.smsService
+          .sendSms(phone, smsMessage)
+          .catch((err) =>
+            this.logger.error(`Falha ao enviar SMS: ${err.message}`),
+          ),
+        this.whatsAppService
+          .sendAuthCode(phone, name, authCode)
+          .catch((err) =>
+            this.logger.error(`Falha ao enviar WhatsApp: ${err.message}`),
+          ),
+      ]);
+    }
+
+    this.logger.log(`📱 Auth code for ${phone}: ${authCode}`);
 
     return {
       codeGenerated: result.codeGenerated,
