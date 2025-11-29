@@ -1,3 +1,7 @@
+import type {
+  ActivityData,
+  IActivityProgressRepository,
+} from "@domain/project-planning";
 import {
   activities,
   macrostepOrders,
@@ -8,7 +12,7 @@ import { and, desc, eq } from "drizzle-orm";
 import type { DrizzleDB } from "../database/drizzle.provider";
 
 @Injectable()
-export class ProjectPlanningRepository {
+export class ProjectPlanningRepository implements IActivityProgressRepository {
   constructor(@Inject("DRIZZLE_CONNECTION") private readonly db: DrizzleDB) {}
 
   // ========== Macrosteps ==========
@@ -150,15 +154,105 @@ export class ProjectPlanningRepository {
     return result;
   }
 
-  // Helper: Calcular progresso de um macrostep baseado em suas activities
+  // ========== IActivityProgressRepository Implementation ==========
+
+  /**
+   * Busca uma activity pelo ID (implementação de IActivityProgressRepository)
+   */
+  async findActivityById(activityId: string): Promise<ActivityData | null> {
+    const [result] = await this.db
+      .select()
+      .from(activities)
+      .where(eq(activities.id, activityId));
+
+    if (!result) return null;
+
+    return {
+      id: result.id,
+      macrostepId: result.macrostepId,
+      totalMeasurementExpected: result.totalMeasurementExpected,
+      progressPercent: result.progressPercent,
+    };
+  }
+
+  /**
+   * Atualiza o progresso de uma activity pelo ID
+   */
+  async updateActivityProgress(
+    activityId: string,
+    progressPercent: number,
+  ): Promise<void> {
+    await this.db
+      .update(activities)
+      .set({ progressPercent, updatedAt: new Date() })
+      .where(eq(activities.id, activityId));
+  }
+
+  /**
+   * Busca activities pelo macrostepId (implementação de IActivityProgressRepository)
+   */
+  async findActivitiesByMacrostepId(
+    macrostepId: string,
+  ): Promise<ActivityData[]> {
+    const result = await this.db
+      .select()
+      .from(activities)
+      .where(eq(activities.macrostepId, macrostepId));
+
+    return result.map((a) => ({
+      id: a.id,
+      macrostepId: a.macrostepId,
+      totalMeasurementExpected: a.totalMeasurementExpected,
+      progressPercent: a.progressPercent,
+    }));
+  }
+
+  /**
+   * Atualiza o progresso de um macrostep pelo ID
+   */
+  async updateMacrostepProgress(
+    macrostepId: string,
+    progressPercent: number,
+  ): Promise<void> {
+    await this.db
+      .update(macrosteps)
+      .set({ progressPercent, updatedAt: new Date() })
+      .where(eq(macrosteps.id, macrostepId));
+  }
+
+  /**
+   * Calcula o progresso do macrostep baseado nas activities
+   */
   calculateMacrostepProgress(
-    activitiesList: Array<{ progressPercent: number | null }>,
-  ) {
+    activitiesList: Array<{ progressPercent?: number | null }>,
+  ): number {
     if (activitiesList.length === 0) return 0;
-    const totalProgress = activitiesList.reduce(
-      (sum, activity) => sum + (activity.progressPercent || 0),
+    const total = activitiesList.reduce(
+      (sum, a) => sum + (a.progressPercent || 0),
       0,
     );
-    return totalProgress / activitiesList.length;
+    return Math.round(total / activitiesList.length);
+  }
+
+  /**
+   * Calcula e atualiza o progresso da activity baseado nas tasks
+   */
+  async calculateActivityProgress(activityId: string): Promise<void> {
+    // Busca as tasks associadas à activity via TaskManager
+    // Por enquanto, mantém o progresso atual - implementar cálculo real quando necessário
+  }
+
+  // ========== Legacy Methods (para manter compatibilidade) ==========
+
+  /**
+   * Busca uma activity apenas pelo ID (sem necessidade do macrostepId)
+   * @deprecated Use findActivityById ao invés
+   */
+  async getActivityByIdOnly(activityId: string) {
+    const [result] = await this.db
+      .select()
+      .from(activities)
+      .where(eq(activities.id, activityId));
+    return result;
   }
 }

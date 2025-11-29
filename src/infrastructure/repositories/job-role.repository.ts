@@ -78,9 +78,22 @@ export class JobRoleRepository implements IJobRoleRepository {
       name: row.name,
       variants: row.variants ?? [],
       updatedBy: row.updatedBy ?? undefined,
-      updatedAt: row.updatedAt ?? undefined,
-      createdAt: row.createdAt ?? undefined,
+      updatedAt: this.formatTimestamp(row.updatedAt),
+      createdAt: this.formatTimestamp(row.createdAt),
       createdBy: row.createdBy ?? undefined,
     };
+  }
+
+  /**
+   * Converte timestamp do banco para formato ISO 8601
+   */
+  private formatTimestamp(
+    timestamp: string | null | undefined,
+  ): string | undefined {
+    if (!timestamp) return undefined;
+    // Se já estiver em formato ISO, retorna como está
+    if (timestamp.includes("T")) return timestamp;
+    // Converte de "2025-11-28 23:52:15.493" para "2025-11-28T23:52:15.493Z"
+    return new Date(timestamp).toISOString();
   }
 }

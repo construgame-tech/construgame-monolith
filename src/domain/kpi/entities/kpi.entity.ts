@@ -5,6 +5,7 @@ export interface KpiEntity {
   id: string;
   name: string;
   type: string;
+  kpiType?: string;
   photo?: string;
 }
 
@@ -13,12 +14,14 @@ export const createKpiEntity = (props: {
   id: string;
   name: string;
   type: string;
+  kpiType?: string;
   photo?: string;
 }): KpiEntity => {
   return {
     id: props.id,
     name: props.name,
     type: props.type,
+    kpiType: props.kpiType,
     photo: props.photo,
   };
 };
@@ -29,6 +32,7 @@ export const updateKpiEntity = (
   updates: {
     name?: string;
     type?: string;
+    kpiType?: string;
     photo?: string;
   },
 ): KpiEntity => {
@@ -36,6 +40,7 @@ export const updateKpiEntity = (
     ...currentKpi,
     name: updates.name ?? currentKpi.name,
     type: updates.type ?? currentKpi.type,
+    kpiType: updates.kpiType ?? currentKpi.kpiType,
     photo: updates.photo ?? currentKpi.photo,
   };
 };

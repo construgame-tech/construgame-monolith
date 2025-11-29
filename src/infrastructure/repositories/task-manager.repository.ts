@@ -1,10 +1,14 @@
+import type {
+  ITaskProgressRepository,
+  TaskData,
+} from "@domain/project-planning";
 import { taskManagers } from "@infrastructure/database/schemas/task-manager.schema";
 import { Inject, Injectable } from "@nestjs/common";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { DrizzleDB } from "../database/drizzle.provider";
 
 @Injectable()
-export class TaskManagerRepository {
+export class TaskManagerRepository implements ITaskProgressRepository {
   constructor(@Inject("DRIZZLE_CONNECTION") private readonly db: DrizzleDB) {}
 
   async create(data: typeof taskManagers.$inferInsert) {
@@ -62,5 +66,43 @@ export class TaskManagerRepository {
       .where(eq(taskManagers.id, id))
       .returning();
     return result;
+  }
+
+  /**
+   * Busca task managers associados a uma activity específica
+   * Usa query SQL para filtrar pelo campo JSONB macrostep.activityId
+   */
+  async listByActivityId(activityId: string) {
+    return this.db
+      .select()
+      .from(taskManagers)
+      .where(sql`${taskManagers.macrostep}->>'activityId' = ${activityId}`);
+  }
+
+  /**
+   * Busca task managers associados a um macrostep específico
+   */
+  async listByMacrostepId(macrostepId: string) {
+    return this.db
+      .select()
+      .from(taskManagers)
+      .where(sql`${taskManagers.macrostep}->>'macrostepId' = ${macrostepId}`);
+  }
+
+  // ========== ITaskProgressRepository Implementation ==========
+
+  /**
+   * Busca tasks (TaskManagers) associadas a uma activity específica
+   * Retorna apenas o progressAbsolute de cada uma
+   */
+  async findTasksByActivityId(activityId: string): Promise<TaskData[]> {
+    const result = await this.db
+      .select({ progressAbsolute: taskManagers.progressAbsolute })
+      .from(taskManagers)
+      .where(sql`${taskManagers.macrostep}->>'activityId' = ${activityId}`);
+
+    return result.map((r) => ({
+      progressAbsolute: r.progressAbsolute ?? 0,
+    }));
   }
 }

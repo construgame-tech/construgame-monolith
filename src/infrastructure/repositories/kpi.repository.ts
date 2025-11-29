@@ -9,23 +9,25 @@ import { eq } from "drizzle-orm";
 export class KpiRepository implements IKpiRepository {
   constructor(@Inject("DRIZZLE_CONNECTION") private readonly db: DrizzleDB) {}
 
-  async save(kpi: KpiEntity): Promise<void> {
+  async save(kpi: KpiEntity & { organizationId?: string }): Promise<void> {
     await this.db
       .insert(kpis)
       .values({
         id: kpi.id,
-        organizationId: (kpi as any).organizationId ?? kpi.id, // Fallback para compatibilidade
+        organizationId: kpi.organizationId ?? kpi.id, // Fallback para compatibilidade
         name: kpi.name,
-        description: kpi.type, // Mapeando type para description
-        unit: kpi.photo, // Mapeando photo para unit (temporário)
+        type: kpi.type,
+        kpiType: kpi.kpiType,
+        photo: kpi.photo,
         sequence: 0,
       })
       .onConflictDoUpdate({
         target: kpis.id,
         set: {
           name: kpi.name,
-          description: kpi.type,
-          unit: kpi.photo,
+          type: kpi.type,
+          kpiType: kpi.kpiType,
+          photo: kpi.photo,
         },
       });
   }
@@ -61,8 +63,9 @@ export class KpiRepository implements IKpiRepository {
     return {
       id: row.id,
       name: row.name,
-      type: row.description ?? "", // Mapeando description para type
-      photo: row.unit ?? undefined, // Mapeando unit para photo
+      type: row.type ?? "",
+      kpiType: row.kpiType ?? undefined,
+      photo: row.photo ?? undefined,
     };
   }
 }

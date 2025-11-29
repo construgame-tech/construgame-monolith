@@ -12,6 +12,11 @@ export class UpdateKpiDto {
   @IsString()
   type?: string;
 
+  @ApiProperty({ required: false, description: "KPI type: task or kaizen" })
+  @IsOptional()
+  @IsString()
+  kpiType?: string;
+
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()

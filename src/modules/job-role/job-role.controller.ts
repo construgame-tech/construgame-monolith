@@ -16,6 +16,7 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { CurrentUser } from "../auth/current-user.decorator";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CreateJobRoleDto } from "./dto/create-job-role.dto";
 import { JobRoleResponseDto } from "./dto/job-role-response.dto";
@@ -38,10 +39,12 @@ export class JobRoleController {
   async createJobRole(
     @Param("organizationId") organizationId: string,
     @Body() dto: CreateJobRoleDto,
+    @CurrentUser() user: { userId: string },
   ): Promise<JobRoleResponseDto> {
     const jobRole = await this.jobRoleService.createJobRole({
       ...dto,
       organizationId,
+      createdBy: user?.userId,
     });
     return JobRoleResponseDto.fromEntity(jobRole);
   }
@@ -78,11 +81,13 @@ export class JobRoleController {
     @Param("organizationId") organizationId: string,
     @Param("jobRoleId") jobRoleId: string,
     @Body() dto: UpdateJobRoleDto,
+    @CurrentUser() user: { userId: string },
   ): Promise<JobRoleResponseDto> {
     const jobRole = await this.jobRoleService.updateJobRole({
       organizationId,
       jobRoleId,
       ...dto,
+      updatedBy: user?.userId,
     });
     return JobRoleResponseDto.fromEntity(jobRole);
   }

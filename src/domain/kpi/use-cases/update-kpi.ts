@@ -6,6 +6,7 @@ export interface UpdateKpiInput {
   kpiId: string;
   name?: string;
   type?: string;
+  kpiType?: string;
   photo?: string;
 }
 
@@ -26,6 +27,7 @@ export const updateKpi = async (
   const updatedKpi = updateKpiEntity(currentKpi, {
     name: input.name,
     type: input.type,
+    kpiType: input.kpiType,
     photo: input.photo,
   });
 

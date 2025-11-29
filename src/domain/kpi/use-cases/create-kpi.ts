@@ -6,6 +6,7 @@ import type { IKpiRepository } from "../repositories/kpi.repository.interface";
 export interface CreateKpiInput {
   name: string;
   type: string;
+  kpiType?: string;
   photo?: string;
 }
 
@@ -21,6 +22,7 @@ export const createKpi = async (
     id: randomUUID(),
     name: input.name,
     type: input.type,
+    kpiType: input.kpiType,
     photo: input.photo,
   });
 

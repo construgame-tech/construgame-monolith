@@ -11,6 +11,9 @@ export class KpiResponseDto {
   @ApiProperty()
   type: string;
 
+  @ApiProperty({ required: false, description: "KPI type: task or kaizen" })
+  kpiType?: string;
+
   @ApiProperty({ required: false })
   photo?: string;
 
@@ -19,6 +22,7 @@ export class KpiResponseDto {
     dto.id = entity.id;
     dto.name = entity.name;
     dto.type = entity.type;
+    dto.kpiType = entity.kpiType;
     dto.photo = entity.photo;
     return dto;
   }

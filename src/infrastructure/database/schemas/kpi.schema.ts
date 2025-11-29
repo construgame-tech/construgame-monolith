@@ -8,9 +8,14 @@ export const kpis = pgTable(
     name: text("name").notNull(),
     description: text("description"),
     unit: text("unit"),
+    type: text("type"),
+    kpiType: text("kpi_type"),
+    photo: text("photo"),
     sequence: integer("sequence").notNull().default(0),
   },
   (table) => ({
-    organizationIdIdx: index("kpis_organization_id_idx").on(table.organizationId),
+    organizationIdIdx: index("kpis_organization_id_idx").on(
+      table.organizationId,
+    ),
   }),
 );

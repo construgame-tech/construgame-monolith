@@ -1,9 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { generateTasksFromTaskManager } from "@domain/task-manager";
+import { syncActivityProgress } from "@domain/project-planning";
 import { createTaskEntity } from "@domain/task/entities/task.entity";
+import { generateTasksFromTaskManager } from "@domain/task-manager";
 import { GameRepository } from "@infrastructure/repositories/game.repository";
-import { TaskManagerRepository } from "@infrastructure/repositories/task-manager.repository";
+import { ProjectPlanningRepository } from "@infrastructure/repositories/project-planning.repository";
 import { TaskRepository } from "@infrastructure/repositories/task.repository";
+import { TaskManagerRepository } from "@infrastructure/repositories/task-manager.repository";
 import {
   BadRequestException,
   Body,
@@ -281,7 +283,52 @@ export class TaskManagerController {
     private readonly gameRepository: GameRepository,
     @Inject(TaskRepository)
     private readonly taskRepository: TaskRepository,
+    @Inject(ProjectPlanningRepository)
+    private readonly projectPlanningRepository: ProjectPlanningRepository,
   ) {}
+
+  /**
+   * Sincroniza o progresso da atividade e macroetapa quando um TaskManager é criado ou atualizado.
+   * Só executa se o TaskManager tiver um macrostep com activityId definido.
+   * Usa o use case do domain layer para manter a lógica de negócio isolada.
+   */
+  private async syncActivityAndMacrostepProgress(macrostep?: {
+    macrostepId?: string;
+    activityId?: string;
+  }): Promise<void> {
+    if (!macrostep?.activityId) {
+      return;
+    }
+
+    try {
+      // Usa o use case do domain para sincronizar o progresso
+      const result = await syncActivityProgress(
+        {
+          activityId: macrostep.activityId,
+          syncMacrostep: !!macrostep.macrostepId,
+        },
+        this.projectPlanningRepository,
+        this.repository, // TaskManagerRepository implementa ITaskProgressRepository
+      );
+
+      if (result) {
+        this.logger.log(
+          `Progresso da atividade ${result.activityId} atualizado para ${result.activityProgress}%`,
+        );
+
+        if (result.macrostepProgress !== undefined) {
+          this.logger.log(
+            `Progresso da macroetapa ${result.macrostepId} atualizado para ${result.macrostepProgress}%`,
+          );
+        }
+      }
+    } catch (error) {
+      this.logger.error(
+        `Erro ao sincronizar progresso da atividade/macroetapa: ${error}`,
+      );
+      // Não propaga o erro para não bloquear a criação/atualização do TaskManager
+    }
+  }
 
   @Post("games/:gameId/task-managers")
   async createTaskManager(
@@ -332,7 +379,8 @@ export class TaskManagerController {
       location: taskManager.location ?? undefined,
       description: taskManager.description ?? undefined,
       measurementUnit: taskManager.measurementUnit ?? undefined,
-      totalMeasurementExpected: taskManager.totalMeasurementExpected ?? undefined,
+      totalMeasurementExpected:
+        taskManager.totalMeasurementExpected ?? undefined,
       videoUrl: taskManager.videoUrl ?? undefined,
       embedVideoUrl: taskManager.embedVideoUrl ?? undefined,
       checklist: taskManager.checklist ?? undefined,
@@ -365,8 +413,14 @@ export class TaskManagerController {
         checklist: genTask.checklist,
         startDate: genTask.startDate,
         endDate: genTask.endDate,
-        teamId: genTask.responsibleType === "team" ? genTask.responsibleId : undefined,
-        userId: genTask.responsibleType === "user" ? genTask.responsibleId : undefined,
+        teamId:
+          genTask.responsibleType === "team"
+            ? genTask.responsibleId
+            : undefined,
+        userId:
+          genTask.responsibleType === "user"
+            ? genTask.responsibleId
+            : undefined,
       });
 
       await this.taskRepository.save(taskEntity);
@@ -382,6 +436,11 @@ export class TaskManagerController {
 
     this.logger.log(
       `Tasks criadas com sucesso: ${createdTasks.length} tasks para Task Manager ${taskManager.id}`,
+    );
+
+    // Sincroniza o progresso da activity/macrostep se o TaskManager estiver associado
+    await this.syncActivityAndMacrostepProgress(
+      taskManager.macrostep ?? undefined,
     );
 
     return {
@@ -586,7 +645,8 @@ export class TaskManagerController {
       location: taskManager.location ?? undefined,
       description: taskManager.description ?? undefined,
       measurementUnit: taskManager.measurementUnit ?? undefined,
-      totalMeasurementExpected: taskManager.totalMeasurementExpected ?? undefined,
+      totalMeasurementExpected:
+        taskManager.totalMeasurementExpected ?? undefined,
       videoUrl: taskManager.videoUrl ?? undefined,
       embedVideoUrl: taskManager.embedVideoUrl ?? undefined,
       checklist: taskManager.checklist ?? undefined,
@@ -619,8 +679,14 @@ export class TaskManagerController {
         checklist: genTask.checklist,
         startDate: genTask.startDate,
         endDate: genTask.endDate,
-        teamId: genTask.responsibleType === "team" ? genTask.responsibleId : undefined,
-        userId: genTask.responsibleType === "user" ? genTask.responsibleId : undefined,
+        teamId:
+          genTask.responsibleType === "team"
+            ? genTask.responsibleId
+            : undefined,
+        userId:
+          genTask.responsibleType === "user"
+            ? genTask.responsibleId
+            : undefined,
       });
 
       await this.taskRepository.save(taskEntity);

@@ -5,6 +5,7 @@ import {
   LeagueRankingController,
   LeagueReportsController,
 } from "./league-ranking.controller";
+import { LeagueReportsService } from "./league-reports.service";
 
 describe("LeagueRankingController", () => {
   let controller: LeagueRankingController;
@@ -15,6 +16,7 @@ describe("LeagueRankingController", () => {
     listByOrganization: vi.fn(),
     updateLeague: vi.fn(),
     deleteLeague: vi.fn(),
+    getRanking: vi.fn().mockResolvedValue([]),
   };
 
   beforeEach(async () => {
@@ -78,12 +80,34 @@ describe("LeagueRankingController", () => {
 describe("LeagueReportsController", () => {
   let controller: LeagueReportsController;
 
-  const mockLeagueService = {
-    createLeague: vi.fn(),
-    getLeague: vi.fn(),
-    listByOrganization: vi.fn(),
-    updateLeague: vi.fn(),
-    deleteLeague: vi.fn(),
+  const mockLeagueReportsService = {
+    getMostReplicatedKaizens: vi.fn().mockResolvedValue({ items: [] }),
+    getKaizenCounters: vi.fn().mockResolvedValue({
+      projectCount: 0,
+      kaizenCount: 0,
+      kaizenAveragePerProject: 0,
+      kaizensPerProject: 0,
+      kaizensPerParticipant: 0,
+    }),
+    getKaizensPerProjectPerParticipant: vi
+      .fn()
+      .mockResolvedValue({ items: [] }),
+    getKaizensPerProject: vi.fn().mockResolvedValue({ items: [] }),
+    getKaizensPerWeek: vi.fn().mockResolvedValue({ items: [] }),
+    getKaizensPerSector: vi.fn().mockResolvedValue({ items: [] }),
+    getKaizensPerPosition: vi.fn().mockResolvedValue({ items: [] }),
+    getKaizensPerType: vi.fn().mockResolvedValue({ items: [] }),
+    getKaizensPerBenefit: vi.fn().mockResolvedValue({ items: [] }),
+    getKaizensPerTypePerProject: vi.fn().mockResolvedValue({ items: [] }),
+    getKaizensAdherencePercentageWithFilter: vi
+      .fn()
+      .mockResolvedValue({ items: [] }),
+    getKaizensAdherenceCount: vi.fn().mockResolvedValue({ items: [] }),
+    getKaizensParticipantsPerProject: vi.fn().mockResolvedValue({ items: [] }),
+    getTaskCounters: vi.fn().mockResolvedValue({ items: [] }),
+    getTaskPerformancePerProject: vi.fn().mockResolvedValue({ items: [] }),
+    getTaskPerformancePerGame: vi.fn().mockResolvedValue({ items: [] }),
+    getTaskBestPlayers: vi.fn().mockResolvedValue({ items: [] }),
   };
 
   beforeEach(async () => {
@@ -93,8 +117,8 @@ describe("LeagueReportsController", () => {
       controllers: [LeagueReportsController],
       providers: [
         {
-          provide: LeagueService,
-          useValue: mockLeagueService,
+          provide: LeagueReportsService,
+          useValue: mockLeagueReportsService,
         },
       ],
     }).compile();

@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { ProjectPlanningRepository } from "@infrastructure/repositories/project-planning.repository";
+import { TaskManagerRepository } from "@infrastructure/repositories/task-manager.repository";
 import {
   BadRequestException,
   Body,
@@ -443,7 +444,117 @@ export class ProjectPlanningController {
   constructor(
     @Inject(ProjectPlanningRepository)
     private readonly repository: ProjectPlanningRepository,
+    @Inject(TaskManagerRepository)
+    private readonly taskManagerRepository: TaskManagerRepository,
   ) {}
+
+  /**
+   * Calcula se a atividade está atrasada baseado na data de término
+   */
+  private calculateIsDelayed(endDate?: string | null): boolean {
+    if (!endDate) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const end = new Date(endDate);
+    end.setHours(0, 0, 0, 0);
+    return end < today;
+  }
+
+  /**
+   * Formata task do TaskManager para o padrão esperado pela Activity
+   */
+  private formatTaskForActivity(taskManager: {
+    id: string;
+    gameId: string;
+    name: string;
+    rewardPoints: number;
+    schedule: { startDate: string; endDate: string };
+    progressAbsolute: number;
+    totalMeasurementExpected?: string | null;
+    responsible: { type: string; ids: string[] };
+  }) {
+    return {
+      id: taskManager.id,
+      gameId: taskManager.gameId,
+      name: taskManager.name,
+      points: taskManager.rewardPoints,
+      startDate: taskManager.schedule.startDate,
+      endDate: taskManager.schedule.endDate,
+      progressAbsolute: taskManager.progressAbsolute ?? 0,
+      totalMeasurementExpected: taskManager.totalMeasurementExpected
+        ? Number(taskManager.totalMeasurementExpected)
+        : null,
+      responsible: {
+        type: taskManager.responsible.type,
+        id: taskManager.responsible.ids[0] ?? null,
+      },
+    };
+  }
+
+  /**
+   * Formata a resposta de uma activity para o padrão da API original
+   */
+  private formatActivityResponse(
+    activity: {
+      id: string;
+      organizationId: string;
+      projectId: string;
+      macrostepId: string;
+      name: string;
+      description?: string | null;
+      totalMeasurementExpected?: string | null;
+      measurementUnit?: string | null;
+      startDate?: string | null;
+      endDate?: string | null;
+      duration?: number | null;
+      location?: string | null;
+      expectedCost?: number | null;
+      progressPercent?: number | null;
+      trackingValue?: number | null;
+      trackingUnit?: string | null;
+      laborCompositionList?: unknown[] | null;
+      prizesPerRange?: unknown[] | null;
+      prizesPerProductivity?: unknown[] | null;
+    },
+    tasks: Array<{
+      id: string;
+      gameId: string;
+      name: string;
+      points: number;
+      startDate: string;
+      endDate: string;
+      progressAbsolute: number;
+      totalMeasurementExpected: number | null;
+      responsible: { type: string; id: string | null };
+    }> = [],
+  ) {
+    return {
+      id: activity.id,
+      organizationId: activity.organizationId,
+      projectId: activity.projectId,
+      macrostepId: activity.macrostepId,
+      name: activity.name,
+      description: activity.description ?? null,
+      totalMeasurementExpected: activity.totalMeasurementExpected
+        ? Number(activity.totalMeasurementExpected)
+        : null,
+      progressPercent: activity.progressPercent ?? 0,
+      measurementUnit: activity.measurementUnit ?? null,
+      startDate: activity.startDate ?? null,
+      endDate: activity.endDate ?? null,
+      location: activity.location || null,
+      expectedCost: activity.expectedCost ?? null,
+      aggregatedCost: 0, // Campo calculado - TODO: implementar cálculo real
+      isDelayed: this.calculateIsDelayed(activity.endDate),
+      tasks,
+      duration: activity.duration ?? null,
+      trackingValue: activity.trackingValue ?? null,
+      trackingUnit: activity.trackingUnit ?? null,
+      laborCompositionList: activity.laborCompositionList ?? [],
+      prizesPerRange: activity.prizesPerRange ?? [],
+      prizesPerProductivity: activity.prizesPerProductivity ?? [],
+    };
+  }
 
   // ========== Macrostep Routes ==========
 
@@ -839,28 +950,7 @@ export class ProjectPlanningController {
       progressPercent: newProgress,
     });
 
-    return {
-      projectId: activity.projectId,
-      organizationId: activity.organizationId,
-      macrostepId: activity.macrostepId,
-      id: activity.id,
-      name: activity.name,
-      description: activity.description,
-      totalMeasurementExpected: activity.totalMeasurementExpected,
-      measurementUnit: activity.measurementUnit,
-      startDate: activity.startDate,
-      endDate: activity.endDate,
-      duration: activity.duration,
-      location: activity.location,
-      expectedCost: activity.expectedCost,
-      progressPercent: activity.progressPercent,
-      tasks: [],
-      trackingValue: activity.trackingValue,
-      trackingUnit: activity.trackingUnit,
-      laborCompositionList: activity.laborCompositionList,
-      prizesPerRange: activity.prizesPerRange,
-      prizesPerProductivity: activity.prizesPerProductivity,
-    };
+    return this.formatActivityResponse(activity);
   }
 
   @Put(
@@ -894,10 +984,6 @@ export class ProjectPlanningController {
     );
 
     // Update macrostep progress
-    const macrostep = await this.repository.getMacrostepById(
-      projectId,
-      macrostepId,
-    );
     const activities =
       await this.repository.listActivitiesByMacrostep(macrostepId);
     const newProgress = this.repository.calculateMacrostepProgress(activities);
@@ -905,27 +991,7 @@ export class ProjectPlanningController {
       progressPercent: newProgress,
     });
 
-    return {
-      projectId: updated.projectId,
-      organizationId: updated.organizationId,
-      macrostepId: updated.macrostepId,
-      id: updated.id,
-      name: updated.name,
-      description: updated.description,
-      totalMeasurementExpected: updated.totalMeasurementExpected,
-      measurementUnit: updated.measurementUnit,
-      startDate: updated.startDate,
-      endDate: updated.endDate,
-      duration: updated.duration,
-      location: updated.location,
-      expectedCost: updated.expectedCost,
-      progressPercent: updated.progressPercent,
-      trackingValue: updated.trackingValue,
-      trackingUnit: updated.trackingUnit,
-      laborCompositionList: updated.laborCompositionList,
-      prizesPerRange: updated.prizesPerRange,
-      prizesPerProductivity: updated.prizesPerProductivity,
-    };
+    return this.formatActivityResponse(updated);
   }
 
   @Delete(
@@ -953,10 +1019,6 @@ export class ProjectPlanningController {
     await this.repository.deleteActivity(macrostepId, activityId);
 
     // Update macrostep progress
-    const macrostep = await this.repository.getMacrostepById(
-      projectId,
-      macrostepId,
-    );
     const activities =
       await this.repository.listActivitiesByMacrostep(macrostepId);
     const newProgress = this.repository.calculateMacrostepProgress(activities);
@@ -990,29 +1052,21 @@ export class ProjectPlanningController {
     const activities =
       await this.repository.listActivitiesByMacrostep(macrostepId);
 
+    // Busca tasks associadas a cada activity via TaskManager
+    const activitiesWithTasks = await Promise.all(
+      activities.map(async (activity) => {
+        const taskManagers = await this.taskManagerRepository.listByActivityId(
+          activity.id,
+        );
+
+        const tasks = taskManagers.map((tm) => this.formatTaskForActivity(tm));
+
+        return this.formatActivityResponse(activity, tasks);
+      }),
+    );
+
     return {
-      activities: activities.map((a) => ({
-        projectId: a.projectId,
-        organizationId: a.organizationId,
-        macrostepId: a.macrostepId,
-        id: a.id,
-        name: a.name,
-        description: a.description,
-        totalMeasurementExpected: a.totalMeasurementExpected,
-        measurementUnit: a.measurementUnit,
-        startDate: a.startDate,
-        endDate: a.endDate,
-        duration: a.duration,
-        location: a.location,
-        expectedCost: a.expectedCost,
-        progressPercent: a.progressPercent,
-        tasks: [], // Frontend espera este campo
-        trackingValue: a.trackingValue,
-        trackingUnit: a.trackingUnit,
-        laborCompositionList: a.laborCompositionList,
-        prizesPerRange: a.prizesPerRange,
-        prizesPerProductivity: a.prizesPerProductivity,
-      })),
+      activities: activitiesWithTasks,
     };
   }
 

@@ -20,6 +20,7 @@ export type LaborCompositionItem = {
   dailyProductivity?: number;
   laborHours?: number;
   personQuantity?: number;
+  unitHours?: number;
 };
 
 // Prize Range
