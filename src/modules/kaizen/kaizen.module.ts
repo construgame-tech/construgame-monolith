@@ -6,6 +6,7 @@ import {
 } from "@infrastructure/repositories/game-points.repository";
 import { KaizenRepository } from "@infrastructure/repositories/kaizen.repository";
 import { KaizenCommentRepository } from "@infrastructure/repositories/kaizen-comment.repository";
+import { KaizenIdeaRepository } from "@infrastructure/repositories/kaizen-idea.repository";
 import { KaizenTypeRepository } from "@infrastructure/repositories/kaizen-type.repository";
 import { Module } from "@nestjs/common";
 import { GameModule } from "../game/game.module";
@@ -28,6 +29,10 @@ import { KaizenService } from "./kaizen.service";
     {
       provide: "IKaizenTypeRepository",
       useClass: KaizenTypeRepository,
+    },
+    {
+      provide: "IKaizenIdeaRepository",
+      useClass: KaizenIdeaRepository,
     },
     {
       provide: "UserGamePointsRepository",
