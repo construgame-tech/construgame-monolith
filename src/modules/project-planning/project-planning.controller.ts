@@ -490,9 +490,7 @@ export class ProjectPlanningController {
     };
   }
 
-  @Put(
-    "organization/:organizationId/project/:projectId/macrostep/:macrostepId",
-  )
+  @Put("organization/:organizationId/project/:projectId/macrostep/:macrostepId")
   async updateMacrostep(
     @Param("organizationId") organizationId: string,
     @Param("projectId") projectId: string,
@@ -648,9 +646,7 @@ export class ProjectPlanningController {
     return { macrosteps: enriched.filter((m) => m !== null) };
   }
 
-  @Post(
-    "organization/:organizationId/project/:projectId/macrostep/move-order",
-  )
+  @Post("organization/:organizationId/project/:projectId/macrostep/move-order")
   async moveMacrostepOrder(
     @Param("organizationId") organizationId: string,
     @Param("projectId") projectId: string,
@@ -1056,7 +1052,13 @@ export class ProjectPlanningController {
     @Param("activityId") activityId: string,
     @Body() body: UpdateActivityDto,
   ) {
-    return this.updateActivity(organizationId, projectId, macrostepId, activityId, body);
+    return this.updateActivity(
+      organizationId,
+      projectId,
+      macrostepId,
+      activityId,
+      body,
+    );
   }
 
   // DELETE alias for frontend compatibility (activity without 's')
@@ -1070,7 +1072,12 @@ export class ProjectPlanningController {
     @Param("macrostepId") macrostepId: string,
     @Param("activityId") activityId: string,
   ) {
-    return this.deleteActivity(organizationId, projectId, macrostepId, activityId);
+    return this.deleteActivity(
+      organizationId,
+      projectId,
+      macrostepId,
+      activityId,
+    );
   }
 
   // TODO: Export report endpoint - implementar quando necessário
