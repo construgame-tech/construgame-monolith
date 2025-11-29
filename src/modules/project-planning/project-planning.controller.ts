@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { calculateMacrostepProgress } from "@domain/project-planning";
 import { ProjectPlanningRepository } from "@infrastructure/repositories/project-planning.repository";
 import { TaskManagerRepository } from "@infrastructure/repositories/task-manager.repository";
 import {
@@ -942,10 +943,12 @@ export class ProjectPlanningController {
       prizesPerProductivity: body.prizesPerProductivity,
     });
 
-    // Update macrostep progress
+    // Update macrostep progress using domain use case
     const activities =
       await this.repository.listActivitiesByMacrostep(macrostepId);
-    const newProgress = this.repository.calculateMacrostepProgress(activities);
+    const { progressPercent: newProgress } = calculateMacrostepProgress({
+      activities,
+    });
     await this.repository.updateMacrostep(projectId, macrostepId, {
       progressPercent: newProgress,
     });
@@ -983,10 +986,12 @@ export class ProjectPlanningController {
       },
     );
 
-    // Update macrostep progress
+    // Update macrostep progress using domain use case
     const activities =
       await this.repository.listActivitiesByMacrostep(macrostepId);
-    const newProgress = this.repository.calculateMacrostepProgress(activities);
+    const { progressPercent: newProgress } = calculateMacrostepProgress({
+      activities,
+    });
     await this.repository.updateMacrostep(projectId, macrostepId, {
       progressPercent: newProgress,
     });
@@ -1018,10 +1023,12 @@ export class ProjectPlanningController {
 
     await this.repository.deleteActivity(macrostepId, activityId);
 
-    // Update macrostep progress
+    // Update macrostep progress using domain use case
     const activities =
       await this.repository.listActivitiesByMacrostep(macrostepId);
-    const newProgress = this.repository.calculateMacrostepProgress(activities);
+    const { progressPercent: newProgress } = calculateMacrostepProgress({
+      activities,
+    });
     await this.repository.updateMacrostep(projectId, macrostepId, {
       progressPercent: newProgress,
     });

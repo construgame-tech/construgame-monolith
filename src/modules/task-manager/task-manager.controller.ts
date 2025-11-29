@@ -505,6 +505,9 @@ export class TaskManagerController {
       embedVideoUrl: body.embedVideoUrl,
     });
 
+    // Sincroniza o progresso da activity/macrostep se o TaskManager estiver associado
+    await this.syncActivityAndMacrostepProgress(updated.macrostep ?? undefined);
+
     return {
       id: updated.id,
       organizationId: updated.organizationId,
