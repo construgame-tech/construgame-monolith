@@ -1,25 +1,25 @@
-import {
-  creditUserTaskPoints,
-  creditTeamTaskPoints,
-} from "@domain/game-points";
 import type { GameEntity } from "@domain/game/entities/game.entity";
+import {
+  creditTeamTaskPoints,
+  creditUserTaskPoints,
+} from "@domain/game-points";
 import type { TaskEntity } from "@domain/task/entities/task.entity";
 import {
+  calculatePointsToCredit,
   calculateTaskProgress,
   calculateUpdatePercent,
-  calculatePointsToCredit,
 } from "@domain/task/helpers/calculate-task-progress";
+import { createTaskUpdate, rejectTaskUpdate } from "@domain/task-update";
 import {
   approveTaskUpdateEntity,
   cancelTaskUpdateEntity,
   TaskUpdateStatus,
 } from "@domain/task-update/entities/task-update.entity";
-import { createTaskUpdate, rejectTaskUpdate } from "@domain/task-update";
+import { GameRepository } from "@infrastructure/repositories/game.repository";
 import type {
   TeamGamePointsRepository,
   UserGamePointsRepository,
 } from "@infrastructure/repositories/game-points.repository";
-import { GameRepository } from "@infrastructure/repositories/game.repository";
 import { TaskRepository } from "@infrastructure/repositories/task.repository";
 import { TaskUpdateRepository } from "@infrastructure/repositories/task-update.repository";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
@@ -92,23 +92,26 @@ export class TaskUpdateService {
 
   async approve(id: string, dto: ApproveTaskUpdateDto) {
     const current = await this.findById(id);
-    
+
     // Se já está aprovado, não reprocessar (regra de negócio validada aqui por simplicidade)
     if (current.status === "APPROVED") {
       return current;
     }
-    
+
     // Buscar a Task e Game para contexto
-    const task = await this.taskRepository.findById(current.gameId, current.taskId);
+    const task = await this.taskRepository.findById(
+      current.gameId,
+      current.taskId,
+    );
     const game = await this.gameRepository.findByIdOnly(current.gameId);
-    
+
     // Usar domain helper para calcular o percent do update
     const progressAbsolute = dto.progressAbsolute ?? current.progress.absolute;
     const updateChecklist = dto.checklist ?? current.checklist;
     const calculatedPercent = task
       ? calculateUpdatePercent(task, progressAbsolute, updateChecklist)
       : current.progress.percent;
-    
+
     const updated = approveTaskUpdateEntity(current, {
       reviwedBy: dto.reviewedBy,
       reviewNote: dto.reviewNote,
@@ -118,7 +121,7 @@ export class TaskUpdateService {
       startDate: dto.startDate ? new Date(dto.startDate) : undefined,
       endDate: dto.endDate ? new Date(dto.endDate) : undefined,
     });
-    
+
     // Adicionar o percent calculado ao progress
     const updatedWithPercent = {
       ...updated,
@@ -127,19 +130,25 @@ export class TaskUpdateService {
         percent: calculatedPercent,
       },
     };
-    
+
     // Salva o task update aprovado com percent
-    const savedUpdate = await this.taskUpdateRepository.save(updatedWithPercent);
-    
+    const savedUpdate =
+      await this.taskUpdateRepository.save(updatedWithPercent);
+
     // Atualiza o progresso da Task
-    await this.updateTaskProgress(current.gameId, current.taskId, updatedWithPercent);
-    
+    await this.updateTaskProgress(
+      current.gameId,
+      current.taskId,
+      updatedWithPercent,
+    );
+
     // Creditar pontos aos participantes e times
     if (task && game) {
       const participants = dto.participants ?? current.participants ?? [];
       // Se não houver participantes definidos, credita ao submitter
-      const pointRecipients = participants.length > 0 ? participants : [current.submittedBy];
-      
+      const pointRecipients =
+        participants.length > 0 ? participants : [current.submittedBy];
+
       await this.creditTaskPoints({
         task,
         game,
@@ -147,13 +156,19 @@ export class TaskUpdateService {
         participants: pointRecipients,
       });
     }
-    
+
     return savedUpdate;
   }
-  
+
   /**
    * Credita pontos proporcionais ao progresso da task.
-   * Os pontos são creditados aos participantes e ao time (se aplicável).
+   * Os pontos são divididos igualmente entre os participantes.
+   *
+   * Regra de negócio:
+   * - Pontos totais = progressPercent × rewardPoints (limite 100%)
+   * - Cada participante recebe = pontos totais / número de participantes
+   * - Time recebe os pontos totais (não dividido)
+   * - Precisão de 4 casas decimais
    */
   private async creditTaskPoints(params: {
     task: TaskEntity;
@@ -162,13 +177,21 @@ export class TaskUpdateService {
     participants: string[];
   }) {
     const { task, game, progressPercent, participants } = params;
-    
+
     // Usa domain helper para calcular pontos proporcionais ao progresso
-    const pointsToCredit = calculatePointsToCredit(task.rewardPoints, progressPercent);
-    
-    if (pointsToCredit <= 0) return;
-    
-    // 1. Creditar pontos a cada participante usando o use case
+    const totalPointsToCredit = calculatePointsToCredit(
+      task.rewardPoints,
+      progressPercent,
+    );
+
+    if (totalPointsToCredit <= 0) return;
+
+    // Divide igualmente entre os participantes com precisão de 4 decimais
+    const participantCount = participants.length || 1;
+    const pointsPerParticipant =
+      Math.round((totalPointsToCredit / participantCount) * 10000) / 10000;
+
+    // 1. Creditar pontos divididos a cada participante
     for (const userId of participants) {
       await creditUserTaskPoints(
         {
@@ -176,13 +199,14 @@ export class TaskUpdateService {
           gameId: game.id,
           organizationId: game.organizationId,
           projectId: game.projectId,
-          pointsToCredit,
+          pointsToCredit: pointsPerParticipant,
         },
         this.userGamePointsRepository,
       );
     }
-    
-    // 2. Creditar pontos ao time (se a task pertence a um time)
+
+    // 2. Creditar pontos totais ao time (se a task pertence a um time)
+    // O time recebe os pontos totais, não dividido pelos participantes
     if (task.teamId) {
       await creditTeamTaskPoints(
         {
@@ -190,13 +214,13 @@ export class TaskUpdateService {
           gameId: game.id,
           organizationId: game.organizationId,
           projectId: game.projectId,
-          pointsToCredit,
+          pointsToCredit: totalPointsToCredit,
         },
         this.teamGamePointsRepository,
       );
     }
   }
-  
+
   /**
    * Atualiza o progresso da Task quando um task-update é aprovado.
    * Adiciona o update à lista de updates da task e recalcula o progresso usando domain helper.
@@ -227,7 +251,7 @@ export class TaskUpdateService {
     if (!task) {
       return; // Task não encontrada, nada a fazer
     }
-    
+
     // Cria o objeto TaskUpdate para adicionar à lista de updates da task
     const taskUpdate = {
       id: approvedUpdate.id,
@@ -248,15 +272,17 @@ export class TaskUpdateService {
         : undefined,
       checklist: approvedUpdate.checklist,
     };
-    
+
     // Remove update existente com mesmo ID (evita duplicatas) e adiciona o novo
     const existingUpdates = task.updates || [];
-    const filteredUpdates = existingUpdates.filter((u) => u.id !== approvedUpdate.id);
+    const filteredUpdates = existingUpdates.filter(
+      (u) => u.id !== approvedUpdate.id,
+    );
     const updatedUpdates = [...filteredUpdates, taskUpdate];
-    
+
     // Usa domain helper para calcular o progresso
     const progressResult = calculateTaskProgress(task, updatedUpdates);
-    
+
     // Atualiza a task com o novo progresso
     const updatedTask = {
       ...task,
@@ -268,7 +294,7 @@ export class TaskUpdateService {
       },
       status: progressResult.status,
     };
-    
+
     await this.taskRepository.save(updatedTask);
   }
 
@@ -293,16 +319,16 @@ export class TaskUpdateService {
 
   async cancel(id: string) {
     const current = await this.findById(id);
-    
+
     // Se o update estava aprovado, remove o progresso da Task
     if (current.status === "APPROVED") {
       await this.removeTaskProgress(current.gameId, current.taskId, current.id);
     }
-    
+
     const updated = cancelTaskUpdateEntity(current);
     return this.taskUpdateRepository.save(updated);
   }
-  
+
   /**
    * Remove um update da lista de updates da Task e recalcula o progresso.
    * Usado quando um update aprovado é cancelado.
@@ -317,13 +343,15 @@ export class TaskUpdateService {
     if (!task) {
       return;
     }
-    
+
     // Remove o update da lista
-    const updatedUpdates = (task.updates || []).filter((u) => u.id !== updateId);
-    
+    const updatedUpdates = (task.updates || []).filter(
+      (u) => u.id !== updateId,
+    );
+
     // Usa domain helper para recalcular o progresso
     const progressResult = calculateTaskProgress(task, updatedUpdates);
-    
+
     const updatedTask = {
       ...task,
       updates: updatedUpdates,
@@ -334,7 +362,7 @@ export class TaskUpdateService {
       },
       status: progressResult.status,
     };
-    
+
     await this.taskRepository.save(updatedTask);
   }
 

@@ -13,21 +13,36 @@ import { projects } from "./project.schema";
 export type LaborCompositionItem = {
   jobRoleId: string;
   jobRoleName: string;
-  quantity: number;
-  unitCost: number;
+  jobRoleSeniority?: string;
+  quantity?: number;
+  unitCost?: number;
+  hourlyCost?: number | null;
+  dailyProductivity?: number;
+  laborHours?: number;
+  personQuantity?: number;
 };
 
 // Prize Range
 export type PrizeRange = {
-  min: number;
-  max: number;
-  points: number;
+  jobRoleId?: string;
+  jobRoleName?: string;
+  jobRoleSeniority?: string;
+  min?: number;
+  max?: number;
+  range?: number;
+  points?: number;
+  prizeAmount?: number;
 };
 
 // Prize Productivity
 export type PrizeProductivity = {
-  productivity: number;
-  points: number;
+  jobRoleId?: string;
+  jobRoleName?: string;
+  jobRoleSeniority?: string;
+  productivity?: number;
+  unityQuantity?: number;
+  points?: number;
+  prizeAmount?: number;
 };
 
 // Tabela de Macrosteps

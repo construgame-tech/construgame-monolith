@@ -1,5 +1,5 @@
-// Use Case: Creditar pontos de task a um usuário
-// Regra: Cada participante recebe sua fração dos pontos (dividido igualmente)
+// Use Case: Creditar pontos de kaizen a um usuário
+// Regra: Quando um kaizen é aprovado, cada responsável recebe kaizenType.points
 
 import {
   createUserGamePointsEntity,
@@ -7,7 +7,7 @@ import {
 } from "../entities/game-points.entity";
 import { IUserGamePointsRepository } from "../repositories/game-points.repository.interface";
 
-export interface CreditUserTaskPointsInput {
+export interface CreditUserKaizenPointsInput {
   userId: string;
   gameId: string;
   organizationId: string;
@@ -15,21 +15,22 @@ export interface CreditUserTaskPointsInput {
   pointsToCredit: number;
 }
 
-export interface CreditUserTaskPointsOutput {
+export interface CreditUserKaizenPointsOutput {
   userPoints: UserGamePointsEntity;
 }
 
 /**
- * Credita pontos de task a um usuário.
+ * Credita pontos de kaizen a um usuário.
  *
  * Regra de negócio:
- * - Pontos são creditados proporcionalmente ao progresso do update
- * - Precisão de 4 casas decimais para evitar erros de arredondamento
+ * - Pontos são creditados quando um kaizen é aprovado
+ * - Cada responsável (player) recebe kaizenType.points
+ * - Precisão de 4 casas decimais
  */
-export const creditUserTaskPoints = async (
-  input: CreditUserTaskPointsInput,
+export const creditUserKaizenPoints = async (
+  input: CreditUserKaizenPointsInput,
   repository: IUserGamePointsRepository,
-): Promise<CreditUserTaskPointsOutput> => {
+): Promise<CreditUserKaizenPointsOutput> => {
   const { userId, gameId, organizationId, projectId, pointsToCredit } = input;
 
   // Busca pontos existentes ou cria novo registro
@@ -44,15 +45,15 @@ export const creditUserTaskPoints = async (
       projectId,
     });
 
-  // Adiciona os pontos de task com precisão de 4 decimais
-  const newTaskPoints =
-    Math.round((userPoints.taskPoints + pointsToCredit) * 10000) / 10000;
+  // Adiciona os pontos de kaizen com precisão de 4 decimais
+  const newKaizenPoints =
+    Math.round((userPoints.kaizenPoints + pointsToCredit) * 10000) / 10000;
 
   const updated: UserGamePointsEntity = {
     ...userPoints,
-    taskPoints: newTaskPoints,
+    kaizenPoints: newKaizenPoints,
     totalPoints:
-      Math.round((newTaskPoints + userPoints.kaizenPoints) * 10000) / 10000,
+      Math.round((userPoints.taskPoints + newKaizenPoints) * 10000) / 10000,
   };
 
   await repository.save(updated);

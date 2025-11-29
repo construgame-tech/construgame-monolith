@@ -125,11 +125,13 @@ export class GameService {
         .where(eq(teamGamePoints.gameId, gameId))
         .orderBy(desc(teamGamePoints.totalPoints));
 
-      return teams.map((t) => ({
-        teamId: t.teamId,
-        name: t.teamId, // Idealmente buscar nome do time
-        points: t.totalPoints,
-      }));
+      return this.addPlacementToRanking(
+        teams.map((t) => ({
+          teamId: t.teamId,
+          name: t.teamId, // Idealmente buscar nome do time
+          points: t.totalPoints,
+        })),
+      );
     }
 
     // Default: user ranking
@@ -139,10 +141,45 @@ export class GameService {
       .where(eq(userGamePoints.gameId, gameId))
       .orderBy(desc(userGamePoints.totalPoints));
 
-    return users.map((u) => ({
-      userId: u.userId,
-      name: u.userId, // Idealmente buscar nome do usuário
-      points: u.totalPoints,
-    }));
+    return this.addPlacementToRanking(
+      users.map((u) => ({
+        userId: u.userId,
+        name: u.userId, // Idealmente buscar nome do usuário
+        points: u.totalPoints,
+      })),
+    );
+  }
+
+  /**
+   * Adiciona placement ao ranking, considerando empates.
+   *
+   * Regra de negócio:
+   * - Ranking ordenado por pontos decrescentes
+   * - Empates recebem o mesmo número de placement
+   * - Próximo placement é o número real na lista (não pula)
+   *
+   * Exemplo:
+   * - 100 pontos → placement 1
+   * - 100 pontos → placement 1 (empate)
+   * - 80 pontos → placement 3 (não 2)
+   */
+  private addPlacementToRanking<T extends { points: number }>(
+    ranking: T[],
+  ): (T & { placement: number })[] {
+    let currentPlacement = 0;
+    let lastPoints: number | null = null;
+
+    return ranking.map((item, index) => {
+      // Se os pontos são diferentes do anterior, atualiza o placement
+      if (lastPoints === null || item.points !== lastPoints) {
+        currentPlacement = index + 1;
+        lastPoints = item.points;
+      }
+
+      return {
+        ...item,
+        placement: currentPlacement,
+      };
+    });
   }
 }

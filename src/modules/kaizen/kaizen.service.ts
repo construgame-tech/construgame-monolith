@@ -1,25 +1,33 @@
+import type { IGameRepository } from "@domain/game/repositories/game.repository.interface";
 import {
-  KaizenEntity,
-  KaizenCommentEntity,
-} from "@domain/kaizen";
-import type { IKaizenRepository } from "@domain/kaizen/repositories/kaizen.repository.interface";
-import type { IKaizenCommentRepository } from "@domain/kaizen/repositories/kaizen-comment.repository.interface";
+  creditTeamKaizenPoints,
+  creditUserKaizenPoints,
+} from "@domain/game-points";
 import {
   approveKaizen,
   archiveKaizen,
-  completeKaizen,
   CreateKaizenInput,
+  completeKaizen,
   createKaizen,
-  reopenKaizen,
-  ReplicateKaizenInput,
-  replicateKaizen,
-  unarchiveKaizen,
-  UpdateKaizenInput,
-  updateKaizen,
   createKaizenComment,
-  listKaizenComments,
   deleteKaizenComment,
+  KaizenCommentEntity,
+  KaizenEntity,
+  listKaizenComments,
+  ReplicateKaizenInput,
+  reopenKaizen,
+  replicateKaizen,
+  UpdateKaizenInput,
+  unarchiveKaizen,
+  updateKaizen,
 } from "@domain/kaizen";
+import type { IKaizenRepository } from "@domain/kaizen/repositories/kaizen.repository.interface";
+import type { IKaizenCommentRepository } from "@domain/kaizen/repositories/kaizen-comment.repository.interface";
+import type { IKaizenTypeRepository } from "@domain/kaizen-type/repositories/kaizen-type.repository.interface";
+import type {
+  TeamGamePointsRepository,
+  UserGamePointsRepository,
+} from "@infrastructure/repositories/game-points.repository";
 import {
   BadRequestException,
   Inject,
@@ -34,6 +42,14 @@ export class KaizenService {
     private readonly kaizenRepository: IKaizenRepository,
     @Inject("IKaizenCommentRepository")
     private readonly commentRepository: IKaizenCommentRepository,
+    @Inject("IKaizenTypeRepository")
+    private readonly kaizenTypeRepository: IKaizenTypeRepository,
+    @Inject("UserGamePointsRepository")
+    private readonly userGamePointsRepository: UserGamePointsRepository,
+    @Inject("TeamGamePointsRepository")
+    private readonly teamGamePointsRepository: TeamGamePointsRepository,
+    @Inject("IGameRepository")
+    private readonly gameRepository: IGameRepository,
   ) {}
 
   async createKaizen(input: CreateKaizenInput): Promise<KaizenEntity> {
@@ -107,12 +123,82 @@ export class KaizenService {
   async approve(kaizenId: string): Promise<KaizenEntity> {
     try {
       const result = await approveKaizen({ kaizenId }, this.kaizenRepository);
-      return result.kaizen;
+      const kaizen = result.kaizen;
+
+      // Creditar pontos de kaizen aos responsáveis
+      await this.creditKaizenPoints(kaizen);
+
+      return kaizen;
     } catch (error) {
       if (error.message.includes("not found")) {
         throw new NotFoundException(error.message);
       }
       throw new BadRequestException(error.message);
+    }
+  }
+
+  /**
+   * Credita pontos de kaizen aos responsáveis quando aprovado.
+   *
+   * Regra de negócio V2:
+   * - Pontos são determinados pelo kaizenType.points
+   * - Cada responsável (player) recebe os pontos completos
+   * - Cada time responsável recebe os pontos completos
+   * - Precisão de 4 casas decimais
+   */
+  private async creditKaizenPoints(kaizen: KaizenEntity): Promise<void> {
+    // Verificar se tem kaizenTypeId
+    if (!kaizen.kaizenTypeId) {
+      // Fallback: sem tipo definido, não credita pontos
+      return;
+    }
+
+    // Buscar o kaizenType para obter os pontos
+    const kaizenType = await this.kaizenTypeRepository.findById(
+      kaizen.organizationId,
+      kaizen.kaizenTypeId,
+    );
+
+    if (!kaizenType || kaizenType.points <= 0) {
+      return;
+    }
+
+    // Buscar o game para obter organizationId e projectId
+    const game = await this.gameRepository.findByIdOnly(kaizen.gameId);
+    if (!game) {
+      return;
+    }
+
+    const pointsToCredit = kaizenType.points;
+
+    // Creditar pontos aos players responsáveis
+    const playerIds = kaizen.responsibles?.players || [];
+    for (const userId of playerIds) {
+      await creditUserKaizenPoints(
+        {
+          userId,
+          gameId: kaizen.gameId,
+          organizationId: game.organizationId,
+          projectId: game.projectId,
+          pointsToCredit,
+        },
+        this.userGamePointsRepository,
+      );
+    }
+
+    // Creditar pontos aos times responsáveis
+    const teamIds = kaizen.responsibles?.teams || [];
+    for (const teamId of teamIds) {
+      await creditTeamKaizenPoints(
+        {
+          teamId,
+          gameId: kaizen.gameId,
+          organizationId: game.organizationId,
+          projectId: game.projectId,
+          pointsToCredit,
+        },
+        this.teamGamePointsRepository,
+      );
     }
   }
 
@@ -188,10 +274,7 @@ export class KaizenService {
 
   async deleteComment(commentId: string): Promise<void> {
     try {
-      await deleteKaizenComment(
-        { commentId },
-        this.commentRepository,
-      );
+      await deleteKaizenComment({ commentId }, this.commentRepository);
     } catch {
       throw new NotFoundException(`Comment not found: ${commentId}`);
     }

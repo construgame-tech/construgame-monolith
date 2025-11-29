@@ -38,37 +38,119 @@ class LaborCompositionDto {
   @IsNotEmpty()
   jobRoleName: string;
 
-  @ApiProperty()
-  @IsNumber()
-  quantity: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  jobRoleSeniority?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsNumber()
-  unitCost: number;
+  quantity?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  unitCost?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  hourlyCost?: number | null;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  dailyProductivity?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  laborHours?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  personQuantity?: number;
 }
 
 class PrizePerRangeDto {
-  @ApiProperty()
-  @IsNumber()
-  min: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  jobRoleId?: string;
 
-  @ApiProperty()
-  @IsNumber()
-  max: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  jobRoleName?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  jobRoleSeniority?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsNumber()
-  points: number;
+  min?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  max?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  range?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  points?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  prizeAmount?: number;
 }
 
 class PrizePerProductivityDto {
-  @ApiProperty()
-  @IsNumber()
-  productivity: number;
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  jobRoleId?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  jobRoleName?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  jobRoleSeniority?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsNumber()
-  points: number;
+  productivity?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  unityQuantity?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  points?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  prizeAmount?: number;
 }
 
 // Main DTOs

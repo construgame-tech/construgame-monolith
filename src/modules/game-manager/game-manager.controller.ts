@@ -1,7 +1,6 @@
 // Game Manager Controller
 // Rotas REST API para gerenciamento de game managers
 
-import { randomUUID } from "node:crypto";
 import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
   Body,
@@ -25,49 +24,21 @@ import {
   CreateGameManagerDto,
   UpdateGameManagerDto,
 } from "./dto/game-manager.dto";
-
-// In-memory storage for MVP (can be replaced with DB repository later)
-interface GameManagerEntity {
-  id: string;
-  organizationId: string;
-  projectId: string;
-  name: string;
-  photo?: string;
-  objective?: string;
-  updateFrequency?: number;
-  managerId?: string;
-  responsibles?: string[];
-  startDate?: string;
-  endDate?: string;
-  gameLength?: number;
-}
-
-interface TaskManagerInGameManager {
-  id: string;
-  gameManagerId: string;
-  organizationId: string;
-  projectId: string;
-  name: string;
-  kpiId?: string;
-  description?: string;
-  rewardPoints?: number;
-}
-
-const gameManagersStore = new Map<string, GameManagerEntity>();
-const gameManagerTasksStore = new Map<string, TaskManagerInGameManager>();
+import { GameManagerService } from "./game-manager.service";
 
 @ApiTags("game-manager")
 @ApiBearerAuth("JWT-auth")
 @UseGuards(JwtAuthGuard)
 @Controller("organization/:organizationId/game-manager")
 export class GameManagerController {
+  constructor(private readonly gameManagerService: GameManagerService) {}
+
   @Get()
   @ApiOperation({ summary: "List organization game managers" })
   @ApiParam({ name: "organizationId" })
   async list(@Param("organizationId") organizationId: string) {
-    const items = Array.from(gameManagersStore.values()).filter(
-      (gm) => gm.organizationId === organizationId,
-    );
+    const items =
+      await this.gameManagerService.findByOrganizationId(organizationId);
     return { items };
   }
 
@@ -78,9 +49,7 @@ export class GameManagerController {
     @Param("organizationId") organizationId: string,
     @Body() dto: CreateGameManagerDto,
   ) {
-    const id = randomUUID();
-    const gameManager: GameManagerEntity = {
-      id,
+    return this.gameManagerService.create({
       organizationId,
       projectId: dto.projectId,
       name: dto.name,
@@ -92,11 +61,7 @@ export class GameManagerController {
       startDate: dto.startDate,
       endDate: dto.endDate,
       gameLength: dto.gameLength,
-    };
-
-    gameManagersStore.set(id, gameManager);
-
-    return gameManager;
+    });
   }
 
   @Put(":gameManagerId")
@@ -108,27 +73,23 @@ export class GameManagerController {
     @Param("gameManagerId") gameManagerId: string,
     @Body() dto: UpdateGameManagerDto,
   ) {
-    const existing = gameManagersStore.get(gameManagerId);
+    const existing = await this.gameManagerService.findById(gameManagerId);
     if (!existing || existing.organizationId !== organizationId) {
       throw new NotFoundException("Game manager not found");
     }
 
-    const updated: GameManagerEntity = {
-      ...existing,
-      name: dto.name ?? existing.name,
-      photo: dto.photo ?? existing.photo,
-      objective: dto.objective ?? existing.objective,
-      updateFrequency: dto.updateFrequency ?? existing.updateFrequency,
-      managerId: dto.managerId ?? existing.managerId,
-      responsibles: dto.responsibles ?? existing.responsibles,
-      startDate: dto.startDate ?? existing.startDate,
-      endDate: dto.endDate ?? existing.endDate,
-      gameLength: dto.gameLength ?? existing.gameLength,
-    };
-
-    gameManagersStore.set(gameManagerId, updated);
-
-    return updated;
+    return this.gameManagerService.update({
+      id: gameManagerId,
+      name: dto.name,
+      photo: dto.photo,
+      objective: dto.objective,
+      updateFrequency: dto.updateFrequency,
+      managerId: dto.managerId,
+      responsibles: dto.responsibles,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
+      gameLength: dto.gameLength,
+    });
   }
 
   @Delete(":gameManagerId")
@@ -140,19 +101,12 @@ export class GameManagerController {
     @Param("organizationId") organizationId: string,
     @Param("gameManagerId") gameManagerId: string,
   ) {
-    const existing = gameManagersStore.get(gameManagerId);
+    const existing = await this.gameManagerService.findById(gameManagerId);
     if (!existing || existing.organizationId !== organizationId) {
       throw new NotFoundException("Game manager not found");
     }
 
-    // Delete associated tasks
-    for (const [id, task] of gameManagerTasksStore.entries()) {
-      if (task.gameManagerId === gameManagerId) {
-        gameManagerTasksStore.delete(id);
-      }
-    }
-
-    gameManagersStore.delete(gameManagerId);
+    await this.gameManagerService.delete(gameManagerId);
 
     return { message: "Game manager deleted" };
   }
@@ -169,14 +123,13 @@ export class GameManagerController {
     @Param("organizationId") organizationId: string,
     @Param("gameManagerId") gameManagerId: string,
   ) {
-    const gameManager = gameManagersStore.get(gameManagerId);
+    const gameManager = await this.gameManagerService.findById(gameManagerId);
     if (!gameManager || gameManager.organizationId !== organizationId) {
       throw new NotFoundException("Game manager not found");
     }
 
-    const items = Array.from(gameManagerTasksStore.values()).filter(
-      (t) => t.gameManagerId === gameManagerId,
-    );
+    const items =
+      await this.gameManagerService.findTasksByGameManagerId(gameManagerId);
     return { items };
   }
 
@@ -196,14 +149,12 @@ export class GameManagerController {
       rewardPoints?: number;
     },
   ) {
-    const gameManager = gameManagersStore.get(gameManagerId);
+    const gameManager = await this.gameManagerService.findById(gameManagerId);
     if (!gameManager || gameManager.organizationId !== organizationId) {
       throw new NotFoundException("Game manager not found");
     }
 
-    const id = randomUUID();
-    const task: TaskManagerInGameManager = {
-      id,
+    return this.gameManagerService.createTask({
       gameManagerId,
       organizationId,
       projectId: dto.projectId,
@@ -211,11 +162,7 @@ export class GameManagerController {
       kpiId: dto.kpiId,
       description: dto.description,
       rewardPoints: dto.rewardPoints,
-    };
-
-    gameManagerTasksStore.set(id, task);
-
-    return task;
+    });
   }
 
   @Put(":gameManagerId/task-manager/:taskManagerId")
@@ -235,27 +182,23 @@ export class GameManagerController {
       rewardPoints?: number;
     },
   ) {
-    const gameManager = gameManagersStore.get(gameManagerId);
+    const gameManager = await this.gameManagerService.findById(gameManagerId);
     if (!gameManager || gameManager.organizationId !== organizationId) {
       throw new NotFoundException("Game manager not found");
     }
 
-    const existing = gameManagerTasksStore.get(taskManagerId);
+    const existing = await this.gameManagerService.findTaskById(taskManagerId);
     if (!existing || existing.gameManagerId !== gameManagerId) {
       throw new NotFoundException("Task manager not found");
     }
 
-    const updated: TaskManagerInGameManager = {
-      ...existing,
-      name: dto.name ?? existing.name,
-      kpiId: dto.kpiId ?? existing.kpiId,
-      description: dto.description ?? existing.description,
-      rewardPoints: dto.rewardPoints ?? existing.rewardPoints,
-    };
-
-    gameManagerTasksStore.set(taskManagerId, updated);
-
-    return updated;
+    return this.gameManagerService.updateTask({
+      id: taskManagerId,
+      name: dto.name,
+      kpiId: dto.kpiId,
+      description: dto.description,
+      rewardPoints: dto.rewardPoints,
+    });
   }
 
   @Delete(":gameManagerId/task-manager/:taskManagerId")
@@ -269,17 +212,17 @@ export class GameManagerController {
     @Param("gameManagerId") gameManagerId: string,
     @Param("taskManagerId") taskManagerId: string,
   ) {
-    const gameManager = gameManagersStore.get(gameManagerId);
+    const gameManager = await this.gameManagerService.findById(gameManagerId);
     if (!gameManager || gameManager.organizationId !== organizationId) {
       throw new NotFoundException("Game manager not found");
     }
 
-    const existing = gameManagerTasksStore.get(taskManagerId);
+    const existing = await this.gameManagerService.findTaskById(taskManagerId);
     if (!existing || existing.gameManagerId !== gameManagerId) {
       throw new NotFoundException("Task manager not found");
     }
 
-    gameManagerTasksStore.delete(taskManagerId);
+    await this.gameManagerService.deleteTask(taskManagerId);
 
     return { message: "Task manager deleted" };
   }

@@ -63,6 +63,16 @@ export class LeagueRepository implements ILeagueRepository {
     return result[0] ? this.mapToEntity(result[0]) : null;
   }
 
+  async findByIdOnly(leagueId: string): Promise<LeagueEntity | null> {
+    const result = await this.db
+      .select()
+      .from(leagues)
+      .where(eq(leagues.id, leagueId))
+      .limit(1);
+
+    return result[0] ? this.mapToEntity(result[0]) : null;
+  }
+
   async findByOrganizationId(organizationId: string): Promise<LeagueEntity[]> {
     const result = await this.db
       .select()

@@ -33,14 +33,20 @@ export const calculateTaskProgress = (
   if (totalMeasurementExpected > 0) {
     // Task quantitativa: soma os valores absolutos dos updates
     absolute = updates.reduce((sum, u) => sum + (u.progress || 0), 0);
-    percent = Math.min(Math.round((absolute / totalMeasurementExpected) * 100), 100);
+    percent = Math.min(
+      Math.round((absolute / totalMeasurementExpected) * 100),
+      100,
+    );
   } else if (taskChecklist.length > 0) {
     // Task qualitativa (checklist): calcula baseado nos itens marcados
     const checklistState = calculateChecklistState(taskChecklist, updates);
-    const checkedCount = Array.from(checklistState.values()).filter((v) => v).length;
+    const checkedCount = Array.from(checklistState.values()).filter(
+      (v) => v,
+    ).length;
     const totalItems = taskChecklist.length;
 
-    percent = totalItems > 0 ? Math.round((checkedCount / totalItems) * 100) : 0;
+    percent =
+      totalItems > 0 ? Math.round((checkedCount / totalItems) * 100) : 0;
     absolute = checkedCount; // Para checklist, absolute = número de itens marcados
   } else if (updates.length > 0) {
     // Fallback: sem meta quantitativa nem checklist, qualquer update = 100%
@@ -110,11 +116,20 @@ export const calculateUpdatePercent = (
 /**
  * Calcula os pontos a serem creditados baseado no progresso do update.
  * Pontos são proporcionais ao percentual de progresso.
+ *
+ * Regra de negócio:
+ * - progressPercent é limitado a 100% (cap)
+ * - Pontos = (progressPercent / 100) × rewardPoints
+ * - Arredonda para inteiro (pontos não são fracionados no cálculo total)
  */
 export const calculatePointsToCredit = (
   rewardPoints: number,
   progressPercent: number,
 ): number => {
   if (progressPercent <= 0) return 0;
-  return Math.round((progressPercent / 100) * rewardPoints);
+
+  // Cap progressPercent em 100%
+  const cappedPercent = Math.min(progressPercent, 100);
+
+  return Math.round((cappedPercent / 100) * rewardPoints);
 };

@@ -104,6 +104,25 @@ describe("TaskUpdateService", () => {
       save: vi.fn().mockResolvedValue(undefined),
     };
 
+    const gameRepository = {
+      findByIdOnly: vi.fn().mockResolvedValue({
+        id: "game-123",
+        organizationId: "org-123",
+        projectId: "proj-123",
+        name: "Test Game",
+      }),
+    };
+
+    const userGamePointsRepository = {
+      findByUserAndGame: vi.fn().mockResolvedValue(null),
+      save: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const teamGamePointsRepository = {
+      findByTeamAndGame: vi.fn().mockResolvedValue(null),
+      save: vi.fn().mockResolvedValue(undefined),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         TaskUpdateService,
@@ -114,6 +133,18 @@ describe("TaskUpdateService", () => {
         {
           provide: "ITaskRepository",
           useValue: taskRepository,
+        },
+        {
+          provide: "IGameRepository",
+          useValue: gameRepository,
+        },
+        {
+          provide: "UserGamePointsRepository",
+          useValue: userGamePointsRepository,
+        },
+        {
+          provide: "TeamGamePointsRepository",
+          useValue: teamGamePointsRepository,
         },
       ],
     }).compile();
@@ -149,15 +180,17 @@ describe("TaskUpdateService", () => {
       expect(savedEntity.progress.percent).toBe(50);
     });
 
-    it("deve manter o percent original quando já foi fornecido", async () => {
+    it("deve recalcular percent mesmo quando já foi fornecido (percent é calculado, não input manual)", async () => {
       // Arrange
+      // O percent é sempre calculado pelo sistema com base em absolute/total
+      // Não é aceito como input manual do usuário
       const dto = {
         gameId: "game-123",
         taskId: "task-123",
         submittedBy: "user-123",
         progress: {
           absolute: 500,
-          percent: 75, // Percent já fornecido
+          percent: 75, // Percent fornecido será ignorado, calculado como (500/1000)*100 = 50%
           updatedAt: new Date().toISOString(),
         },
       };
@@ -165,9 +198,9 @@ describe("TaskUpdateService", () => {
       // Act
       await service.create(dto);
 
-      // Assert
+      // Assert - Percent deve ser recalculado, não mantido
       const savedEntity = (taskUpdateRepository.save as any).mock.calls[0][0];
-      expect(savedEntity.progress.percent).toBe(75);
+      expect(savedEntity.progress.percent).toBe(50);
     });
 
     it("não deve calcular percent se task não tem totalMeasurementExpected", async () => {
@@ -275,7 +308,7 @@ describe("TaskUpdateService", () => {
 
       // Assert - Deve ter calculado o percent
       expect(result.progress.percent).toBe(30);
-      
+
       // Verifica que o percent foi calculado ao salvar
       const savedEntity = (taskUpdateRepository.save as any).mock.calls[0][0];
       expect(savedEntity.progress.percent).toBe(30); // (300/1000)*100
@@ -298,9 +331,12 @@ describe("TaskUpdateService", () => {
       await service.approve("update-123", dto);
 
       // Assert - Task deve ter sido atualizada com o novo progresso
-      expect(taskRepository.findById).toHaveBeenCalledWith("game-123", "task-123");
+      expect(taskRepository.findById).toHaveBeenCalledWith(
+        "game-123",
+        "task-123",
+      );
       expect(taskRepository.save).toHaveBeenCalled();
-      
+
       // Verifica que a task foi salva com o progresso atualizado
       const savedTask = (taskRepository.save as any).mock.calls[0][0];
       expect(savedTask.updates).toHaveLength(1);

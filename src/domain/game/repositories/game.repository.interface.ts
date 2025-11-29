@@ -11,8 +11,11 @@ export interface IGameRepository {
   // Remove um game
   delete(organizationId: string, gameId: string): Promise<void>;
 
-  // Busca um game por ID
+  // Busca um game por ID (requer organizationId)
   findById(organizationId: string, gameId: string): Promise<GameEntity | null>;
+
+  // Busca um game apenas pelo ID (sem organizationId)
+  findByIdOnly(gameId: string): Promise<GameEntity | null>;
 
   // Lista todos os games de uma organização
   findByOrganizationId(organizationId: string): Promise<GameEntity[]>;

@@ -51,14 +51,16 @@ export class LeagueRankingController {
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiResponse({ status: 200, type: LeagueRankingResponseDto })
   async getLeagueRanking(
-    @Param("leagueId") _leagueId: string,
-    @Query("groupBy") _groupBy?: string,
-    @Query("sectorId") _sectorId?: string,
+    @Param("leagueId") leagueId: string,
+    @Query("groupBy") groupBy?: "project" | "team" | "user",
+    @Query("sectorId") sectorId?: string,
   ) {
-    // Stub: retorna ranking vazio por enquanto
-    return {
-      ranking: [],
-    };
+    const ranking = await this.leagueService.getRanking(
+      leagueId,
+      groupBy || "user",
+      sectorId,
+    );
+    return { ranking };
   }
 }
 
