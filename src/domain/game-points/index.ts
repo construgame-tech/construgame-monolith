@@ -1,5 +1,6 @@
 export * from "./entities/game-points.entity";
 export * from "./repositories/game-points.repository.interface";
+export * from "./use-cases/credit-game-kaizen-points";
 export * from "./use-cases/credit-team-kaizen-points";
 export * from "./use-cases/credit-team-task-points";
 

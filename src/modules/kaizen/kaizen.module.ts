@@ -1,6 +1,7 @@
 import { DatabaseModule } from "@infrastructure/database/database.module";
 import { GameRepository } from "@infrastructure/repositories/game.repository";
 import {
+  GameKaizenPointsRepository,
   TeamGamePointsRepository,
   UserGamePointsRepository,
 } from "@infrastructure/repositories/game-points.repository";
@@ -41,6 +42,10 @@ import { KaizenService } from "./kaizen.service";
     {
       provide: "TeamGamePointsRepository",
       useClass: TeamGamePointsRepository,
+    },
+    {
+      provide: "GameKaizenPointsRepository",
+      useClass: GameKaizenPointsRepository,
     },
     {
       provide: "IGameRepository",

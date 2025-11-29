@@ -6,8 +6,11 @@ import type {
   ITeamGamePointsRepository,
   IUserGamePointsRepository,
 } from "@domain/game-points/repositories/game-points.repository.interface";
+import type { GameKaizenPointsEntity } from "@domain/kaizen-points/entities/game-kaizen-points.entity";
+import type { IGameKaizenPointsRepository } from "@domain/kaizen-points/repositories/kaizen-points.repository.interface";
 import type { DrizzleDB } from "@infrastructure/database/database.module";
 import {
+  gameKaizenPoints,
   teamGamePoints,
   userGamePoints,
 } from "@infrastructure/database/schemas";
@@ -174,6 +177,49 @@ export class TeamGamePointsRepository implements ITeamGamePointsRepository {
       taskPoints: row.taskPoints,
       kaizenPoints: row.kaizenPoints,
       totalPoints: row.totalPoints,
+    };
+  }
+}
+
+@Injectable()
+export class GameKaizenPointsRepository implements IGameKaizenPointsRepository {
+  constructor(@Inject("DRIZZLE_CONNECTION") private readonly db: DrizzleDB) {}
+
+  async save(points: GameKaizenPointsEntity): Promise<void> {
+    await this.db
+      .insert(gameKaizenPoints)
+      .values({
+        gameId: points.gameId,
+        organizationId: points.organizationId,
+        projectId: points.projectId,
+        points: points.points,
+      })
+      .onConflictDoUpdate({
+        target: gameKaizenPoints.gameId,
+        set: {
+          points: points.points,
+        },
+      });
+  }
+
+  async findByGameId(gameId: string): Promise<GameKaizenPointsEntity | null> {
+    const result = await this.db
+      .select()
+      .from(gameKaizenPoints)
+      .where(eq(gameKaizenPoints.gameId, gameId))
+      .limit(1);
+
+    return result[0] ? this.mapToEntity(result[0]) : null;
+  }
+
+  private mapToEntity(
+    row: typeof gameKaizenPoints.$inferSelect,
+  ): GameKaizenPointsEntity {
+    return {
+      gameId: row.gameId,
+      organizationId: row.organizationId,
+      projectId: row.projectId,
+      points: row.points,
     };
   }
 }

@@ -9,12 +9,12 @@ import { eq } from "drizzle-orm";
 export class KpiRepository implements IKpiRepository {
   constructor(@Inject("DRIZZLE_CONNECTION") private readonly db: DrizzleDB) {}
 
-  async save(kpi: KpiEntity & { organizationId?: string }): Promise<void> {
+  async save(kpi: KpiEntity): Promise<void> {
     await this.db
       .insert(kpis)
       .values({
         id: kpi.id,
-        organizationId: kpi.organizationId ?? kpi.id, // Fallback para compatibilidade
+        organizationId: kpi.organizationId,
         name: kpi.name,
         type: kpi.type,
         kpiType: kpi.kpiType,
@@ -62,6 +62,7 @@ export class KpiRepository implements IKpiRepository {
   private mapToEntity(row: typeof kpis.$inferSelect): KpiEntity {
     return {
       id: row.id,
+      organizationId: row.organizationId,
       name: row.name,
       type: row.type ?? "",
       kpiType: row.kpiType ?? undefined,

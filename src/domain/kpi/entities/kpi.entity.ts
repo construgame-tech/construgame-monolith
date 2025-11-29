@@ -3,6 +3,7 @@
 
 export interface KpiEntity {
   id: string;
+  organizationId: string;
   name: string;
   type: string;
   kpiType?: string;
@@ -12,6 +13,7 @@ export interface KpiEntity {
 // Factory function para criar um novo KPI com valores padrão
 export const createKpiEntity = (props: {
   id: string;
+  organizationId: string;
   name: string;
   type: string;
   kpiType?: string;
@@ -19,6 +21,7 @@ export const createKpiEntity = (props: {
 }): KpiEntity => {
   return {
     id: props.id,
+    organizationId: props.organizationId,
     name: props.name,
     type: props.type,
     kpiType: props.kpiType,

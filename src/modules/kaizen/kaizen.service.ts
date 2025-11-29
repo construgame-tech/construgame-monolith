@@ -1,5 +1,6 @@
 import type { IGameRepository } from "@domain/game/repositories/game.repository.interface";
 import {
+  creditGameKaizenPoints,
   creditTeamKaizenPoints,
   creditUserKaizenPoints,
 } from "@domain/game-points";
@@ -24,6 +25,7 @@ import {
 import type { IKaizenRepository } from "@domain/kaizen/repositories/kaizen.repository.interface";
 import type { IKaizenCommentRepository } from "@domain/kaizen/repositories/kaizen-comment.repository.interface";
 import type { IKaizenIdeaRepository } from "@domain/kaizen-idea/repositories/kaizen-idea.repository.interface";
+import type { IGameKaizenPointsRepository } from "@domain/kaizen-points/repositories/kaizen-points.repository.interface";
 import type { IKaizenTypeRepository } from "@domain/kaizen-type/repositories/kaizen-type.repository.interface";
 import type {
   TeamGamePointsRepository,
@@ -51,6 +53,8 @@ export class KaizenService {
     private readonly userGamePointsRepository: UserGamePointsRepository,
     @Inject("TeamGamePointsRepository")
     private readonly teamGamePointsRepository: TeamGamePointsRepository,
+    @Inject("GameKaizenPointsRepository")
+    private readonly gameKaizenPointsRepository: IGameKaizenPointsRepository,
     @Inject("IGameRepository")
     private readonly gameRepository: IGameRepository,
   ) {}
@@ -219,6 +223,17 @@ export class KaizenService {
       );
     }
 
+    // Creditar pontos ao game
+    await creditGameKaizenPoints(
+      {
+        gameId: kaizen.gameId,
+        organizationId: game.organizationId,
+        projectId: game.projectId,
+        pointsToCredit,
+      },
+      this.gameKaizenPointsRepository,
+    );
+
     // Se o kaizen veio de uma ideia, creditar ideaExecutionPoints aos autores
     if (kaizen.kaizenIdeaId && kaizenType.ideaExecutionPoints) {
       await this.creditIdeaExecutionPoints(
@@ -350,6 +365,17 @@ export class KaizenService {
         kaizen.gameId,
       );
     }
+
+    // Remover pontos do game (total de kaizen points)
+    await creditGameKaizenPoints(
+      {
+        gameId: kaizen.gameId,
+        organizationId: game.organizationId,
+        projectId: game.projectId,
+        pointsToCredit: pointsToRemove, // Já é negativo
+      },
+      this.gameKaizenPointsRepository,
+    );
   }
 
   async reopen(kaizenId: string): Promise<KaizenEntity> {

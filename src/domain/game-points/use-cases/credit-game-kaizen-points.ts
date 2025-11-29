@@ -1,12 +1,12 @@
 // Use Case: Creditar pontos de kaizen a um game
 // Regra: Quando um kaizen é aprovado, o game recebe kaizenType.points
 
-import type { IGameKaizenPointsRepository } from "@domain/kaizen-points/repositories/kaizen-points.repository.interface";
 import {
   addPointsToGameKaizenPoints,
   createGameKaizenPointsEntity,
   GameKaizenPointsEntity,
 } from "@domain/kaizen-points/entities/game-kaizen-points.entity";
+import type { IGameKaizenPointsRepository } from "@domain/kaizen-points/repositories/kaizen-points.repository.interface";
 
 export interface CreditGameKaizenPointsInput {
   gameId: string;

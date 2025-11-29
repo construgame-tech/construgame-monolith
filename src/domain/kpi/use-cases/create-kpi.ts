@@ -4,6 +4,7 @@ import { createKpiEntity, KpiEntity } from "../entities/kpi.entity";
 import type { IKpiRepository } from "../repositories/kpi.repository.interface";
 
 export interface CreateKpiInput {
+  organizationId: string;
   name: string;
   type: string;
   kpiType?: string;
@@ -20,6 +21,7 @@ export const createKpi = async (
 ): Promise<CreateKpiOutput> => {
   const kpi = createKpiEntity({
     id: randomUUID(),
+    organizationId: input.organizationId,
     name: input.name,
     type: input.type,
     kpiType: input.kpiType,

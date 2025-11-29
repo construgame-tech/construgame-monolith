@@ -45,10 +45,10 @@ export class ConfigKpiController {
   @Post()
   @ApiOperation({ summary: "Create organization KPI" })
   async create(
-    @Param("organizationId") _organizationId: string,
+    @Param("organizationId") organizationId: string,
     @Body() dto: CreateKpiDto,
   ): Promise<KpiResponseDto> {
-    const kpi = await this.kpiService.createKpi(dto);
+    const kpi = await this.kpiService.createKpi({ ...dto, organizationId });
     return KpiResponseDto.fromEntity(kpi);
   }
 
