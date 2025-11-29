@@ -6,7 +6,10 @@ export const kaizenTypes = pgTable(
     id: text("id").primaryKey(),
     organizationId: text("organization_id").notNull(),
     name: text("name").notNull(),
+    description: text("description"),
     rewardPoints: integer("reward_points").notNull(),
+    ideaPoints: integer("idea_points"),
+    ideaExecutionPoints: integer("idea_execution_points"),
     sequence: integer("sequence").notNull().default(0),
   },
   (table) => ({

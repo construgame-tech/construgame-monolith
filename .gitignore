@@ -44,3 +44,6 @@ Thumbs.db
 # Docker
 docker-compose.override.yml
 recalculo-automatico
+
+# Documentação com credenciais (API original)
+docs-api-original-serverless/

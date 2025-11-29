@@ -83,6 +83,16 @@ export class KaizenIdeaRepository implements IKaizenIdeaRepository {
     return result[0] ? this.mapToEntity(result[0]) : null;
   }
 
+  async findByIdOnly(ideaId: string): Promise<KaizenIdeaEntity | null> {
+    const result = await this.db
+      .select()
+      .from(kaizenIdeas)
+      .where(eq(kaizenIdeas.id, ideaId))
+      .limit(1);
+
+    return result[0] ? this.mapToEntity(result[0]) : null;
+  }
+
   async findByOrganizationId(
     organizationId: string,
   ): Promise<KaizenIdeaEntity[]> {

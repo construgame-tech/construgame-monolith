@@ -16,13 +16,19 @@ export class KaizenTypeRepository implements IKaizenTypeRepository {
         id: type.id,
         organizationId: type.organizationId,
         name: type.name,
+        description: type.description,
         rewardPoints: type.points,
+        ideaPoints: type.ideaPoints,
+        ideaExecutionPoints: type.ideaExecutionPoints,
       })
       .onConflictDoUpdate({
         target: kaizenTypes.id,
         set: {
           name: type.name,
+          description: type.description,
           rewardPoints: type.points,
+          ideaPoints: type.ideaPoints,
+          ideaExecutionPoints: type.ideaExecutionPoints,
         },
       });
   }
@@ -67,12 +73,28 @@ export class KaizenTypeRepository implements IKaizenTypeRepository {
     return result.map(this.mapToEntity);
   }
 
+  async findLowestPointsType(
+    organizationId: string,
+  ): Promise<KaizenTypeEntity | null> {
+    const result = await this.db
+      .select()
+      .from(kaizenTypes)
+      .where(eq(kaizenTypes.organizationId, organizationId))
+      .orderBy(kaizenTypes.rewardPoints)
+      .limit(1);
+
+    return result[0] ? this.mapToEntity(result[0]) : null;
+  }
+
   private mapToEntity(row: typeof kaizenTypes.$inferSelect): KaizenTypeEntity {
     return {
       id: row.id,
       organizationId: row.organizationId,
       name: row.name,
+      description: row.description ?? undefined,
       points: row.rewardPoints,
+      ideaPoints: row.ideaPoints ?? undefined,
+      ideaExecutionPoints: row.ideaExecutionPoints ?? undefined,
     };
   }
 }

@@ -309,16 +309,24 @@ export class LeagueReportsController {
   }
 
   @Get("kaizens-adherence")
-  @ApiOperation({ summary: "Get kaizens adherence" })
+  @ApiOperation({ summary: "Get kaizens adherence matrix" })
+  @ApiQuery({ name: "kaizenTypeId", required: false, type: String })
   @ApiQuery({ name: "sectorId", required: false, type: String })
   @ApiQuery({ name: "projectId", required: false, type: String })
   async getKaizensAdherence(
-    @Param("organizationId") _organizationId: string,
-    @Param("leagueId") _leagueId: string,
-    @Query("sectorId") _sectorId?: string,
-    @Query("projectId") _projectId?: string,
+    @Param("organizationId") organizationId: string,
+    @Param("leagueId") leagueId: string,
+    @Query("kaizenTypeId") kaizenTypeId?: string,
+    @Query("sectorId") sectorId?: string,
+    @Query("projectId") projectId?: string,
   ) {
-    return { items: [] };
+    return this.reportsService.getKaizensAdherence(
+      organizationId,
+      leagueId,
+      kaizenTypeId,
+      sectorId,
+      projectId,
+    );
   }
 
   @Get("kaizens-participants-per-project")

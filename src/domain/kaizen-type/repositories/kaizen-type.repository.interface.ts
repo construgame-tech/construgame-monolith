@@ -8,4 +8,7 @@ export interface IKaizenTypeRepository {
     typeId: string,
   ): Promise<KaizenTypeEntity | null>;
   findByOrganizationId(organizationId: string): Promise<KaizenTypeEntity[]>;
+  findLowestPointsType(
+    organizationId: string,
+  ): Promise<KaizenTypeEntity | null>;
 }

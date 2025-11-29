@@ -2,6 +2,7 @@ import type { DrizzleDB } from "@infrastructure/database/drizzle.provider";
 import { DRIZZLE_CONNECTION } from "@infrastructure/database/drizzle.provider";
 import { games } from "@infrastructure/database/schemas/game.schema";
 import { kaizens } from "@infrastructure/database/schemas/kaizen.schema";
+import { kaizenIdeas } from "@infrastructure/database/schemas/kaizen-idea.schema";
 import { kaizenTypes } from "@infrastructure/database/schemas/kaizen-type.schema";
 import { leagues } from "@infrastructure/database/schemas/league.schema";
 import { members } from "@infrastructure/database/schemas/member.schema";
@@ -40,7 +41,7 @@ export interface KaizensPerTypePerProjectItem {
 export interface MostReplicatedKaizenItem {
   id: string;
   name: string;
-  photo?: string;
+  solutionImages: string[];
   replicationCount: number;
   kaizenTypeId?: string;
   benefits: { kpiId: string; description?: string }[];
@@ -65,6 +66,18 @@ export interface KaizensAdherenceCountItem {
   executedCount: number;
 }
 
+// Matriz de aderência - para cada ideia, quais projetos a executaram
+export interface KaizensAdherenceMatrixItem {
+  kaizenIdeaId: string;
+  name: string;
+  adherence: Array<{
+    projectId: string;
+    name: string;
+    isEligible: boolean; // Projeto elegível para essa ideia
+    checked: boolean; // Ideia foi executada nesse projeto
+  }>;
+}
+
 export interface KaizensPerPositionItem {
   position: string | null;
   kaizenCount: number;
@@ -87,8 +100,7 @@ export interface KaizensPerBenefitItem {
 }
 
 export interface KaizensPerWeekItem {
-  weekStart: string;
-  weekEnd: string;
+  date: string;
   kaizenCount: number;
 }
 
@@ -106,40 +118,76 @@ export class LeagueReportsService {
   ) {}
 
   /**
+   * Obtém os dados da liga (projects[], games[], gameId legado)
+   */
+  private async getLeagueData(leagueId: string): Promise<{
+    projects: string[];
+    games: string[];
+    gameId: string | null;
+  } | null> {
+    const league = await this.db
+      .select({
+        projects: leagues.projects,
+        games: leagues.games,
+        gameId: leagues.gameId,
+      })
+      .from(leagues)
+      .where(eq(leagues.id, leagueId))
+      .limit(1);
+
+    if (!league[0]) return null;
+
+    return {
+      projects: league[0].projects || [],
+      games: league[0].games || [],
+      gameId: league[0].gameId || null,
+    };
+  }
+
+  /**
    * Obtém os IDs de projetos associados a uma liga
+   * Regra: projetos diretos da liga + projetos dos games associados
    */
   private async getLeagueProjectIds(
     organizationId: string,
     leagueId: string,
   ): Promise<string[]> {
-    const league = await this.db
-      .select({ projects: leagues.projects, gameId: leagues.gameId })
-      .from(leagues)
-      .where(eq(leagues.id, leagueId))
-      .limit(1);
+    const leagueData = await this.getLeagueData(leagueId);
+    if (!leagueData) return [];
 
-    if (!league[0]) return [];
+    const projectIds = new Set<string>();
 
-    // Se a liga tem projetos definidos, usa eles
-    if (league[0].projects && league[0].projects.length > 0) {
-      return league[0].projects;
+    // 1. Adiciona projetos diretamente associados à liga
+    for (const projectId of leagueData.projects) {
+      projectIds.add(projectId);
     }
 
-    // Caso contrário, busca projetos da organização que têm o gameId da liga
-    if (league[0].gameId) {
-      const projectsWithGame = await this.db
-        .select({ id: projects.id })
-        .from(projects)
-        .where(
-          and(
-            eq(projects.organizationId, organizationId),
-            eq(projects.activeGameId, league[0].gameId),
-          ),
-        );
-      return projectsWithGame.map((p) => p.id);
+    // 2. Busca projetos dos games associados (campo games[])
+    if (leagueData.games.length > 0) {
+      const projectsFromGames = await this.db
+        .select({ projectId: games.projectId })
+        .from(games)
+        .where(inArray(games.id, leagueData.games));
+
+      for (const p of projectsFromGames) {
+        if (p.projectId) projectIds.add(p.projectId);
+      }
     }
 
-    return [];
+    // 3. Busca projetos do gameId legado (se existir)
+    if (leagueData.gameId) {
+      const projectFromLegacyGame = await this.db
+        .select({ projectId: games.projectId })
+        .from(games)
+        .where(eq(games.id, leagueData.gameId))
+        .limit(1);
+
+      if (projectFromLegacyGame[0]?.projectId) {
+        projectIds.add(projectFromLegacyGame[0].projectId);
+      }
+    }
+
+    return Array.from(projectIds);
   }
 
   /**
@@ -166,42 +214,90 @@ export class LeagueReportsService {
       };
     }
 
-    // Conta kaizens nos projetos da liga
+    // Constrói condições base
+    const baseConditions = [
+      eq(kaizens.organizationId, organizationId),
+      inArray(kaizens.projectId, projectIds),
+    ];
+
+    // Se tem filtro por setor, precisa fazer JOIN com members
+    if (sectorId) {
+      // Conta kaizens filtrados por setor do autor
+      const kaizenCountResult = await this.db
+        .select({ count: count() })
+        .from(kaizens)
+        .leftJoin(
+          members,
+          and(
+            sql`${kaizens.authorId}::uuid = ${members.userId}`,
+            eq(members.organizationId, organizationId),
+          ),
+        )
+        .where(and(...baseConditions, eq(members.sectorId, sectorId)));
+
+      const kaizenCount = kaizenCountResult[0]?.count || 0;
+
+      const projectCountResult = await this.db
+        .select({ count: countDistinct(kaizens.projectId) })
+        .from(kaizens)
+        .leftJoin(
+          members,
+          and(
+            sql`${kaizens.authorId}::uuid = ${members.userId}`,
+            eq(members.organizationId, organizationId),
+          ),
+        )
+        .where(and(...baseConditions, eq(members.sectorId, sectorId)));
+
+      const projectCount = projectCountResult[0]?.count || 0;
+
+      const playersResult = await this.db
+        .select({ count: countDistinct(kaizens.authorId) })
+        .from(kaizens)
+        .leftJoin(
+          members,
+          and(
+            sql`${kaizens.authorId}::uuid = ${members.userId}`,
+            eq(members.organizationId, organizationId),
+          ),
+        )
+        .where(and(...baseConditions, eq(members.sectorId, sectorId)));
+
+      const kaizensPlayers = playersResult[0]?.count || 0;
+
+      const kaizensPerProject =
+        projectCount > 0 ? kaizenCount / projectCount : 0;
+      const kaizensPerParticipant =
+        kaizensPlayers > 0 ? kaizenCount / kaizensPlayers : 0;
+
+      return {
+        kaizenCount,
+        projectCount,
+        kaizensPerProject,
+        kaizensPerParticipant,
+        kaizensPlayers,
+      };
+    }
+
+    // Sem filtro por setor - query simples
     const kaizenCountResult = await this.db
       .select({ count: count() })
       .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      );
+      .where(and(...baseConditions));
 
     const kaizenCount = kaizenCountResult[0]?.count || 0;
 
-    // Conta projetos únicos com kaizens
     const projectCountResult = await this.db
       .select({ count: countDistinct(kaizens.projectId) })
       .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      );
+      .where(and(...baseConditions));
 
     const projectCount = projectCountResult[0]?.count || 0;
 
-    // Conta participantes únicos (autores de kaizen)
     const playersResult = await this.db
       .select({ count: countDistinct(kaizens.authorId) })
       .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      );
+      .where(and(...baseConditions));
 
     const kaizensPlayers = playersResult[0]?.count || 0;
 
@@ -236,20 +332,42 @@ export class LeagueReportsService {
       return { items: [] };
     }
 
-    // Busca contagem de kaizens por projeto
-    const result = await this.db
-      .select({
-        projectId: kaizens.projectId,
-        kaizenCount: count(),
-      })
-      .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      )
-      .groupBy(kaizens.projectId);
+    // Busca contagem de kaizens por projeto (com filtro por setor se necessário)
+    const result = sectorId
+      ? await this.db
+          .select({
+            projectId: kaizens.projectId,
+            kaizenCount: count(),
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+              eq(members.sectorId, sectorId),
+            ),
+          )
+          .groupBy(kaizens.projectId)
+      : await this.db
+          .select({
+            projectId: kaizens.projectId,
+            kaizenCount: count(),
+          })
+          .from(kaizens)
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+            ),
+          )
+          .groupBy(kaizens.projectId);
 
     // Busca nomes dos projetos
     const projectNames = await this.db
@@ -289,21 +407,44 @@ export class LeagueReportsService {
       return { items: [] };
     }
 
-    // Busca contagem de kaizens por tipo e projeto
-    const result = await this.db
-      .select({
-        kaizenTypeId: kaizens.kaizenTypeId,
-        projectId: kaizens.projectId,
-        kaizenCount: count(),
-      })
-      .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      )
-      .groupBy(kaizens.kaizenTypeId, kaizens.projectId);
+    // Busca contagem de kaizens por tipo e projeto (com filtro por setor se necessário)
+    const result = sectorId
+      ? await this.db
+          .select({
+            kaizenTypeId: kaizens.kaizenTypeId,
+            projectId: kaizens.projectId,
+            kaizenCount: count(),
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+              eq(members.sectorId, sectorId),
+            ),
+          )
+          .groupBy(kaizens.kaizenTypeId, kaizens.projectId)
+      : await this.db
+          .select({
+            kaizenTypeId: kaizens.kaizenTypeId,
+            projectId: kaizens.projectId,
+            kaizenCount: count(),
+          })
+          .from(kaizens)
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+            ),
+          )
+          .groupBy(kaizens.kaizenTypeId, kaizens.projectId);
 
     // Busca nomes dos projetos
     const projectNames = await this.db
@@ -394,24 +535,59 @@ export class LeagueReportsService {
       return { items: [] };
     }
 
-    // Busca kaizens originais (que têm replicas)
-    const allKaizens = await this.db
-      .select({
-        id: kaizens.id,
-        name: kaizens.name,
-        currentSituationImages: kaizens.currentSituationImages,
-        kaizenTypeId: kaizens.kaizenTypeId,
-        benefits: kaizens.benefits,
-        replicas: kaizens.replicas,
-        originalKaizenId: kaizens.originalKaizenId,
-      })
-      .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      );
+    // Constrói condições de filtro
+    const conditions = [
+      eq(kaizens.organizationId, organizationId),
+      inArray(kaizens.projectId, projectIds),
+    ];
+
+    // Filtro por réplica
+    if (isReplica === true) {
+      conditions.push(sql`${kaizens.originalKaizenId} IS NOT NULL`);
+    } else if (isReplica === false) {
+      conditions.push(sql`${kaizens.originalKaizenId} IS NULL`);
+    }
+
+    // Filtro por categoria
+    if (category) {
+      conditions.push(eq(kaizens.category, Number.parseInt(category)));
+    }
+
+    // Busca kaizens originais (que têm replicas) - com filtro por setor se necessário
+    const allKaizens = sectorId
+      ? await this.db
+          .select({
+            id: kaizens.id,
+            name: kaizens.name,
+            currentSituationImages: kaizens.currentSituationImages,
+            solutionImages: kaizens.solutionImages,
+            kaizenTypeId: kaizens.kaizenTypeId,
+            benefits: kaizens.benefits,
+            replicas: kaizens.replicas,
+            originalKaizenId: kaizens.originalKaizenId,
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(and(...conditions, eq(members.sectorId, sectorId)))
+      : await this.db
+          .select({
+            id: kaizens.id,
+            name: kaizens.name,
+            currentSituationImages: kaizens.currentSituationImages,
+            solutionImages: kaizens.solutionImages,
+            kaizenTypeId: kaizens.kaizenTypeId,
+            benefits: kaizens.benefits,
+            replicas: kaizens.replicas,
+            originalKaizenId: kaizens.originalKaizenId,
+          })
+          .from(kaizens)
+          .where(and(...conditions));
 
     // Conta replicações para cada kaizen original
     const replicationCount = new Map<string, number>();
@@ -439,12 +615,12 @@ export class LeagueReportsService {
       (k) => (replicationCount.get(k.id) || 0) > 0,
     );
 
-    // Monta resposta
+    // Monta resposta - usando solutionImages conforme doc original
     const items: MostReplicatedKaizenItem[] = replicatedKaizens
       .map((k) => ({
         id: k.id,
         name: k.name,
-        photo: k.currentSituationImages?.[0],
+        solutionImages: k.solutionImages || [],
         replicationCount: replicationCount.get(k.id) || 0,
         kaizenTypeId: k.kaizenTypeId || undefined,
         benefits: k.benefits || [],
@@ -472,20 +648,42 @@ export class LeagueReportsService {
       return { items: [] };
     }
 
-    // Conta autores distintos por projeto
-    const result = await this.db
-      .select({
-        projectId: kaizens.projectId,
-        participantCount: countDistinct(kaizens.authorId),
-      })
-      .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      )
-      .groupBy(kaizens.projectId);
+    // Conta autores distintos por projeto (com filtro por setor se necessário)
+    const result = sectorId
+      ? await this.db
+          .select({
+            projectId: kaizens.projectId,
+            participantCount: countDistinct(kaizens.authorId),
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+              eq(members.sectorId, sectorId),
+            ),
+          )
+          .groupBy(kaizens.projectId)
+      : await this.db
+          .select({
+            projectId: kaizens.projectId,
+            participantCount: countDistinct(kaizens.authorId),
+          })
+          .from(kaizens)
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+            ),
+          )
+          .groupBy(kaizens.projectId);
 
     // Busca nomes dos projetos
     const projectNames = await this.db
@@ -555,20 +753,42 @@ export class LeagueReportsService {
       };
     }
 
-    // Conta autores distintos por projeto
-    const participantsResult = await this.db
-      .select({
-        projectId: kaizens.projectId,
-        participantCount: countDistinct(kaizens.authorId),
-      })
-      .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      )
-      .groupBy(kaizens.projectId);
+    // Conta autores distintos por projeto (com filtro por setor se necessário)
+    const participantsResult = sectorId
+      ? await this.db
+          .select({
+            projectId: kaizens.projectId,
+            participantCount: countDistinct(kaizens.authorId),
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+              eq(members.sectorId, sectorId),
+            ),
+          )
+          .groupBy(kaizens.projectId)
+      : await this.db
+          .select({
+            projectId: kaizens.projectId,
+            participantCount: countDistinct(kaizens.authorId),
+          })
+          .from(kaizens)
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+            ),
+          )
+          .groupBy(kaizens.projectId);
 
     const participantMap = new Map(
       participantsResult.map((r) => [r.projectId, r.participantCount]),
@@ -657,15 +877,31 @@ export class LeagueReportsService {
       kaizenConditions.push(eq(kaizens.kaizenTypeId, kaizenTypeId));
     }
 
-    // Conta autores distintos por projeto que fizeram kaizen (do tipo especificado)
-    const participantsResult = await this.db
-      .select({
-        projectId: kaizens.projectId,
-        participantCount: countDistinct(kaizens.authorId),
-      })
-      .from(kaizens)
-      .where(and(...kaizenConditions))
-      .groupBy(kaizens.projectId);
+    // Conta autores distintos por projeto que fizeram kaizen (do tipo especificado) - com filtro por setor se necessário
+    const participantsResult = sectorId
+      ? await this.db
+          .select({
+            projectId: kaizens.projectId,
+            participantCount: countDistinct(kaizens.authorId),
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(and(...kaizenConditions, eq(members.sectorId, sectorId)))
+          .groupBy(kaizens.projectId)
+      : await this.db
+          .select({
+            projectId: kaizens.projectId,
+            participantCount: countDistinct(kaizens.authorId),
+          })
+          .from(kaizens)
+          .where(and(...kaizenConditions))
+          .groupBy(kaizens.projectId);
 
     const participantMap = new Map(
       participantsResult.map((r) => [r.projectId, r.participantCount]),
@@ -736,15 +972,31 @@ export class LeagueReportsService {
       kaizenConditions.push(eq(kaizens.kaizenTypeId, kaizenTypeId));
     }
 
-    // Conta kaizens executados por projeto
-    const executedResult = await this.db
-      .select({
-        projectId: kaizens.projectId,
-        executedCount: countDistinct(kaizens.authorId),
-      })
-      .from(kaizens)
-      .where(and(...kaizenConditions))
-      .groupBy(kaizens.projectId);
+    // Conta kaizens executados por projeto (com filtro por setor se necessário)
+    const executedResult = sectorId
+      ? await this.db
+          .select({
+            projectId: kaizens.projectId,
+            executedCount: countDistinct(kaizens.authorId),
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(and(...kaizenConditions, eq(members.sectorId, sectorId)))
+          .groupBy(kaizens.projectId)
+      : await this.db
+          .select({
+            projectId: kaizens.projectId,
+            executedCount: countDistinct(kaizens.authorId),
+          })
+          .from(kaizens)
+          .where(and(...kaizenConditions))
+          .groupBy(kaizens.projectId);
 
     const executedMap = new Map(
       executedResult.map((r) => [r.projectId, r.executedCount]),
@@ -767,6 +1019,133 @@ export class LeagueReportsService {
   }
 
   /**
+   * GET /reports/kaizens-adherence
+   * Matriz de aderência mostrando quais ideias de kaizen foram executadas em quais projetos
+   *
+   * Lógica:
+   * 1. Busca todas as ideias de kaizen recomendadas (isRecommended = true)
+   * 2. Busca todos os projetos da liga
+   * 3. Busca kaizens executados que vieram de ideias
+   * 4. Para cada ideia x projeto, verifica se existe kaizen executado
+   */
+  async getKaizensAdherence(
+    organizationId: string,
+    leagueId: string,
+    kaizenTypeId?: string,
+    sectorId?: string,
+    projectId?: string,
+  ): Promise<{ items: KaizensAdherenceMatrixItem[] }> {
+    const projectIds = projectId
+      ? [projectId]
+      : await this.getLeagueProjectIds(organizationId, leagueId);
+
+    if (projectIds.length === 0) {
+      return { items: [] };
+    }
+
+    // 1. Busca ideias de kaizen recomendadas da organização
+    const ideaConditions = [
+      eq(kaizenIdeas.organizationId, organizationId),
+      eq(kaizenIdeas.isRecommended, true),
+    ];
+
+    if (kaizenTypeId) {
+      ideaConditions.push(eq(kaizenIdeas.kaizenTypeId, kaizenTypeId));
+    }
+
+    const recommendedIdeas = await this.db
+      .select({
+        id: kaizenIdeas.id,
+        name: kaizenIdeas.name,
+        executableKaizenProjectIds: kaizenIdeas.executableKaizenProjectIds,
+      })
+      .from(kaizenIdeas)
+      .where(and(...ideaConditions));
+
+    if (recommendedIdeas.length === 0) {
+      return { items: [] };
+    }
+
+    // 2. Busca nomes dos projetos da liga
+    const projectsResult = await this.db
+      .select({ id: projects.id, name: projects.name })
+      .from(projects)
+      .where(inArray(projects.id, projectIds));
+
+    const projectNameMap = new Map(projectsResult.map((p) => [p.id, p.name]));
+
+    // 3. Busca kaizens executados que vieram de ideias nos projetos da liga (com filtro por setor se necessário)
+    const executedKaizens = sectorId
+      ? await this.db
+          .select({
+            kaizenIdeaId: kaizens.kaizenIdeaId,
+            projectId: kaizens.projectId,
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+              sql`${kaizens.kaizenIdeaId} IS NOT NULL`,
+              eq(members.sectorId, sectorId),
+            ),
+          )
+      : await this.db
+          .select({
+            kaizenIdeaId: kaizens.kaizenIdeaId,
+            projectId: kaizens.projectId,
+          })
+          .from(kaizens)
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+              sql`${kaizens.kaizenIdeaId} IS NOT NULL`,
+            ),
+          );
+
+    // Mapeia: ideaId -> Set<projectId> (projetos onde a ideia foi executada)
+    const executedMap = new Map<string, Set<string>>();
+    for (const k of executedKaizens) {
+      if (!k.kaizenIdeaId) continue;
+      if (!executedMap.has(k.kaizenIdeaId)) {
+        executedMap.set(k.kaizenIdeaId, new Set());
+      }
+      executedMap.get(k.kaizenIdeaId)?.add(k.projectId);
+    }
+
+    // 4. Monta matriz de aderência
+    const items: KaizensAdherenceMatrixItem[] = recommendedIdeas.map((idea) => {
+      const executableProjectIds = idea.executableKaizenProjectIds || [];
+      const executedProjectIds = executedMap.get(idea.id) || new Set();
+
+      const adherence = projectIds.map((pid) => ({
+        projectId: pid,
+        name: projectNameMap.get(pid) || "",
+        isEligible:
+          executableProjectIds.length === 0 ||
+          executableProjectIds.includes(pid),
+        checked: executedProjectIds.has(pid),
+      }));
+
+      return {
+        kaizenIdeaId: idea.id,
+        name: idea.name,
+        adherence,
+      };
+    });
+
+    return { items };
+  }
+
+  /**
    * GET /reports/kaizens-per-position
    * Kaizens agrupados por cargo (position) do autor
    */
@@ -784,6 +1163,17 @@ export class LeagueReportsService {
       return { items: [] };
     }
 
+    // Condições base
+    const conditions = [
+      eq(kaizens.organizationId, organizationId),
+      inArray(kaizens.projectId, projectIds),
+    ];
+
+    // Adiciona filtro por setor se necessário
+    if (sectorId) {
+      conditions.push(eq(members.sectorId, sectorId));
+    }
+
     // Conta kaizens por position do membro (author)
     const result = await this.db
       .select({
@@ -798,12 +1188,7 @@ export class LeagueReportsService {
           eq(members.organizationId, organizationId),
         ),
       )
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      )
+      .where(and(...conditions))
       .groupBy(members.position);
 
     const items = result.map((r) => ({
@@ -835,6 +1220,17 @@ export class LeagueReportsService {
       return { items: [] };
     }
 
+    // Condições base
+    const conditions = [
+      eq(kaizens.organizationId, organizationId),
+      inArray(kaizens.projectId, projectIds),
+    ];
+
+    // Adiciona filtro por setor se necessário
+    if (sectorId) {
+      conditions.push(eq(members.sectorId, sectorId));
+    }
+
     // Conta kaizens por setor do membro (author)
     const result = await this.db
       .select({
@@ -849,12 +1245,7 @@ export class LeagueReportsService {
           eq(members.organizationId, organizationId),
         ),
       )
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      )
+      .where(and(...conditions))
       .groupBy(members.sector);
 
     const items = result.map((r) => ({
@@ -886,20 +1277,42 @@ export class LeagueReportsService {
       return { items: [] };
     }
 
-    // Conta kaizens por tipo
-    const result = await this.db
-      .select({
-        kaizenTypeId: kaizens.kaizenTypeId,
-        kaizenCount: count(),
-      })
-      .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      )
-      .groupBy(kaizens.kaizenTypeId);
+    // Conta kaizens por tipo (com filtro por setor se necessário)
+    const result = sectorId
+      ? await this.db
+          .select({
+            kaizenTypeId: kaizens.kaizenTypeId,
+            kaizenCount: count(),
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+              eq(members.sectorId, sectorId),
+            ),
+          )
+          .groupBy(kaizens.kaizenTypeId)
+      : await this.db
+          .select({
+            kaizenTypeId: kaizens.kaizenTypeId,
+            kaizenCount: count(),
+          })
+          .from(kaizens)
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+            ),
+          )
+          .groupBy(kaizens.kaizenTypeId);
 
     // Busca nomes dos tipos
     const typeIds = result
@@ -947,19 +1360,40 @@ export class LeagueReportsService {
       return { items: [] };
     }
 
-    // Busca todos os kaizens com benefits
-    const kaizensWithBenefits = await this.db
-      .select({
-        id: kaizens.id,
-        benefits: kaizens.benefits,
-      })
-      .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      );
+    // Busca todos os kaizens com benefits (com filtro por setor se necessário)
+    const kaizensWithBenefits = sectorId
+      ? await this.db
+          .select({
+            id: kaizens.id,
+            benefits: kaizens.benefits,
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+              eq(members.sectorId, sectorId),
+            ),
+          )
+      : await this.db
+          .select({
+            id: kaizens.id,
+            benefits: kaizens.benefits,
+          })
+          .from(kaizens)
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+            ),
+          );
 
     // Conta por kpiId (benefits é um array de { kpiId, description? })
     const kpiCountMap = new Map<string, number>();
@@ -994,7 +1428,8 @@ export class LeagueReportsService {
 
   /**
    * GET /reports/kaizens-per-week
-   * Kaizens agrupados por semana
+   * Kaizens agrupados por data
+   * Nota: Apesar do nome 'per-week', a API original agrupa por DATE
    */
   async getKaizensPerWeek(
     organizationId: string,
@@ -1010,33 +1445,49 @@ export class LeagueReportsService {
       return { items: [] };
     }
 
-    // Agrupa kaizens por semana usando DATE_TRUNC
-    const result = await this.db
-      .select({
-        weekStart: sql<string>`DATE_TRUNC('week', ${kaizens.createdDate})::date`,
-        kaizenCount: count(),
-      })
-      .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      )
-      .groupBy(sql`DATE_TRUNC('week', ${kaizens.createdDate})`)
-      .orderBy(sql`DATE_TRUNC('week', ${kaizens.createdDate})`);
+    // Agrupa kaizens por data (DATE, não semana) - com filtro por setor se necessário
+    const result = sectorId
+      ? await this.db
+          .select({
+            date: sql<string>`DATE(${kaizens.createdDate})`,
+            kaizenCount: count(),
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+              eq(members.sectorId, sectorId),
+            ),
+          )
+          .groupBy(sql`DATE(${kaizens.createdDate})`)
+          .orderBy(sql`DATE(${kaizens.createdDate}) ASC`)
+      : await this.db
+          .select({
+            date: sql<string>`DATE(${kaizens.createdDate})`,
+            kaizenCount: count(),
+          })
+          .from(kaizens)
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+            ),
+          )
+          .groupBy(sql`DATE(${kaizens.createdDate})`)
+          .orderBy(sql`DATE(${kaizens.createdDate}) ASC`);
 
-    const items: KaizensPerWeekItem[] = result.map((r) => {
-      const weekStartDate = new Date(r.weekStart);
-      const weekEndDate = new Date(weekStartDate);
-      weekEndDate.setDate(weekEndDate.getDate() + 6);
-
-      return {
-        weekStart: weekStartDate.toISOString().split("T")[0],
-        weekEnd: weekEndDate.toISOString().split("T")[0],
-        kaizenCount: r.kaizenCount,
-      };
-    });
+    const items: KaizensPerWeekItem[] = result.map((r) => ({
+      date: r.date,
+      kaizenCount: r.kaizenCount,
+    }));
 
     return { items };
   }
@@ -1059,34 +1510,78 @@ export class LeagueReportsService {
       return { items: [] };
     }
 
-    // Para cada projeto, calcula kaizens / participantes
-    const kaizenCountResult = await this.db
-      .select({
-        projectId: kaizens.projectId,
-        kaizenCount: count(),
-      })
-      .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      )
-      .groupBy(kaizens.projectId);
+    // Para cada projeto, calcula kaizens / participantes (com filtro por setor se necessário)
+    const kaizenCountResult = sectorId
+      ? await this.db
+          .select({
+            projectId: kaizens.projectId,
+            kaizenCount: count(),
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+              eq(members.sectorId, sectorId),
+            ),
+          )
+          .groupBy(kaizens.projectId)
+      : await this.db
+          .select({
+            projectId: kaizens.projectId,
+            kaizenCount: count(),
+          })
+          .from(kaizens)
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+            ),
+          )
+          .groupBy(kaizens.projectId);
 
-    const participantCountResult = await this.db
-      .select({
-        projectId: kaizens.projectId,
-        participantCount: countDistinct(kaizens.authorId),
-      })
-      .from(kaizens)
-      .where(
-        and(
-          eq(kaizens.organizationId, organizationId),
-          inArray(kaizens.projectId, projectIds),
-        ),
-      )
-      .groupBy(kaizens.projectId);
+    const participantCountResult = sectorId
+      ? await this.db
+          .select({
+            projectId: kaizens.projectId,
+            participantCount: countDistinct(kaizens.authorId),
+          })
+          .from(kaizens)
+          .leftJoin(
+            members,
+            and(
+              sql`${kaizens.authorId}::uuid = ${members.userId}`,
+              eq(members.organizationId, organizationId),
+            ),
+          )
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+              eq(members.sectorId, sectorId),
+            ),
+          )
+          .groupBy(kaizens.projectId)
+      : await this.db
+          .select({
+            projectId: kaizens.projectId,
+            participantCount: countDistinct(kaizens.authorId),
+          })
+          .from(kaizens)
+          .where(
+            and(
+              eq(kaizens.organizationId, organizationId),
+              inArray(kaizens.projectId, projectIds),
+            ),
+          )
+          .groupBy(kaizens.projectId);
 
     const kaizenMap = new Map(
       kaizenCountResult.map((r) => [r.projectId, r.kaizenCount]),
@@ -1590,7 +2085,7 @@ export class LeagueReportsService {
         ? await this.db
             .select({
               id: users.id,
-              nickname: users.nickname,
+              name: users.name,
               photo: users.photo,
             })
             .from(users)
@@ -1632,7 +2127,7 @@ export class LeagueReportsService {
         result.push({
           progressPercent,
           kpiId,
-          playerName: user?.nickname || "",
+          playerName: user?.name || "",
           playerPhoto: user?.photo || "",
           userId: data.entityId,
           teamName: "",

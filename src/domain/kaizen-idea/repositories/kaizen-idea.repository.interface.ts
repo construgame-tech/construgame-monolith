@@ -7,5 +7,6 @@ export interface IKaizenIdeaRepository {
     organizationId: string,
     ideaId: string,
   ): Promise<KaizenIdeaEntity | null>;
+  findByIdOnly(ideaId: string): Promise<KaizenIdeaEntity | null>;
   findByOrganizationId(organizationId: string): Promise<KaizenIdeaEntity[]>;
 }
