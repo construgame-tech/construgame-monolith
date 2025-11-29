@@ -10,6 +10,7 @@ export * from "./repositories/kaizen.repository.interface";
 export * from "./repositories/kaizen-comment.repository.interface";
 
 // Use Cases - Kaizen
+export * from "./use-cases/approve-kaizen";
 export * from "./use-cases/archive-kaizen";
 export * from "./use-cases/complete-kaizen";
 export * from "./use-cases/create-kaizen";

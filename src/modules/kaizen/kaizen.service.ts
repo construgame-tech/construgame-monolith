@@ -5,6 +5,7 @@ import {
 import type { IKaizenRepository } from "@domain/kaizen/repositories/kaizen.repository.interface";
 import type { IKaizenCommentRepository } from "@domain/kaizen/repositories/kaizen-comment.repository.interface";
 import {
+  approveKaizen,
   archiveKaizen,
   completeKaizen,
   CreateKaizenInput,
@@ -94,6 +95,18 @@ export class KaizenService {
   async complete(kaizenId: string): Promise<KaizenEntity> {
     try {
       const result = await completeKaizen({ kaizenId }, this.kaizenRepository);
+      return result.kaizen;
+    } catch (error) {
+      if (error.message.includes("not found")) {
+        throw new NotFoundException(error.message);
+      }
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async approve(kaizenId: string): Promise<KaizenEntity> {
+    try {
+      const result = await approveKaizen({ kaizenId }, this.kaizenRepository);
       return result.kaizen;
     } catch (error) {
       if (error.message.includes("not found")) {

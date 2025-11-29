@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   ValidateNested,
 } from "class-validator";
 
@@ -70,4 +71,11 @@ export class CreateLeagueDto {
   @IsOptional()
   @IsBoolean()
   hidden?: boolean;
+
+  // Campo opcional para compatibilidade com frontend que envia no body
+  // O valor real é obtido do path param e este campo é ignorado
+  @ApiProperty({ required: false, description: "Ignored - use path param instead" })
+  @IsOptional()
+  @IsUUID()
+  organizationId?: string;
 }

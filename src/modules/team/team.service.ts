@@ -1,4 +1,7 @@
-import { TeamEntity } from "@domain/team/entities/team.entity";
+import {
+  TeamEntity,
+  TeamWithDetails,
+} from "@domain/team/entities/team.entity";
 import type { ITeamRepository } from "@domain/team/repositories/team.repository.interface";
 import {
   CreateTeamInput,
@@ -63,7 +66,9 @@ export class TeamService {
     }
   }
 
-  async listOrganizationTeams(organizationId: string): Promise<TeamEntity[]> {
+  async listOrganizationTeams(
+    organizationId: string,
+  ): Promise<TeamWithDetails[]> {
     const result = await listOrganizationTeams(
       { organizationId },
       this.teamRepository,

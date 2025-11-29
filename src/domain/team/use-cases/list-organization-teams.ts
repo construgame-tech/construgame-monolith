@@ -1,6 +1,6 @@
 // Use Case: Listar todos os teams de uma organização
 
-import { TeamEntity } from "../entities/team.entity";
+import { TeamWithDetails } from "../entities/team.entity";
 import { ITeamRepository } from "../repositories/team.repository.interface";
 
 export interface ListOrganizationTeamsInput {
@@ -8,15 +8,17 @@ export interface ListOrganizationTeamsInput {
 }
 
 export interface ListOrganizationTeamsOutput {
-  teams: TeamEntity[];
+  teams: TeamWithDetails[];
 }
 
 export const listOrganizationTeams = async (
   input: ListOrganizationTeamsInput,
   teamRepository: ITeamRepository,
 ): Promise<ListOrganizationTeamsOutput> => {
-  // Busca todos os teams da organização
-  const teams = await teamRepository.findByOrganizationId(input.organizationId);
+  // Busca todos os teams da organização com detalhes dos membros
+  const teams = await teamRepository.findByOrganizationIdWithDetails(
+    input.organizationId,
+  );
 
   return { teams };
 };

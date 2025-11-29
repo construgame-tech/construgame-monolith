@@ -171,7 +171,7 @@ export class TeamController {
     @Param("organizationId") organizationId: string,
   ): Promise<{ items: TeamResponseDto[] }> {
     const teams = await this.teamService.listOrganizationTeams(organizationId);
-    return { items: teams.map(TeamResponseDto.fromEntity) };
+    return { items: teams.map(TeamResponseDto.fromEntityWithDetails) };
   }
 
   @Patch(":teamId")

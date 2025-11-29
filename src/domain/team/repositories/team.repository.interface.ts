@@ -2,7 +2,7 @@
 // Define o contrato para persistência, sem implementação
 // A implementação real será feita na camada de infraestrutura (DynamoDB, Postgres + Drizzle, etc)
 
-import { TeamEntity } from "../entities/team.entity";
+import { TeamEntity, TeamWithDetails } from "../entities/team.entity";
 
 export interface ITeamRepository {
   // Persiste um team (create ou update)
@@ -16,4 +16,9 @@ export interface ITeamRepository {
 
   // Lista todos os teams de uma organização
   findByOrganizationId(organizationId: string): Promise<TeamEntity[]>;
+
+  // Lista todos os teams de uma organização com detalhes dos membros e manager
+  findByOrganizationIdWithDetails(
+    organizationId: string,
+  ): Promise<TeamWithDetails[]>;
 }

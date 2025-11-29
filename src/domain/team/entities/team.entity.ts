@@ -13,6 +13,20 @@ export interface TeamEntity {
   description?: string;
 }
 
+// Dados básicos de um membro/manager para exibição em listas
+export interface TeamMemberInfo {
+  id: string;
+  name: string;
+  status: "WAITING_CONFIRMATION" | "ACTIVE";
+  photo?: string;
+}
+
+// Team com dados expandidos dos membros e manager
+export interface TeamWithDetails extends TeamEntity {
+  manager?: TeamMemberInfo;
+  membersDetails?: TeamMemberInfo[];
+}
+
 // Factory function para criar um novo team com valores padrão
 export const createTeamEntity = (props: {
   id: string;

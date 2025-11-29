@@ -325,6 +325,38 @@ export class KaizenController {
     return KaizenResponseDto.fromEntity(kaizen);
   }
 
+  @Patch("game/:gameId/kaizen/:kaizenId/approve")
+  @ApiOperation({
+    summary: "Approve kaizen",
+    description: "Approve a completed kaizen (DONE -> APPROVED)",
+  })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiResponse({ status: 200, type: KaizenResponseDto })
+  async approveKaizen(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") kaizenId: string,
+  ): Promise<KaizenResponseDto> {
+    const kaizen = await this.kaizenService.approve(kaizenId);
+    return KaizenResponseDto.fromEntity(kaizen);
+  }
+
+  @Put("game/:gameId/kaizen/:kaizenId/approve")
+  @ApiOperation({
+    summary: "Approve kaizen (PUT alias)",
+    description: "Approve a completed kaizen (DONE -> APPROVED)",
+  })
+  @ApiParam({ name: "gameId", type: String })
+  @ApiParam({ name: "kaizenId", type: String })
+  @ApiResponse({ status: 200, type: KaizenResponseDto })
+  async approveKaizenPut(
+    @Param("gameId") _gameId: string,
+    @Param("kaizenId") kaizenId: string,
+  ): Promise<KaizenResponseDto> {
+    const kaizen = await this.kaizenService.approve(kaizenId);
+    return KaizenResponseDto.fromEntity(kaizen);
+  }
+
   @Patch("game/:gameId/kaizen/:kaizenId/reopen")
   @ApiOperation({
     summary: "Reopen kaizen",

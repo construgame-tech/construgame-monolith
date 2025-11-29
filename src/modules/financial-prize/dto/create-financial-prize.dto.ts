@@ -30,10 +30,11 @@ class FinancialPrizeDetailsDto {
 }
 
 export class CreateFinancialPrizeDto {
-  @ApiProperty()
-  @IsNotEmpty()
+  // Campo opcional - o valor é obtido do path param quando disponível
+  @ApiPropertyOptional({ description: "Optional - use path param when available" })
+  @IsOptional()
   @IsString()
-  organizationId: string;
+  organizationId?: string;
 
   @ApiProperty()
   @IsNotEmpty()
