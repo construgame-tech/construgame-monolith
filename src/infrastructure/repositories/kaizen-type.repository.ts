@@ -70,7 +70,7 @@ export class KaizenTypeRepository implements IKaizenTypeRepository {
       .from(kaizenTypes)
       .where(eq(kaizenTypes.organizationId, organizationId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findLowestPointsType(

@@ -77,7 +77,7 @@ export class WebNotificationRepository implements IWebNotificationRepository {
       .orderBy(desc(webNotifications.createdDate));
 
     return {
-      notifications: result.map(this.mapToEntity),
+      notifications: result.map((row) => this.mapToEntity(row)),
     };
   }
 
@@ -96,7 +96,7 @@ export class WebNotificationRepository implements IWebNotificationRepository {
       )
       .orderBy(desc(webNotifications.createdDate));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async markAsRead(

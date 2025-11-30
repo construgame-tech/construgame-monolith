@@ -68,7 +68,7 @@ export class JobRoleRepository implements IJobRoleRepository {
       .from(jobRoles)
       .where(eq(jobRoles.organizationId, organizationId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   private mapToEntity(row: typeof jobRoles.$inferSelect): JobRoleEntity {

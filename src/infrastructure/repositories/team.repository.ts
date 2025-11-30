@@ -69,7 +69,7 @@ export class TeamRepository implements ITeamRepository {
       .from(teams)
       .where(eq(teams.organizationId, organizationId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findByOrganizationIdWithDetails(

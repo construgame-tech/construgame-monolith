@@ -76,7 +76,7 @@ export class ProjectRepository implements IProjectRepository {
       .from(projects)
       .where(eq(projects.organizationId, organizationId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   private mapToEntity(row: typeof projects.$inferSelect): ProjectEntity {

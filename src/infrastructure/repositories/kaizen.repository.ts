@@ -131,7 +131,7 @@ export class KaizenRepository implements IKaizenRepository {
       .from(kaizens)
       .where(eq(kaizens.id, kaizenIds[0])); // Simple implementation
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findByGameId(gameId: string): Promise<KaizenEntity[]> {
@@ -140,7 +140,7 @@ export class KaizenRepository implements IKaizenRepository {
       .from(kaizens)
       .where(eq(kaizens.gameId, gameId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findByLeaderId(leaderId: string): Promise<KaizenEntity[]> {
@@ -149,7 +149,7 @@ export class KaizenRepository implements IKaizenRepository {
       .from(kaizens)
       .where(eq(kaizens.leaderId, leaderId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findByTeamId(teamId: string): Promise<KaizenEntity[]> {
@@ -158,7 +158,7 @@ export class KaizenRepository implements IKaizenRepository {
       .from(kaizens)
       .where(eq(kaizens.teamId, teamId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findByOrganizationId(organizationId: string): Promise<KaizenEntity[]> {
@@ -167,7 +167,7 @@ export class KaizenRepository implements IKaizenRepository {
       .from(kaizens)
       .where(eq(kaizens.organizationId, organizationId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findByProjectId(
@@ -184,7 +184,7 @@ export class KaizenRepository implements IKaizenRepository {
         ),
       );
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   private mapToEntity(row: typeof kaizens.$inferSelect): KaizenEntity {

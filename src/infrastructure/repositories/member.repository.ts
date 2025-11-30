@@ -82,7 +82,7 @@ export class MemberRepository implements IMemberRepository {
       .from(members)
       .where(eq(members.organizationId, organizationId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findByUserId(userId: string): Promise<MemberEntity[]> {
@@ -91,7 +91,7 @@ export class MemberRepository implements IMemberRepository {
       .from(members)
       .where(eq(members.userId, userId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findByOrganizationIdWithUserData(

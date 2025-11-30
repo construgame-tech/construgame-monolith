@@ -48,7 +48,7 @@ export class KpiRepository implements IKpiRepository {
 
   async findAll(): Promise<KpiEntity[]> {
     const result = await this.db.select().from(kpis);
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findByOrganizationId(organizationId: string): Promise<KpiEntity[]> {
@@ -56,7 +56,7 @@ export class KpiRepository implements IKpiRepository {
       .select()
       .from(kpis)
       .where(eq(kpis.organizationId, organizationId));
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   private mapToEntity(row: typeof kpis.$inferSelect): KpiEntity {

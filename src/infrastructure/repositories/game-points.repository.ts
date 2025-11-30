@@ -22,6 +22,11 @@ export class UserGamePointsRepository implements IUserGamePointsRepository {
   constructor(@Inject("DRIZZLE_CONNECTION") private readonly db: DrizzleDB) {}
 
   async save(points: UserGamePointsEntity): Promise<void> {
+    // Arredonda valores para integer antes de salvar
+    const taskPoints = Math.round(points.taskPoints);
+    const kaizenPoints = Math.round(points.kaizenPoints);
+    const totalPoints = Math.round(points.totalPoints);
+
     await this.db
       .insert(userGamePoints)
       .values({
@@ -29,16 +34,16 @@ export class UserGamePointsRepository implements IUserGamePointsRepository {
         gameId: points.gameId,
         organizationId: points.organizationId,
         projectId: points.projectId,
-        taskPoints: points.taskPoints,
-        kaizenPoints: points.kaizenPoints,
-        totalPoints: points.totalPoints,
+        taskPoints,
+        kaizenPoints,
+        totalPoints,
       })
       .onConflictDoUpdate({
         target: [userGamePoints.userId, userGamePoints.gameId],
         set: {
-          taskPoints: points.taskPoints,
-          kaizenPoints: points.kaizenPoints,
-          totalPoints: points.totalPoints,
+          taskPoints,
+          kaizenPoints,
+          totalPoints,
         },
       });
   }
@@ -67,7 +72,7 @@ export class UserGamePointsRepository implements IUserGamePointsRepository {
       .from(userGamePoints)
       .where(eq(userGamePoints.gameId, gameId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async getLeaderboard(
@@ -81,7 +86,7 @@ export class UserGamePointsRepository implements IUserGamePointsRepository {
       .orderBy(desc(userGamePoints.totalPoints))
       .limit(limit);
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   private mapToEntity(
@@ -104,6 +109,11 @@ export class TeamGamePointsRepository implements ITeamGamePointsRepository {
   constructor(@Inject("DRIZZLE_CONNECTION") private readonly db: DrizzleDB) {}
 
   async save(points: TeamGamePointsEntity): Promise<void> {
+    // Arredonda valores para integer antes de salvar
+    const taskPoints = Math.round(points.taskPoints);
+    const kaizenPoints = Math.round(points.kaizenPoints);
+    const totalPoints = Math.round(points.totalPoints);
+
     await this.db
       .insert(teamGamePoints)
       .values({
@@ -111,16 +121,16 @@ export class TeamGamePointsRepository implements ITeamGamePointsRepository {
         gameId: points.gameId,
         organizationId: points.organizationId,
         projectId: points.projectId,
-        taskPoints: points.taskPoints,
-        kaizenPoints: points.kaizenPoints,
-        totalPoints: points.totalPoints,
+        taskPoints,
+        kaizenPoints,
+        totalPoints,
       })
       .onConflictDoUpdate({
         target: [teamGamePoints.teamId, teamGamePoints.gameId],
         set: {
-          taskPoints: points.taskPoints,
-          kaizenPoints: points.kaizenPoints,
-          totalPoints: points.totalPoints,
+          taskPoints,
+          kaizenPoints,
+          totalPoints,
         },
       });
   }
@@ -149,7 +159,7 @@ export class TeamGamePointsRepository implements ITeamGamePointsRepository {
       .from(teamGamePoints)
       .where(eq(teamGamePoints.gameId, gameId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async getLeaderboard(
@@ -163,7 +173,7 @@ export class TeamGamePointsRepository implements ITeamGamePointsRepository {
       .orderBy(desc(teamGamePoints.totalPoints))
       .limit(limit);
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   private mapToEntity(

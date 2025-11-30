@@ -60,7 +60,7 @@ export class SectorRepository implements ISectorRepository {
       .from(sectors)
       .where(eq(sectors.organizationId, organizationId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   private mapToEntity(row: typeof sectors.$inferSelect): SectorEntity {

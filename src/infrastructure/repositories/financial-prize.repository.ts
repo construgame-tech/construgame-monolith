@@ -66,7 +66,7 @@ export class FinancialPrizeRepository implements IFinancialPrizeRepository {
         ),
       );
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   async findByUser(userId: string): Promise<FinancialPrizeEntity[]> {
@@ -75,7 +75,7 @@ export class FinancialPrizeRepository implements IFinancialPrizeRepository {
       .from(financialPrizes)
       .where(eq(financialPrizes.userId, userId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   private mapToEntity(

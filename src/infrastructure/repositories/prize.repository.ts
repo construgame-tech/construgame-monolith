@@ -60,7 +60,7 @@ export class PrizeRepository implements IPrizeRepository {
       .from(prizes)
       .where(eq(prizes.organizationId, organizationId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   private mapToEntity(row: typeof prizes.$inferSelect): PrizeEntity {

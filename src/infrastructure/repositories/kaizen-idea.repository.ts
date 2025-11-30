@@ -101,7 +101,7 @@ export class KaizenIdeaRepository implements IKaizenIdeaRepository {
       .from(kaizenIdeas)
       .where(eq(kaizenIdeas.organizationId, organizationId));
 
-    return result.map(this.mapToEntity);
+    return result.map((row) => this.mapToEntity(row));
   }
 
   private mapToEntity(row: typeof kaizenIdeas.$inferSelect): KaizenIdeaEntity {
