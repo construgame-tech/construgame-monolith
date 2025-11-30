@@ -1,3 +1,4 @@
+import { OrganizationAccessGuard } from "@common/guards";
 import {
   BadRequestException,
   Controller,
@@ -21,7 +22,7 @@ import { SearchService } from "./search.service";
 
 @ApiTags("search")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("search")
 export class SearchController {
   constructor(private readonly searchService: SearchService) {}

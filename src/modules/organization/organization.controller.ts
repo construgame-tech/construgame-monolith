@@ -1,3 +1,5 @@
+import { OrganizationAccessGuard } from "@common/guards";
+import { createMemberEntity } from "@domain/member/entities/member.entity";
 import {
   createOrganization,
   deleteOrganization,
@@ -5,13 +7,12 @@ import {
   listOrganizations,
   updateOrganization,
 } from "@domain/organization";
-import { createMemberEntity } from "@domain/member/entities/member.entity";
 import { createOrgConfigEntity } from "@domain/organization-config/entities/org-config.entity";
 import { createOrgKaizenConfigEntity } from "@domain/organization-config/entities/org-kaizen-config.entity";
 import { MemberRepository } from "@infrastructure/repositories/member.repository";
-import { OrganizationRepository } from "@infrastructure/repositories/organization.repository";
 import { OrgConfigRepository } from "@infrastructure/repositories/org-config.repository";
 import { OrgKaizenConfigRepository } from "@infrastructure/repositories/org-kaizen-config.repository";
+import { OrganizationRepository } from "@infrastructure/repositories/organization.repository";
 import {
   BadRequestException,
   Body,
@@ -41,7 +42,7 @@ import type { UpdateOrganizationDto } from "./dto/update-organization.dto";
 
 @ApiTags("organization")
 @ApiBearerAuth("JWT-auth")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("organization")
 export class OrganizationController {
   constructor(

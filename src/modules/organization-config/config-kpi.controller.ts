@@ -1,3 +1,4 @@
+import { OrganizationAccessGuard } from "@common/guards";
 import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import { CreateKpiDto } from "@modules/kpi/dto/create-kpi.dto";
 import { KpiResponseDto } from "@modules/kpi/dto/kpi-response.dto";
@@ -24,7 +25,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
  */
 @ApiTags("Config")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("organization/:organizationId/config/kpi")
 export class ConfigKpiController {
   constructor(

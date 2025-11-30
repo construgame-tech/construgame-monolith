@@ -1,3 +1,4 @@
+import { OrganizationAccessGuard } from "@common/guards";
 import {
   Body,
   Controller,
@@ -24,7 +25,7 @@ import { ProjectService } from "./project.service";
 
 @ApiTags("projects")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("organization/:organizationId/project")
 export class ProjectController {
   constructor(

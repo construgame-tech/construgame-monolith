@@ -1,3 +1,4 @@
+import { OrganizationAccessGuard } from "@common/guards";
 import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
   Body,
@@ -20,7 +21,7 @@ import { SectorService } from "./sector.service";
 
 @ApiTags("Sectors")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("organization/:organizationId/config/sector")
 export class SectorController {
   constructor(

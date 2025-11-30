@@ -1,121 +1,116 @@
-# Auditoria de Segurança - Construgame API
+# 🔐 Security Tests - Construgame API
 
-## Ferramentas Recomendadas
+Suite completa de testes de segurança para a API Construgame.
 
-### 1. OWASP ZAP (Principal)
-Scanner automatizado de vulnerabilidades web.
+## 📋 Índice
 
-```bash
-# Instalação via Docker (recomendado)
-docker pull zaproxy/zap-stable
+- [Visão Geral](#visão-geral)
+- [Estrutura](#estrutura)
+- [Quick Start](#quick-start)
+- [Scripts Disponíveis](#scripts-disponíveis)
+- [Testes BOLA/IDOR](#testes-bolaidor)
+- [Relatórios](#relatórios)
+- [CI/CD](#cicd)
 
-# Ou instalação local
-# Linux
-sudo snap install zaproxy --classic
+## 🎯 Visão Geral
 
-# macOS
-brew install --cask owasp-zap
-```
+Esta suite implementa testes de segurança baseados no OWASP API Security Top 10:
 
-### 2. Nuclei
-Scanner baseado em templates, muito rápido.
+| # | Vulnerabilidade | Script |
+|---|----------------|--------|
+| 1 | BOLA (Broken Object Level Authorization) | `bola-test.sh` |
+| 2 | Broken Authentication | `jwt-test.sh` |
+| 3 | Excessive Data Exposure | `pentest.sh` |
+| 4 | Lack of Resources & Rate Limiting | `pentest.sh` |
+| 5 | Broken Function Level Authorization | `bola-test.sh` |
+| 6 | Mass Assignment | `business-logic-test.sh` |
+| 7 | Security Misconfiguration | `smoke-security.sh` |
+| 8 | Injection | `pentest.sh` |
+| 9 | Improper Assets Management | `smoke-security.sh` |
+| 10 | Insufficient Logging & Monitoring | Manual |
 
-```bash
-# Linux/macOS
-go install -v github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+## 📁 Estrutura
 
-# Ou via Docker
-docker pull projectdiscovery/nuclei:latest
-```
+\`\`\`
+security-tests/
+├── README.md                    # Este arquivo
+├── scripts/
+│   ├── smoke-security.sh        # Testes rápidos (~5 min)
+│   ├── full-audit.sh            # Audit completo com ZAP, Nuclei (~30 min)
+│   ├── openapi-scan.sh          # Scan baseado no OpenAPI
+│   ├── pentest.sh               # Pentest automatizado
+│   ├── jwt-test.sh              # Testes de manipulação JWT
+│   ├── bola-test.sh             # Testes BOLA/IDOR (requer tokens)
+│   ├── business-logic-test.sh   # Checklist de business logic
+│   └── setup-pentest-users.sh   # Setup de usuários para BOLA
+├── tokens/                      # Tokens JWT para testes (gitignored)
+├── reports/                     # Relatórios gerados (gitignored)
+└── zap-rules.tsv               # Regras customizadas para ZAP
+\`\`\`
 
-### 3. SQLMap
-Especializado em SQL Injection.
+## 🚀 Quick Start
 
-```bash
-# Linux
-sudo apt install sqlmap
+\`\`\`bash
+# 1. API deve estar rodando
+npm run start:dev &
 
-# macOS
-brew install sqlmap
-
-# Via pip
-pip install sqlmap
-```
-
-### 4. Nikto
-Scanner de web server.
-
-```bash
-# Linux
-sudo apt install nikto
-
-# macOS
-brew install nikto
-```
-
----
-
-## Executando Auditorias
-
-### Smoke Security Test (Rápido - 5 min)
-
-```bash
+# 2. Smoke test (5 min)
 ./security-tests/scripts/smoke-security.sh http://localhost:3000
-```
 
-### Full Security Audit (Completo - 30-60 min)
+# 3. Pentest automatizado
+./security-tests/scripts/pentest.sh http://localhost:3000
 
-```bash
-./security-tests/scripts/full-audit.sh http://localhost:3000
-```
+# 4. Teste JWT
+./security-tests/scripts/jwt-test.sh http://localhost:3000
+\`\`\`
 
-### Scan com OpenAPI/Swagger
+## 📜 Scripts Disponíveis
 
-```bash
-./security-tests/scripts/openapi-scan.sh http://localhost:3000/docs-json
-```
+### 1. Smoke Security
+Testes rápidos: headers, SQLi básico, XSS, rate limiting.
 
----
+### 2. Pentest Automatizado
+Pentest completo: autenticação, SQLi avançado, JWT, rate limiting bypass.
 
-## Relatórios
+### 3. Teste JWT
+Testes de manipulação JWT: algorithm confusion, signature bypass, expiration.
 
-Os relatórios são gerados em `security-tests/reports/`:
+### 4. Full Audit
+Audit com ZAP, Nuclei, SQLMap, Nikto.
 
-| Arquivo | Descrição |
-|---------|-----------|
-| `zap-report-{date}.html` | Relatório visual OWASP ZAP |
-| `nuclei-report-{date}.json` | Vulnerabilidades Nuclei |
-| `sqlmap-report-{date}.txt` | Testes SQL Injection |
-| `consolidated-{date}.md` | Relatório consolidado |
+### 5. Business Logic
+Checklist específico do Construgame: pontos, aprovação, ranking.
 
----
+## 🔒 Testes BOLA/IDOR
 
-## Cronograma Sugerido
+\`\`\`bash
+# 1. Setup usuários
+./security-tests/scripts/setup-pentest-users.sh
 
-| Frequência | Tipo de Teste | Automatizado? |
-|------------|---------------|---------------|
-| A cada PR | Smoke Security | ✅ CI/CD |
-| Semanal | OWASP ZAP Baseline | ✅ Cron |
-| Mensal | Full Audit | ⚠️ Semi-auto |
-| Trimestral | Pentest Manual | ❌ Manual |
+# 2. Salvar tokens
+echo "TOKEN_A" > security-tests/tokens/user-a.token
+echo "TOKEN_B" > security-tests/tokens/user-b.token
 
----
+# 3. Executar
+./security-tests/scripts/bola-test.sh http://localhost:3000
+\`\`\`
 
-## Integração CI/CD (GitHub Actions)
+## 📊 Relatórios
 
-Veja `.github/workflows/security-audit.yml` para execução automatizada.
+Salvos em \`security-tests/reports/\`:
+- \`pentest-report-*.md\` - Pentest automatizado
+- \`jwt-report-*.md\` - Testes JWT
+- \`bola-report-*.md\` - Testes BOLA
+- \`zap-*.html\` - OWASP ZAP
 
----
+## 🔄 CI/CD
 
-## Checklist OWASP API Security Top 10
+Workflow em \`.github/workflows/security-audit.yml\`:
+- PR: Smoke test
+- Weekly: Full audit
+- Manual: Via dispatch
 
-- [ ] **API1:2023** - Broken Object Level Authorization (BOLA)
-- [ ] **API2:2023** - Broken Authentication
-- [ ] **API3:2023** - Broken Object Property Level Authorization
-- [ ] **API4:2023** - Unrestricted Resource Consumption
-- [ ] **API5:2023** - Broken Function Level Authorization
-- [ ] **API6:2023** - Unrestricted Access to Sensitive Business Flows
-- [ ] **API7:2023** - Server Side Request Forgery (SSRF)
-- [ ] **API8:2023** - Security Misconfiguration
-- [ ] **API9:2023** - Improper Inventory Management
-- [ ] **API10:2023** - Unsafe Consumption of APIs
+## ⚠️ Aviso Legal
+
+Apenas para ambientes de desenvolvimento/staging.
+Nunca execute em produção sem autorização.

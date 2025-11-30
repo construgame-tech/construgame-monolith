@@ -1,3 +1,5 @@
+import { OrganizationAccessGuard } from "@common/guards";
+import { GameRepository } from "@infrastructure/repositories/game.repository";
 import {
   BadRequestException,
   Body,
@@ -23,7 +25,6 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
-import { GameRepository } from "@infrastructure/repositories/game.repository";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CreateKaizenDto } from "./dto/create-kaizen.dto";
 import { CreateKaizenCommentDto } from "./dto/create-kaizen-comment.dto";
@@ -35,7 +36,7 @@ import { KaizenService } from "./kaizen.service";
 
 @ApiTags("kaizens")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller()
 export class KaizenController {
   constructor(

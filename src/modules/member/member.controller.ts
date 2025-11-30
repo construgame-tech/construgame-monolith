@@ -1,3 +1,4 @@
+import { OrganizationAccessGuard } from "@common/guards";
 import {
   Body,
   Controller,
@@ -116,7 +117,7 @@ class ImportMembersBodyDto {
 
 @ApiTags("member")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("organization/:organizationId/member")
 export class MemberController {
   constructor(

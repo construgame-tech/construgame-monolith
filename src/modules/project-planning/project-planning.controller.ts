@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { OrganizationAccessGuard } from "@common/guards";
 import { calculateMacrostepProgress } from "@domain/project-planning";
 import { ProjectPlanningRepository } from "@infrastructure/repositories/project-planning.repository";
 import { TaskManagerRepository } from "@infrastructure/repositories/task-manager.repository";
@@ -439,7 +440,7 @@ class ImportMacrostepsBodyDto {
 
 @ApiTags("project-planning")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller()
 export class ProjectPlanningController {
   constructor(

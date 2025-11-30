@@ -1,3 +1,4 @@
+import { OrganizationAccessGuard } from "@common/guards";
 import {
   Body,
   Controller,
@@ -25,7 +26,7 @@ import { KaizenTypeService } from "./kaizen-type.service";
 
 @ApiTags("kaizen-types")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller()
 export class KaizenTypeController {
   constructor(

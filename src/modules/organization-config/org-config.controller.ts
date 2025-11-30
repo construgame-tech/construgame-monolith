@@ -1,3 +1,4 @@
+import { OrganizationAccessGuard } from "@common/guards";
 import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
   Body,
@@ -18,7 +19,7 @@ import { OrgConfigService } from "./org-config.service";
 
 @ApiTags("Organization Config")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("organization/:organizationId/config")
 export class OrgConfigController {
   constructor(

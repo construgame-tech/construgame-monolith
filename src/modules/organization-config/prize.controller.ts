@@ -1,3 +1,4 @@
+import { OrganizationAccessGuard } from "@common/guards";
 import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
   Body,
@@ -21,7 +22,7 @@ import { PrizeService } from "./prize.service";
 
 @ApiTags("Prizes")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("organization/:organizationId/config/prize")
 export class PrizeController {
   constructor(

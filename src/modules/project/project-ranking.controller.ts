@@ -1,3 +1,4 @@
+import { OrganizationAccessGuard } from "@common/guards";
 import {
   Controller,
   Get,
@@ -31,7 +32,7 @@ class ProjectRankingResponseDto {
 
 @ApiTags("ranking")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller()
 export class ProjectRankingController {
   constructor(

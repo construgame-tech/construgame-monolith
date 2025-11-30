@@ -1,6 +1,7 @@
 // Game Controller
 // REST API endpoints para gerenciamento de games usando domain use-cases
 
+import { OrganizationAccessGuard } from "@common/guards";
 import type { GameEntity } from "@domain/game";
 import {
   BadRequestException,
@@ -36,7 +37,7 @@ import { GameService } from "./game.service";
 
 @ApiTags("games")
 @ApiBearerAuth("JWT-auth")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("games")
 export class GameController {
   constructor(

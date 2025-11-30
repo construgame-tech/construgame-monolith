@@ -1,6 +1,7 @@
 // Game Manager Controller
 // Rotas REST API para gerenciamento de game managers
 
+import { OrganizationAccessGuard } from "@common/guards";
 import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
   Body,
@@ -28,7 +29,7 @@ import { GameManagerService } from "./game-manager.service";
 
 @ApiTags("game-manager")
 @ApiBearerAuth("JWT-auth")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("organization/:organizationId/game-manager")
 export class GameManagerController {
   constructor(private readonly gameManagerService: GameManagerService) {}

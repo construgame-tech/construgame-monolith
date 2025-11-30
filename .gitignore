@@ -50,3 +50,4 @@ security-tests/reports/
 
 # Documentação com credenciais (API original)
 docs-api-original-serverless/
+security-tests/tokens/

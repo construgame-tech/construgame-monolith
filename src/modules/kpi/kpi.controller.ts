@@ -1,3 +1,4 @@
+import { OrganizationAccessGuard } from "@common/guards";
 import {
   Body,
   Controller,
@@ -24,7 +25,7 @@ import { KpiService } from "./kpi.service";
 
 @ApiTags("kpis")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("kpis")
 export class KpiController {
   constructor(

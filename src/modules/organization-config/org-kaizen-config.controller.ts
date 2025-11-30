@@ -1,3 +1,4 @@
+import { OrganizationAccessGuard } from "@common/guards";
 import { JwtAuthGuard } from "@modules/auth/jwt-auth.guard";
 import {
   Body,
@@ -17,7 +18,7 @@ import { OrgKaizenConfigService } from "./org-kaizen-config.service";
 
 @ApiTags("Organization Kaizen Config")
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, OrganizationAccessGuard)
 @Controller("organization/:organizationId/config/kaizen")
 export class OrgKaizenConfigController {
   constructor(
