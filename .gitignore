@@ -45,5 +45,8 @@ Thumbs.db
 docker-compose.override.yml
 recalculo-automatico
 
+# Security Tests Reports (gerados dinamicamente, podem conter dados sensíveis)
+security-tests/reports/
+
 # Documentação com credenciais (API original)
 docs-api-original-serverless/

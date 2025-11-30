@@ -1,0 +1,373 @@
+name: Security Audit
+
+on:
+  # Executar semanalmente (domingo à meia-noite)
+  schedule:
+    - cron: "0 0 * * 0"
+
+  # Executar em push para main (apenas smoke test)
+  push:
+    branches: [main]
+
+  # Executar em PRs (apenas smoke test)
+  pull_request:
+    branches: [main]
+
+  # Permitir execução manual
+  workflow_dispatch:
+    inputs:
+      scan_type:
+        description: "Tipo de scan"
+        required: true
+        default: "smoke"
+        type: choice
+        options:
+          - smoke
+          - full
+          - openapi
+
+env:
+  API_URL: http://localhost:3000
+
+jobs:
+  # ============================================================================
+  # Smoke Security Test (rápido, roda em todo PR)
+  # ============================================================================
+  smoke-security:
+    name: Smoke Security Test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event.inputs.scan_type == 'smoke'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: construgame_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run migrations
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/construgame_test
+
+      - name: Start API
+        run: |
+          pnpm start &
+          sleep 10
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/construgame_test
+          NODE_ENV: test
+
+      - name: Run Smoke Security Test
+        run: |
+          chmod +x security-tests/scripts/smoke-security.sh
+          ./security-tests/scripts/smoke-security.sh http://localhost:3000
+        continue-on-error: true
+
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-security-reports
+          path: security-tests/reports/
+          retention-days: 30
+
+  # ============================================================================
+  # OWASP ZAP Baseline Scan
+  # ============================================================================
+  zap-baseline:
+    name: OWASP ZAP Baseline
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.scan_type == 'full'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: construgame_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run migrations
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/construgame_test
+
+      - name: Start API
+        run: |
+          pnpm start &
+          sleep 15
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/construgame_test
+          NODE_ENV: test
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: "http://localhost:3000"
+          rules_file_name: "security-tests/zap-rules.tsv"
+          cmd_options: "-I"
+
+      - name: Upload ZAP Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-reports
+          path: |
+            report_html.html
+            report_json.json
+            report_md.md
+          retention-days: 90
+
+  # ============================================================================
+  # OWASP ZAP API Scan (usando OpenAPI)
+  # ============================================================================
+  zap-api-scan:
+    name: OWASP ZAP API Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.scan_type == 'openapi'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: construgame_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run migrations
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/construgame_test
+
+      - name: Start API
+        run: |
+          pnpm start &
+          sleep 15
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/construgame_test
+          NODE_ENV: test
+
+      - name: Download OpenAPI Spec
+        run: curl -s http://localhost:3000/docs-json > openapi.json
+
+      - name: OWASP ZAP API Scan
+        uses: zaproxy/action-api-scan@v0.5.0
+        with:
+          target: "openapi.json"
+          format: "openapi"
+          cmd_options: "-I"
+
+      - name: Upload API Scan Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zap-api-reports
+          path: |
+            report_html.html
+            report_json.json
+            report_md.md
+          retention-days: 90
+
+  # ============================================================================
+  # Nuclei Vulnerability Scan
+  # ============================================================================
+  nuclei-scan:
+    name: Nuclei Vulnerability Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.scan_type == 'full'
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: construgame_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run migrations
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/construgame_test
+
+      - name: Start API
+        run: |
+          pnpm start &
+          sleep 15
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/construgame_test
+          NODE_ENV: test
+
+      - name: Run Nuclei
+        uses: projectdiscovery/nuclei-action@main
+        with:
+          target: "http://localhost:3000"
+          flags: "-severity critical,high,medium -json-export nuclei-results.json"
+
+      - name: Upload Nuclei Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nuclei-reports
+          path: nuclei-results.json
+          retention-days: 90
+
+  # ============================================================================
+  # Dependency Security Audit
+  # ============================================================================
+  dependency-audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Run pnpm audit
+        run: pnpm audit --json > audit-results.json || true
+
+      - name: Upload Audit Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit
+          path: audit-results.json
+          retention-days: 30
+
+  # ============================================================================
+  # Create Security Report Issue
+  # ============================================================================
+  create-issue:
+    name: Create Security Report Issue
+    runs-on: ubuntu-latest
+    needs: [zap-baseline, nuclei-scan, dependency-audit]
+    if: github.event_name == 'schedule' && always()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: reports
+
+      - name: Create Issue
+        uses: peter-evans/create-issue-from-file@v4
+        with:
+          title: "🔒 Weekly Security Audit Report - ${{ github.run_number }}"
+          content-filepath: .github/ISSUE_TEMPLATE/security-report.md
+          labels: |
+            security
+            automated

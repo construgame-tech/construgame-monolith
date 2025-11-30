@@ -1,4 +1,5 @@
 import { HttpExceptionFilter } from "@common/filters/http-exception.filter";
+import { NoCacheInterceptor } from "@common/interceptors/no-cache.interceptor";
 import { TransformInterceptor } from "@common/interceptors/transform.interceptor";
 import helmet from "@fastify/helmet";
 import type { INestApplication } from "@nestjs/common";
@@ -56,7 +57,10 @@ async function bootstrap() {
 
   // Apply global filters and interceptors
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.useGlobalInterceptors(new TransformInterceptor());
+  app.useGlobalInterceptors(
+    new NoCacheInterceptor(),
+    new TransformInterceptor(),
+  );
 
   // Swagger configuration
   const config = new DocumentBuilder()

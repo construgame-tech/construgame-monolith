@@ -1,0 +1,44 @@
+# Regras de configuração do OWASP ZAP
+# Formato: <rule_id>	<action>	<name>
+# Actions: IGNORE, WARN, FAIL
+# 
+# Documentação: https://www.zaproxy.org/docs/docker/baseline-scan/
+
+# Ignorar alertas de baixo risco em ambiente de desenvolvimento
+10021	WARN	X-Content-Type-Options Header Missing
+10038	WARN	Content Security Policy (CSP) Header Not Set
+10098	WARN	Cross-Domain Misconfiguration
+
+# Falhar em vulnerabilidades críticas
+40012	FAIL	Cross Site Scripting (Reflected)
+40014	FAIL	Cross Site Scripting (Persistent)
+40016	FAIL	Cross Site Scripting (Persistent) - Prime
+40017	FAIL	Cross Site Scripting (Persistent) - Spider
+90019	FAIL	Server Side Include
+90020	FAIL	Remote OS Command Injection
+90021	FAIL	XPath Injection
+90023	FAIL	XML External Entity Attack
+40018	FAIL	SQL Injection
+40019	FAIL	SQL Injection - MySQL
+40020	FAIL	SQL Injection - Hypersonic SQL
+40021	FAIL	SQL Injection - Oracle
+40022	FAIL	SQL Injection - PostgreSQL
+40024	FAIL	SQL Injection - SQLite
+
+# Avisar sobre problemas de configuração
+10035	WARN	Strict-Transport-Security Header Not Set
+10036	WARN	Server Leaks Version Information via "Server" HTTP Response Header Field
+10037	WARN	Server Leaks Information via "X-Powered-By" HTTP Response Header Field(s)
+10040	WARN	Secure Pages Include Mixed Content
+10054	WARN	Cookie without SameSite Attribute
+10055	WARN	CSP: Wildcard Directive
+10096	WARN	Timestamp Disclosure - Unix
+10109	WARN	Modern Web Application
+10110	WARN	Dangerous JS Functions
+
+# Ignorar falsos positivos comuns
+10015	IGNORE	Incomplete or No Cache-control and Pragma HTTP Header Set
+10017	IGNORE	Cross-Domain JavaScript Source File Inclusion
+10027	IGNORE	Information Disclosure - Suspicious Comments
+10094	IGNORE	Base64 Disclosure
+10095	IGNORE	Backup File Disclosure
