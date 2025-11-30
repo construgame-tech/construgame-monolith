@@ -1,5 +1,5 @@
 {
-  "id": "291ef255-e0a0-4767-bf19-0cd19b148dc4",
+  "id": "8478e3cc-5e3b-4644-8ef2-6a240afbc3b6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -148,247 +148,6 @@
         }
       },
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.game_manager_tasks": {
-      "name": "game_manager_tasks",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "game_manager_id": {
-          "name": "game_manager_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "project_id": {
-          "name": "project_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "kpi_id": {
-          "name": "kpi_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reward_points": {
-          "name": "reward_points",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "game_manager_tasks_game_manager_id_game_managers_id_fk": {
-          "name": "game_manager_tasks_game_manager_id_game_managers_id_fk",
-          "tableFrom": "game_manager_tasks",
-          "tableTo": "game_managers",
-          "columnsFrom": [
-            "game_manager_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "game_manager_tasks_organization_id_organizations_id_fk": {
-          "name": "game_manager_tasks_organization_id_organizations_id_fk",
-          "tableFrom": "game_manager_tasks",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "game_manager_tasks_project_id_projects_id_fk": {
-          "name": "game_manager_tasks_project_id_projects_id_fk",
-          "tableFrom": "game_manager_tasks",
-          "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.game_managers": {
-      "name": "game_managers",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "project_id": {
-          "name": "project_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "photo": {
-          "name": "photo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "objective": {
-          "name": "objective",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "update_frequency": {
-          "name": "update_frequency",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "manager_id": {
-          "name": "manager_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "responsibles": {
-          "name": "responsibles",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "end_date": {
-          "name": "end_date",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "game_length": {
-          "name": "game_length",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "game_managers_organization_id_organizations_id_fk": {
-          "name": "game_managers_organization_id_organizations_id_fk",
-          "tableFrom": "game_managers",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "game_managers_project_id_projects_id_fk": {
-          "name": "game_managers_project_id_projects_id_fk",
-          "tableFrom": "game_managers",
-          "tableTo": "projects",
-          "columnsFrom": [
-            "project_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -941,29 +700,11 @@
           "primaryKey": false,
           "notNull": true
         },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "reward_points": {
           "name": "reward_points",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
-        },
-        "idea_points": {
-          "name": "idea_points",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "idea_execution_points": {
-          "name": "idea_execution_points",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
         },
         "sequence": {
           "name": "sequence",
@@ -1304,24 +1045,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "type": {
-          "name": "type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "kpi_type": {
-          "name": "kpi_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "photo": {
-          "name": "photo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
         "sequence": {
           "name": "sequence",
           "type": "integer",
@@ -1364,42 +1087,17 @@
           "primaryKey": true,
           "notNull": true
         },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
         "game_id": {
           "name": "game_id",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": false
-        },
-        "responsible_id": {
-          "name": "responsible_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'ACTIVE'"
+          "notNull": true
         },
         "name": {
           "name": "name",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
-        },
-        "photo": {
-          "name": "photo",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         },
         "description": {
           "name": "description",
@@ -1425,25 +1123,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "projects": {
-          "name": "projects",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "games": {
-          "name": "games",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "hidden": {
-          "name": "hidden",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": false
-        },
         "sequence": {
           "name": "sequence",
           "type": "integer",
@@ -1453,21 +1132,6 @@
         }
       },
       "indexes": {
-        "leagues_organization_id_idx": {
-          "name": "leagues_organization_id_idx",
-          "columns": [
-            {
-              "expression": "organization_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
         "leagues_game_id_idx": {
           "name": "leagues_game_id_idx",
           "columns": [
@@ -3577,57 +3241,6 @@
           "tableTo": "task_templates",
           "columnsFrom": [
             "task_template_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.reusable_checklist_templates": {
-      "name": "reusable_checklist_templates",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "organization_id": {
-          "name": "organization_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "checklist": {
-          "name": "checklist",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "reusable_checklist_templates_organization_id_organizations_id_fk": {
-          "name": "reusable_checklist_templates_organization_id_organizations_id_fk",
-          "tableFrom": "reusable_checklist_templates",
-          "tableTo": "organizations",
-          "columnsFrom": [
-            "organization_id"
           ],
           "columnsTo": [
             "id"

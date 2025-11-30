@@ -24,9 +24,12 @@ async function runMigrations() {
 
   const db = drizzle(pool);
 
+  // Caminho para a pasta de migrations (raiz do projeto/drizzle/migrations)
+  const migrationsPath = path.resolve(__dirname, "../../../drizzle/migrations");
+
   try {
     await migrate(db, {
-      migrationsFolder: path.join(__dirname, "migrations"),
+      migrationsFolder: migrationsPath,
     });
 
     console.log("✅ Migrations completed successfully!");
